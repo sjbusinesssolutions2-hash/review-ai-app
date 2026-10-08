@@ -1,1 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review AI - Automate Google Reviews</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { text-align: center; margin-bottom: 8px; color: #111; }
+        p { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        .btn { width: 100%; padding: 14px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .toggle-box { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-top: 16px; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h2>Review AI Engine</h2>
+    <p>Automate your 5-star Google review replies instantly with AI.</p>
+    
+    <form id="clientForm">
+        <div class="form-group">
+            <label>Business Name</label>
+            <input type="text" id="businessName" placeholder="e.g. Acme Dental Clinic" required>
+        </div>
+        <div class="form-group">
+            <label>Support Email (For Negative Reviews)</label>
+            <input type="email" id="supportEmail" placeholder="e.g. owner@acmedental.com" required>
+        </div>
+        
+        <div class="toggle-box">
+            <span><strong>Enable AI Auto-Replies</strong></span>
+            <input type="checkbox" id="aiToggle" checked style="width: auto;">
+        </div>
+        
+        <br>
+        <button type="submit" class="btn">Connect Google & Start (₹1,999/mo)</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('clientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert("Redirecting to payment & Google login...");
+        // This will point to your backend server once deployed
+        window.location.href = "#";
+    });
+</script>
+
+</body>
+</html>
+
+ 
