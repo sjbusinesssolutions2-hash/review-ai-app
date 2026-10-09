@@ -3,99 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review AI - Automate Google Reviews</title>
+    <title>Review AI - Google Review Management</title>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #f4f6f8; 
-            margin: 0; 
-            padding: 20px; 
-            color: #333; 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .container { 
-            max-width: 480px; 
-            margin: 40px auto; 
-            background: #ffffff; 
-            border-radius: 12px; 
-            padding: 30px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
         }
-        h2 { text-align: center; margin-bottom: 8px; color: #111; }
-        p { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-        input[type="text"], input[type="email"] { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 15px; 
+
+        h1, h2 {
+            color: #1a73e8;
+            margin-bottom: 10px;
         }
-        .btn { 
-            width: 100%; 
-            padding: 14px; 
-            background: #2563eb; 
-            color: #ffffff; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 16px; 
-            cursor: pointer; 
-            transition: background 0.2s ease;
+
+        p {
+            color: #5f6368;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 25px;
         }
-        .btn:hover { background: #1d4ed8; }
-        .toggle-box { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            background: #f8fafc; 
-            border: 1px solid #e2e8f0; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-top: 16px; 
+
+        .btn-connect {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-connect:hover {
+            background-color: #1557b0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #e6f4ea;
+            color: #137333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .btn-logout {
+            background-color: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #f2b2b2;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        footer a {
+            color: #1a73e8;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Review AI Engine</h2>
-    <p>Automate your 5-star Google review replies instantly with AI.</p>
-    
-    <form id="clientForm">
-        <div class="form-group">
-            <label for="businessName">Business Name</label>
-            <input type="text" id="businessName" placeholder="e.g. Acme Dental Clinic" required>
+    <div class="card">
+        <!-- LOGIN SECTION (Visible by default) -->
+        <div id="login-section">
+            <h1>Review AI</h1>
+            <p>Automate your Google Business Profile review responses effortlessly.</p>
+            <a href="https://review-ai-backend-03sb.onrender.com/auth/google" class="btn-connect">
+                Connect Google & Start
+            </a>
         </div>
-        <div class="form-group">
-            <label for="supportEmail">Support Email (For Negative Reviews)</label>
-            <input type="email" id="supportEmail" placeholder="e.g. owner@acmedental.com" required>
-        </div>
-        
-        <div class="toggle-box">
-            <span><strong>Enable AI Auto-Replies</strong></span>
-            <input type="checkbox" id="aiToggle" checked style="width: auto;">
-        </div>
-        
-        <br>
-        <button type="submit" class="btn">Connect Google & Start (₹1,999/mo)</button>
-    </form>
-</div>
 
-<script>
-    document.getElementById('clientForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Redirect directly to your live backend's Google OAuth flow
-        window.location.href = "https://review-ai-backend-03sb.onrender.com/auth/google";
-    });
-</script>
+        <!-- DASHBOARD SECTION (Hidden by default) -->
+        <div id="dashboard-section" style="display: none;">
+            <div class="status-badge">✓ Google Account Connected</div>
+            <h2>Dashboard</h2>
+            <p>Review AI is running in the background and ready to process incoming customer reviews.</p>
+            
+            <button class="btn-logout" onclick="logout()">Disconnect Account</button>
+        </div>
+
+        <footer>
+            <a href="privacy.html" target="_blank">Privacy Policy</a>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            if (status === 'connected') {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+            } else if (status === 'error') {
+                alert('Connection failed. Please try logging in again.');
+            }
+        });
+
+        function logout() {
+            window.location.href = 'https://sjbusinesssolutions2-hash.github.io/review-ai-app/';
+        }
+    </script>
 
 </body>
 </html>
 
-
-      
 
   
