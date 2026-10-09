@@ -96,7 +96,7 @@
 <body>
 
     <div class="card">
-        <!-- LOGIN SECTION (Visible by default) -->
+        <!-- LOGIN SECTION -->
         <div id="login-section">
             <h1>Review AI</h1>
             <p>Automate your Google Business Profile review responses effortlessly.</p>
@@ -105,12 +105,23 @@
             </a>
         </div>
 
-        <!-- DASHBOARD SECTION (Hidden by default) -->
+        <!-- DASHBOARD SECTION -->
         <div id="dashboard-section" style="display: none;">
             <div class="status-badge">✓ Google Account Connected</div>
             <h2>Dashboard</h2>
-            <p>Review AI is running in the background and ready to process incoming customer reviews.</p>
-            
+            <p>Review AI is active and ready to process reviews.</p>
+
+            <!-- Test Generator Box -->
+            <div style="background: #f8f9fa; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #333;">Test AI Generator</h3>
+                <label style="font-size: 13px; font-weight: bold;">Review Text:</label>
+                <textarea id="test-review" style="width: 100%; height: 60px; margin-top: 5px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; padding: 6px; box-sizing: border-box;">Great food and friendly staff, but the wait time was a bit long.</textarea>
+                
+                <button onclick="testAiReply()" class="btn-connect" style="width: 100%; padding: 10px; font-size: 14px;">Generate AI Reply</button>
+                
+                <div id="reply-output" style="margin-top: 15px; font-size: 14px; background: #fff; padding: 10px; border-radius: 4px; border: 1px dashed #1a73e8; display: none; text-align: left;"></div>
+            </div>
+
             <button class="btn-logout" onclick="logout()">Disconnect Account</button>
         </div>
 
@@ -131,6 +142,31 @@
                 alert('Connection failed. Please try logging in again.');
             }
         });
+
+        async function testAiReply() {
+            const reviewText = document.getElementById('test-review').value;
+            const outputDiv = document.getElementById('reply-output');
+            
+            outputDiv.style.display = 'block';
+            outputDiv.innerText = 'Generating AI response...';
+
+            try {
+                const response = await fetch('https://review-ai-backend-03sb.onrender.com/api/generate-reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviewText: reviewText, starRating: 4 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    outputDiv.innerHTML = '<strong>Generated Reply:</strong><br><br>' + data.reply;
+                } else {
+                    outputDiv.innerText = 'Error: ' + (data.error || 'Failed to generate reply');
+                }
+            } catch (err) {
+                outputDiv.innerText = 'Network error while contacting backend.';
+            }
+        }
 
         function logout() {
             window.location.href = 'https://sjbusinesssolutions2-hash.github.io/review-ai-app/';
