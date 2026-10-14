@@ -1,5 +1,5 @@
 const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
-const CLIENT_ID = '331899144458-7o5l3l1q3s6v78d2b9l7n2m0p4q8v1r5.apps.googleusercontent.com'; // Replace with your GCP Client ID if different
+const CLIENT_ID = '247056519129-c9ja3k137duacc4akkej5fe9856crgr3.apps.googleusercontent.com'; // Replace with your GCP Client ID if different
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('googleLoginBtn');
