@@ -19,13 +19,17 @@ async function initDashboard() {
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/locations`, {
-      headers: { 'Authorization': `Bearer ${userAccessToken}` }
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${userAccessToken}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     const data = await res.json();
 
     if (!data.success) {
-      statusDiv.innerText = `Error finding location: ${data.error}`;
+      statusDiv.innerText = `Error finding location: ${data.error || 'Unauthorized or invalid token'}`;
       return;
     }
 
@@ -36,7 +40,7 @@ async function initDashboard() {
     await fetchAndRenderReviews();
   } catch (err) {
     console.error(err);
-    statusDiv.innerText = 'Failed to connect to backend server.';
+    statusDiv.innerText = 'Failed to connect to backend server or invalid response format.';
   }
 }
 
@@ -48,7 +52,11 @@ async function fetchAndRenderReviews() {
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews?locationName=${encodeURIComponent(locationName)}`, {
-      headers: { 'Authorization': `Bearer ${userAccessToken}` }
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${userAccessToken}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     const data = await res.json();
