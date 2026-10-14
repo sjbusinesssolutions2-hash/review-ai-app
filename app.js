@@ -15,21 +15,28 @@ async function initDashboard() {
   }
 
   userAccessToken = tokenInput;
-  statusDiv.innerText = 'Finding business location...';
+  statusDiv.innerText = 'Connecting to backend...';
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/locations`, {
       method: 'GET',
+      mode: 'cors', // Explicitly allow cross-origin requests
       headers: { 
         'Authorization': `Bearer ${userAccessToken}`,
-        'Content-Type': 'application/json'
+        'Accept': 'application/json'
       }
     });
+
+    // Check if the response is actually JSON before parsing
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Server returned non-JSON response (HTML error page).');
+    }
 
     const data = await res.json();
 
     if (!data.success) {
-      statusDiv.innerText = `Error finding location: ${data.error || 'Unauthorized or invalid token'}`;
+      statusDiv.innerText = `Error finding location: ${data.error || 'Invalid token or unauthorized'}`;
       return;
     }
 
@@ -40,7 +47,7 @@ async function initDashboard() {
     await fetchAndRenderReviews();
   } catch (err) {
     console.error(err);
-    statusDiv.innerText = 'Failed to connect to backend server or invalid response format.';
+    statusDiv.innerText = `Connection Error: ${err.message}`;
   }
 }
 
@@ -53,11 +60,17 @@ async function fetchAndRenderReviews() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews?locationName=${encodeURIComponent(locationName)}`, {
       method: 'GET',
+      mode: 'cors',
       headers: { 
         'Authorization': `Bearer ${userAccessToken}`,
-        'Content-Type': 'application/json'
+        'Accept': 'application/json'
       }
     });
+
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Server returned non-JSON response.');
+    }
 
     const data = await res.json();
 
@@ -95,7 +108,7 @@ async function fetchAndRenderReviews() {
     });
   } catch (err) {
     console.error(err);
-    statusDiv.innerText = 'Failed to load reviews.';
+    statusDiv.innerText = `Failed to load reviews: ${err.message}`;
   }
 }
 
@@ -112,9 +125,11 @@ async function submitReply(reviewName) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews/reply`, {
       method: 'POST',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAccessToken}`
+        'Authorization': `Bearer ${userAccessToken}`,
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ reviewName, replyText })
     });
