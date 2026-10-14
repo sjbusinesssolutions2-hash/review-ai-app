@@ -20,17 +20,16 @@ async function initDashboard() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/locations`, {
       method: 'GET',
-      mode: 'cors', // Explicitly allow cross-origin requests
       headers: { 
-        'Authorization': `Bearer ${userAccessToken}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${userAccessToken}`
       }
     });
 
-    // Check if the response is actually JSON before parsing
-    const contentType = res.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Server returned non-JSON response (HTML error page).');
+    // If the server returns an error code, display the exact text response on screen
+    if (!res.ok) {
+      const errorText = await res.text();
+      statusDiv.innerText = `Server Error (${res.status}): ${errorText.substring(0, 120)}`;
+      return;
     }
 
     const data = await res.json();
@@ -47,7 +46,7 @@ async function initDashboard() {
     await fetchAndRenderReviews();
   } catch (err) {
     console.error(err);
-    statusDiv.innerText = `Connection Error: ${err.message}`;
+    statusDiv.innerText = `Connection Failed: ${err.message}`;
   }
 }
 
@@ -60,16 +59,15 @@ async function fetchAndRenderReviews() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews?locationName=${encodeURIComponent(locationName)}`, {
       method: 'GET',
-      mode: 'cors',
       headers: { 
-        'Authorization': `Bearer ${userAccessToken}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${userAccessToken}`
       }
     });
 
-    const contentType = res.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Server returned non-JSON response.');
+    if (!res.ok) {
+      const errorText = await res.text();
+      statusDiv.innerText = `Review Fetch Error (${res.status}): ${errorText.substring(0, 120)}`;
+      return;
     }
 
     const data = await res.json();
@@ -125,11 +123,9 @@ async function submitReply(reviewName) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews/reply`, {
       method: 'POST',
-      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAccessToken}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${userAccessToken}`
       },
       body: JSON.stringify({ reviewName, replyText })
     });
