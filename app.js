@@ -11,18 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Check for returning OAuth authorization code
+  // Check for returning OAuth code
   const urlParams = new URLSearchParams(window.location.search);
   const authCode = urlParams.get('code');
   if (authCode) {
     window.history.replaceState({}, document.title, window.location.pathname);
     exchangeCodeForToken(authCode);
   } else {
-    // Check if session token already exists
+    // Check for existing session token
     const savedToken = sessionStorage.getItem('google_access_token');
     if (savedToken) {
       document.getElementById('authCard').style.display = 'none';
-      loadReviews(savedToken);
+      runAutopilotEngine(savedToken);
     }
   }
 });
@@ -44,8 +44,8 @@ async function exchangeCodeForToken(code) {
 
     sessionStorage.setItem('google_access_token', data.accessToken);
     document.getElementById('authCard').style.display = 'none';
-    statusMessage.innerText = `Welcome, ${data.email}! Loading reviews...`;
-    loadReviews(data.accessToken);
+    statusMessage.innerText = `Welcome, ${data.email}! Starting AI Auto-Pilot...`;
+    runAutopilotEngine(data.accessToken);
   } catch (err) {
     statusMessage.innerText = 'Authentication Error: ' + err.message;
   }
@@ -64,120 +64,63 @@ function renderStars(starRating) {
   return starsHtml;
 }
 
-async function loadReviews(accessToken) {
+async function runAutopilotEngine(accessToken) {
   const reviewsContainer = document.getElementById('reviewsContainer');
   const statusMessage = document.getElementById('statusMessage');
   reviewsContainer.innerHTML = '';
 
   try {
+    // 1. Get Location
     const locRes = await fetch(`${BACKEND_URL}/api/locations`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     const locData = await locRes.json();
-    if (!locData.success) throw new Error(locData.error);
+    const locationName = locData.locationName || 'locations/default';
 
-    const locationName = locData.locationName;
-    statusMessage.innerText = `Connected! Loading reviews...`;
+    statusMessage.innerText = '🤖 AI Auto-Pilot active: Scanning reviews & generating responses...';
 
-    const revRes = await fetch(`${BACKEND_URL}/api/reviews?locationName=${encodeURIComponent(locationName)}`, {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    const revData = await revRes.json();
-    if (!revData.success) throw new Error(revData.error);
-
-    const reviews = revData.reviews || [];
-    statusMessage.innerText = `Loaded ${reviews.length} review(s).`;
-
-    if (reviews.length === 0) {
-      reviewsContainer.innerHTML = '<p style="color: #94a3b8; text-align: center;">No reviews found.</p>';
-      return;
-    }
-
-    reviews.forEach(review => {
-      const sanitizedId = review.name.replace(/[\/\.]/g, '_');
-      const reviewerName = review.reviewer?.displayName || 'Anonymous Customer';
-      const commentText = review.comment || 'No comment provided.';
-      const starRating = review.starRating || 'FIVE';
-
-      const card = document.createElement('div');
-      card.className = 'review-card';
-      card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <strong style="color: #f8fafc; font-size: 15px;">${reviewerName}</strong>
-          <span>${renderStars(starRating)}</span>
-        </div>
-        <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 12px; line-height: 1.4;">${commentText}</p>
-        <div style="background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-size: 12px; color: #94a3b8; font-weight: 600;">AI Response Studio:</label>
-            <button onclick="generateAiReply('${review.name}', '${encodeURIComponent(commentText)}', '${starRating}', this)" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">✨ AI Reply</button>
-          </div>
-          <textarea id="reply-${sanitizedId}" placeholder="Write or edit reply..." style="width: 100%; min-height: 70px; background: #1e293b; color: white; border: 1px solid #475569; border-radius: 6px; padding: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
-          <button onclick="submitReply('${review.name}', '${accessToken}')" style="margin-top: 8px; width: 100%; background: #2563eb; color: white; border: none; padding: 9px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer;">Send Reply</button>
-        </div>
-      `;
-      reviewsContainer.appendChild(card);
-    });
-  } catch (error) {
-    statusMessage.innerText = 'Error: ' + error.message;
-  }
-}
-
-async function generateAiReply(reviewName, encodedComment, starRating, buttonElement) {
-  const comment = decodeURIComponent(encodedComment);
-  const sanitizedId = reviewName.replace(/[\/\.]/g, '_');
-  const textarea = document.getElementById(`reply-${sanitizedId}`);
-
-  const originalText = buttonElement.innerText;
-  buttonElement.innerText = "Thinking...";
-  buttonElement.disabled = true;
-
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/ai/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reviewText: comment, starRating: starRating })
-    });
-    const data = await response.json();
-    if (data.success) {
-      textarea.value = data.reply;
-    } else {
-      alert('AI Error: ' + (data.error || 'Unknown error'));
-    }
-  } catch (err) {
-    alert('Network error connecting to AI endpoint.');
-  } finally {
-    buttonElement.innerText = originalText;
-    buttonElement.disabled = false;
-  }
-}
-
-async function submitReply(reviewName, accessToken) {
-  const sanitizedId = reviewName.replace(/[\/\.]/g, '_');
-  const textarea = document.getElementById(`reply-${sanitizedId}`);
-  const replyText = textarea.value.trim();
-
-  if (!replyText) {
-    alert('Please enter or generate a reply.');
-    return;
-  }
-
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/reviews/reply`, {
+    // 2. Trigger Backend Autopilot Loop
+    const autoRes = await fetch(`${BACKEND_URL}/api/reviews/autopilot`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ reviewName, replyText })
+      body: JSON.stringify({ locationName })
     });
-    const data = await response.json();
-    if (data.success) {
-      alert('Reply successfully posted to Google & saved to MongoDB!');
-    } else {
-      alert('Error: ' + (data.error || 'Unknown error'));
+
+    const autoData = await autoRes.json();
+    if (!autoData.success) throw new Error(autoData.error);
+
+    statusMessage.innerHTML = `<span style="color: #10b981; font-weight: bold;">⚡ ${autoData.message}</span>`;
+
+    const logs = autoData.activityLog || [];
+    if (logs.length === 0) {
+      reviewsContainer.innerHTML = '<p style="color: #94a3b8; text-align: center;">All reviews are fully answered! Auto-Pilot is standby for new reviews.</p>';
+      return;
     }
-  } catch (err) {
-    alert('Network error posting reply.');
+
+    // 3. Render Automation Log Cards
+    logs.forEach(log => {
+      const card = document.createElement('div');
+      card.className = 'review-card';
+      card.style.cssText = 'background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; margin-bottom: 16px;';
+      
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <strong style="color: #f8fafc; font-size: 15px;">${log.reviewer}</strong>
+          <span>${renderStars(log.rating)}</span>
+        </div>
+        <p style="color: #cbd5e1; font-size: 13px; margin-bottom: 12px; line-height: 1.4;"><strong>Customer:</strong> "${log.comment}"</p>
+        <div style="background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #1e293b;">
+          <div style="font-size: 11px; color: #a855f7; font-weight: bold; margin-bottom: 4px;">✨ Auto-Posted AI Reply:</div>
+          <p style="color: #38bdf8; font-size: 13px; margin: 0; line-height: 1.4;">${log.reply}</p>
+        </div>
+      `;
+      reviewsContainer.appendChild(card);
+    });
+
+  } catch (error) {
+    statusMessage.innerText = 'Auto-Pilot Error: ' + error.message;
   }
 }
