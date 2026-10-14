@@ -1,153 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review AI - Google Review Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .card {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-        }
-
-        h1, h2 {
-            color: #1a73e8;
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: #5f6368;
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-
-        .btn-connect {
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-connect:hover {
-            background-color: #1557b0;
-        }
-
-        .status-badge {
-            display: inline-block;
-            background-color: #e6f4ea;
-            color: #137333;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .btn-logout {
-            background-color: #fce8e6;
-            color: #c5221f;
-            border: 1px solid #f2b2b2;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .btn-logout:hover {
-            background-color: #f8d7da;
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 12px;
-        }
-
-        footer a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review AI Dashboard</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 16px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #333;
+    }
+    .btn {
+      background-color: #1a73e8;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn:disabled {
+      background-color: #444;
+      cursor: not-allowed;
+    }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background-color: #2a2a2a;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 8px;
+      margin-top: 8px;
+      resize: vertical;
+    }
+    .star-rating {
+      color: #fbc02d;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Google Reviews AI Dashboard</h1>
 
     <div class="card">
-        <!-- LOGIN SECTION (Visible by default) -->
-        <div id="login-section">
-            <h1>Review AI</h1>
-            <p>Automate your Google Business Profile review responses effortlessly.</p>
-            <a href="https://review-ai-backend-03sb.onrender.com/auth/google" class="btn-connect">
-                Connect Google & Start
-            </a>
-        </div>
-
-        <!-- DASHBOARD SECTION (Hidden by default) -->
-        <div id="dashboard-section" style="display: none;">
-            <div class="status-badge">✓ Google Account Connected</div>
-            <h2>Autopilot Active</h2>
-            <p>Review AI is running in the background. It checks your Google Business Profile every 5 minutes and automatically posts AI replies to new reviews.</p>
-
-            <div style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-                <h3 style="margin: 0 0 10px 0; color: #3730a3;">🤖 Automation Status</h3>
-                <p style="margin: 0; font-weight: bold; color: #166534;">● Monitoring Google Reviews Live</p>
-            </div>
-
-            <button class="btn-logout" onclick="logout()">Disconnect Account</button>
-        </div>
-
-        <footer>
-            <a href="privacy.html" target="_blank">Privacy Policy</a>
-        </footer>
+      <label for="accessToken"><strong>Google Access Token:</strong></label>
+      <input type="text" id="accessToken" placeholder="Paste your Access Token here..." style="width:100%; box-sizing:border-box; padding:8px; margin-top:8px; background:#2a2a2a; color:#fff; border:1px solid #444; border-radius:4px;">
+      <button class="btn" id="loadLocationBtn" onclick="initDashboard()">Connect & Load Reviews</button>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
+    <div id="statusMessage" style="margin-bottom: 16px; color: #888;"></div>
 
-            if (status === 'connected') {
-                // Hide login button, show connected dashboard
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('dashboard-section').style.display = 'block';
-            } else {
-                // Ensure login button is shown, dashboard is hidden
-                document.getElementById('login-section').style.display = 'block';
-                document.getElementById('dashboard-section').style.display = 'none';
-                if (status === 'error') {
-                    alert('Connection failed. Please try logging in again.');
-                }
-            }
-        });
+    <div id="reviewsContainer"></div>
+  </div>
 
-        function logout() {
-            window.location.href = 'https://sjbusinesssolutions2-hash.github.io/review-ai-app/';
-        }
-    </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
 
