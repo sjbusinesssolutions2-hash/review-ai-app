@@ -1,9 +1,12 @@
 const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
-const GOOGLE_CLIENT_ID = '247056519129-c9ja3k137duacc4akkej5fe9856crgr3.apps.googleusercontent.com'; // Replace with your actual Client ID from Google Cloud Console
+const GOOGLE_CLIENT_ID = '247056519129-c9ja3k137duacc4akkej5fe9856crgr3.apps.googleusercontent.com'; // Replace with your OAuth Client ID
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-// 1. Direct Page Redirect Google OAuth Handler (Mobile Popup Protection)
+// 1. Direct Page Redirect Google OAuth Handler
 function loginWithGoogle() {
+  // Clear any existing stored sessions before requesting a new login
+  localStorage.clear();
+
   const scopes = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/business.manage'
@@ -15,22 +18,28 @@ function loginWithGoogle() {
     response_type: 'code',
     scope: scopes,
     access_type: 'offline',
-    prompt: 'consent'
+    prompt: 'select_account consent' // Forces account picker so you can explicitly select your Manager account
   }).toString();
 
-  // Redirect current window (bypasses browser popup blocker)
   window.location.href = authUrl;
 }
 
-// 2. Initialize App and Handle Redirect Callbacks
+// 2. Clear Session / Logout Function
+function logout() {
+  localStorage.clear();
+  document.getElementById('dashboardSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = 'block';
+  window.location.reload();
+}
+
+// 3. Initialize App and Handle Redirect Callbacks
 window.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const authCode = urlParams.get('code');
 
-  // If returning from Google OAuth redirect with a authorization code
   if (authCode) {
     document.getElementById('loginSection').innerHTML = '<p>Authenticating with Google...</p>';
-    window.history.replaceState({}, document.title, window.location.pathname); // Clean URL query
+    window.history.replaceState({}, document.title, window.location.pathname);
     
     try {
       const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
@@ -46,9 +55,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         showDashboard();
       } else {
         alert('Authentication failed: ' + (data.error || 'Unknown error'));
+        logout();
       }
     } catch (err) {
       alert('Error connecting to backend: ' + err.message);
+      logout();
     }
     return;
   }
@@ -56,10 +67,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Check existing session
   if (localStorage.getItem('accessToken')) {
     showDashboard();
+  } else {
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('dashboardSection').style.display = 'none';
   }
 });
 
-// 3. Render Dashboard & Fetch Associated Google Business Accounts
+// 4. Render Dashboard & Fetch Locations
 async function showDashboard() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('dashboardSection').style.display = 'block';
@@ -76,6 +90,13 @@ async function loadBusinessLocations() {
     const res = await fetch(`${BACKEND_URL}/api/locations/all`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    
+    // If token is expired or unauthorized, reset session so user can re-login
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+
     const data = await res.json();
 
     select.innerHTML = '';
@@ -89,6 +110,11 @@ async function loadBusinessLocations() {
       fetchRealReviews(data.locations[0].name);
     } else {
       select.innerHTML = '<option value="">No managed business profiles found</option>';
+      // Show explicit re-login button when locations list is empty
+      document.getElementById('statusMsg').innerHTML = `
+        <p style="color: #f59e0b; font-size: 14px;">Session expired or no locations linked.</p>
+        <button onclick="logout()" style="background: #dc2626; margin-top: 5px; padding: 8px;">Switch Account / Re-login</button>
+      `;
     }
   } catch (err) {
     select.innerHTML = '<option value="">Error loading locations</option>';
@@ -102,7 +128,7 @@ function onLocationChange() {
   }
 }
 
-// 4. Fetch Real Google Reviews
+// 5. Fetch Real Google Reviews
 async function fetchRealReviews(locationName) {
   const token = localStorage.getItem('accessToken');
   const reviewContainer = document.getElementById('reviewList');
@@ -121,10 +147,10 @@ async function fetchRealReviews(locationName) {
 
     if (data.reviews && data.reviews.length > 0) {
       reviewContainer.innerHTML = data.reviews.map(r => `
-        <div class="review-card">
+        <div class="review-card" style="background: #0f172a; padding: 15px; margin-top: 12px; border-radius: 8px; text-align: left; border: 1px solid #334155;">
           <strong>${r.reviewer?.displayName || 'Anonymous'}</strong> (${r.starRating} Stars)
-          <p>"${r.comment || 'No text comment provided.'}"</p>
-          ${r.reviewReply ? `<div class="reply-box"><strong>Reply:</strong> ${r.reviewReply.comment}</div>` : '<p style="color: #f59e0b; font-size: 13px;">⚡ Pending AI Reply</p>'}
+          <p style="margin: 8px 0; color: #cbd5e1;">"${r.comment || 'No text comment provided.'}"</p>
+          ${r.reviewReply ? `<div style="background: #1e1b4b; color: #a5b4fc; padding: 10px; border-radius: 6px; font-size: 14px;"><strong>Reply:</strong> ${r.reviewReply.comment}</div>` : '<p style="color: #f59e0b; font-size: 13px;">⚡ Pending AI Reply</p>'}
         </div>
       `).join('');
     } else {
@@ -135,7 +161,7 @@ async function fetchRealReviews(locationName) {
   }
 }
 
-// 5. Run Autopilot
+// 6. Run Autopilot
 async function runAutopilot() {
   const token = localStorage.getItem('accessToken');
   const locationName = document.getElementById('locationSelect').value;
@@ -158,7 +184,7 @@ async function runAutopilot() {
     if (data.success) {
       statusMsg.style.color = '#10b981';
       statusMsg.innerText = data.message;
-      fetchRealReviews(locationName); // Refresh list
+      fetchRealReviews(locationName);
     } else {
       statusMsg.style.color = '#ef4444';
       statusMsg.innerText = 'Error: ' + data.error;
