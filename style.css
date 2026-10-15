@@ -173,3 +173,21 @@ body {
   .nav-menu { display: none; }
   .analytics-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Free Tools Grid & Cards */
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; text-align: left; margin-top: 20px; }
+.tool-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.tool-card h3 { font-size: 16px; margin: 0; color: #fff; }
+.tool-card p { font-size: 13px; color: var(--text-secondary); margin: 0; }
+.tool-textarea, .tool-select, .tool-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--surface-border);
+  color: #fff; padding: 10px; border-radius: 8px; font-size: 13px; outline: none;
+}
+.tool-textarea { resize: vertical; min-height: 70px; }
+.calc-inputs { display: flex; flex-direction: column; gap: 8px; }
+.tool-output {
+  background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.3);
+  padding: 10px; border-radius: 8px; font-size: 13px; color: #c7d2fe; margin-top: 8px; word-break: break-all;
+}
+.section-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
