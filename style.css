@@ -19,6 +19,32 @@ body {
   min-height: 100vh;
 }
 
+/* Official Styled Google Button */
+.google-auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.google-auth-btn:hover {
+  background-color: #f9fafb;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
 /* App Header */
 .app-bar {
   display: flex;
