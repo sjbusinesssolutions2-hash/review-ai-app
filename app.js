@@ -1,10 +1,32 @@
 const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
-const GOOGLE_CLIENT_ID = '247056519129-c9ja3k137duacc4akkej5fe9856crgr3.apps.googleusercontent.com'; // Replace with your OAuth Client ID
+const GOOGLE_CLIENT_ID = '247056519129-c9ja3k137duacc4akkej5fe9856crgr3.apps.googleusercontent.com'; // Your Client ID
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-// 1. Direct Page Redirect Google OAuth Handler
+// ==========================================
+// 1. Navigation & UI Modal Helpers
+// ==========================================
+function showTab(tabName) {
+  if (tabName === 'dashboard') {
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('dashboardPage').style.display = 'block';
+  } else {
+    document.getElementById('landingPage').style.display = 'block';
+    document.getElementById('dashboardPage').style.display = 'none';
+  }
+}
+
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+// ==========================================
+// 2. Google OAuth Direct Page Redirect
+// ==========================================
 function loginWithGoogle() {
-  // Clear any existing stored sessions before requesting a new login
   localStorage.clear();
 
   const scopes = [
@@ -18,28 +40,29 @@ function loginWithGoogle() {
     response_type: 'code',
     scope: scopes,
     access_type: 'offline',
-    prompt: 'select_account consent' // Forces account picker so you can explicitly select your Manager account
+    prompt: 'select_account consent'
   }).toString();
 
   window.location.href = authUrl;
 }
 
-// 2. Clear Session / Logout Function
 function logout() {
   localStorage.clear();
-  document.getElementById('dashboardSection').style.display = 'none';
-  document.getElementById('loginSection').style.display = 'block';
   window.location.reload();
 }
 
-// 3. Initialize App and Handle Redirect Callbacks
+// ==========================================
+// 3. Initialize Session & OAuth Callbacks
+// ==========================================
 window.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const authCode = urlParams.get('code');
 
+  // Handle returning OAuth code from Google
   if (authCode) {
-    document.getElementById('loginSection').innerHTML = '<p>Authenticating with Google...</p>';
     window.history.replaceState({}, document.title, window.location.pathname);
+    showTab('dashboard');
+    document.getElementById('statusMsg').innerHTML = '<p style="color:#3b82f6;">Authenticating with Google...</p>';
     
     try {
       const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
@@ -52,6 +75,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (data.success && data.accessToken) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('userEmail', data.email);
+        updateNavState();
         showDashboard();
       } else {
         alert('Authentication failed: ' + (data.error || 'Unknown error'));
@@ -64,21 +88,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Check existing session
+  // Existing session check
   if (localStorage.getItem('accessToken')) {
+    updateNavState();
+    showTab('dashboard');
     showDashboard();
   } else {
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('dashboardSection').style.display = 'none';
+    showTab('landing');
   }
 });
 
-// 4. Render Dashboard & Fetch Locations
-async function showDashboard() {
-  document.getElementById('loginSection').style.display = 'none';
-  document.getElementById('dashboardSection').style.display = 'block';
-  document.getElementById('userEmail').innerText = `Logged in as: ${localStorage.getItem('userEmail')}`;
+function updateNavState() {
+  const navLoginBtn = document.getElementById('navLoginBtn');
+  const navDashboardBtn = document.getElementById('navDashboardBtn');
+  if (navLoginBtn) navLoginBtn.style.display = 'none';
+  if (navDashboardBtn) navDashboardBtn.style.display = 'inline-block';
+}
 
+// ==========================================
+// 4. Render Dashboard & Locations
+// ==========================================
+async function showDashboard() {
+  document.getElementById('userEmail').innerText = `Logged in as: ${localStorage.getItem('userEmail')}`;
   await loadBusinessLocations();
 }
 
@@ -91,7 +122,6 @@ async function loadBusinessLocations() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    // If token is expired or unauthorized, reset session so user can re-login
     if (res.status === 401) {
       logout();
       return;
@@ -110,11 +140,6 @@ async function loadBusinessLocations() {
       fetchRealReviews(data.locations[0].name);
     } else {
       select.innerHTML = '<option value="">No managed business profiles found</option>';
-      // Show explicit re-login button when locations list is empty
-      document.getElementById('statusMsg').innerHTML = `
-        <p style="color: #f59e0b; font-size: 14px;">Session expired or no locations linked.</p>
-        <button onclick="logout()" style="background: #dc2626; margin-top: 5px; padding: 8px;">Switch Account / Re-login</button>
-      `;
     }
   } catch (err) {
     select.innerHTML = '<option value="">Error loading locations</option>';
@@ -128,11 +153,13 @@ function onLocationChange() {
   }
 }
 
+// ==========================================
 // 5. Fetch Real Google Reviews
+// ==========================================
 async function fetchRealReviews(locationName) {
   const token = localStorage.getItem('accessToken');
   const reviewContainer = document.getElementById('reviewList');
-  reviewContainer.innerHTML = '<p>Fetching live reviews...</p>';
+  reviewContainer.innerHTML = '<p style="color:#cbd5e1;">Fetching live reviews...</p>';
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews/fetch`, {
@@ -161,7 +188,9 @@ async function fetchRealReviews(locationName) {
   }
 }
 
-// 6. Run Autopilot
+// ==========================================
+// 6. Run AI Autopilot Manual Sync
+// ==========================================
 async function runAutopilot() {
   const token = localStorage.getItem('accessToken');
   const locationName = document.getElementById('locationSelect').value;
