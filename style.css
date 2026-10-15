@@ -1,0 +1,98 @@
+:root {
+  --bg-dark: #0f172a;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-blue: #2563eb;
+  --accent-green: #10b981;
+  --accent-hover: #1d4ed8;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+  background: #090d16;
+  border-bottom: 1px solid var(--border-color);
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.brand { font-size: 20px; font-weight: bold; }
+.logo-icon { margin-right: 6px; }
+.logo-text strong { color: var(--accent-blue); }
+.nav-links a { color: var(--text-muted); text-decoration: none; margin: 0 12px; font-size: 14px; }
+.nav-links a:hover { color: #fff; }
+
+/* Buttons */
+.btn {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-primary { background: var(--accent-blue); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: #334155; color: #fff; }
+.btn-success { background: var(--accent-green); color: #fff; width: 100%; font-size: 16px; }
+.btn-outline { background: transparent; border: 1px solid var(--border-color); color: #fff; width: 100%; }
+.btn-danger { background: #ef4444; color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+
+/* Hero Section */
+.hero { text-align: center; padding: 70px 20px; max-width: 800px; margin: 0 auto; }
+.hero-badge { display: inline-block; background: #1e1b4b; color: #a5b4fc; padding: 6px 14px; border-radius: 20px; font-size: 13px; margin-bottom: 15px; }
+.hero h1 { font-size: 42px; line-height: 1.2; margin-bottom: 15px; }
+.hero-subtext { font-size: 18px; color: var(--text-muted); margin-bottom: 30px; }
+.cta-subtext { display: block; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+/* Metrics */
+.metrics-bar { display: flex; justify-content: space-around; background: var(--card-bg); border-y: 1px solid var(--border-color); padding: 25px 20px; text-align: center; }
+.metric h3 { font-size: 28px; color: var(--accent-blue); margin: 0; }
+.metric p { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+/* Containers & Grids */
+.section-container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+.section-title { font-size: 28px; margin-bottom: 40px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+
+/* Feature & Pricing Cards */
+.feature-card, .pricing-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; text-align: left; position: relative; }
+.feature-icon { font-size: 32px; margin-bottom: 15px; }
+.pricing-card.popular { border-color: var(--accent-blue); }
+.popular-badge { position: absolute; top: -12px; right: 20px; background: var(--accent-blue); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+.price { font-size: 36px; font-weight: bold; margin: 15px 0; }
+.price span { font-size: 14px; color: var(--text-muted); }
+.pricing-card ul { list-style: none; padding: 0; margin: 20px 0; font-size: 14px; color: var(--text-muted); }
+.pricing-card li { margin-bottom: 8px; }
+
+/* App Dashboard Container */
+.dashboard-container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
+.dash-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
+.form-select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 8px; font-size: 15px; }
+
+/* Modals */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+.modal-content { background: var(--card-bg); padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; color: var(--text-main); position: relative; }
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+
+/* Footer */
+.footer { border-top: 1px solid var(--border-color); padding: 30px 20px; background: #090d16; text-align: center; font-size: 14px; color: var(--text-muted); }
+.footer-links a { color: var(--text-muted); margin: 0 10px; text-decoration: none; }
