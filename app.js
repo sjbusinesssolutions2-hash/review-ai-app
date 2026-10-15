@@ -200,6 +200,76 @@ function filterReviews(filterType) {
   }
 }
 
+// --- FREE TOOLS FUNCTIONS (No login required) ---
+function generateFreeReply() {
+  const text = document.getElementById('freeReviewText').value.trim();
+  const tone = document.getElementById('freeToneSelect').value;
+  const output = document.getElementById('freeReplyOutput');
+
+  if (!text) {
+    output.style.display = 'block';
+    output.innerText = 'Please enter a review sample first.';
+    return;
+  }
+
+  let reply = '';
+  if (tone === 'professional') {
+    if (text.toLowerCase().includes('bad') || text.toLowerCase().includes('poor')) {
+      output.style.display = 'block';
+      output.innerHTML = '<strong>Generated Reply:</strong> "Thank you for sharing your feedback. We apologize for your experience and would love to resolve this directly. Please contact our management team."';
+    } else {
+      output.style.display = 'block';
+      output.innerHTML = '<strong>Generated Reply:</strong> "Thank you so much for your wonderful review! Our entire team truly appreciates your support and we look forward to welcoming you back soon."';
+    }
+  } else if (tone === 'warm') {
+    output.style.display = 'block';
+    output.innerHTML = '<strong>Generated Reply:</strong> "You made our day! Thank you for the stellar rating and kind words. See you on your next visit!"';
+  } else {
+    output.style.display = 'block';
+    output.innerHTML = '<strong>Generated Reply:</strong> "Thank you for letting us know. We value your input and are working hard to ensure an even better experience next time."';
+  }
+}
+
+function calculateRatingNeeded() {
+  const current = parseFloat(document.getElementById('currentRating').value);
+  const total = parseInt(document.getElementById('totalReviews').value);
+  const target = parseFloat(document.getElementById('targetRating').value);
+  const output = document.getElementById('calcOutput');
+
+  if (isNaN(current) || isNaN(total) || isNaN(target)) {
+    output.style.display = 'block';
+    output.innerText = 'Please fill in all number fields accurately.';
+    return;
+  }
+
+  if (target <= current) {
+    output.style.display = 'block';
+    output.innerText = 'Target rating must be higher than your current rating.';
+    return;
+  }
+
+  // Formula: (Target * Total - Current * Total) / (5 - Target)
+  const needed = Math.ceil((target * total - current * total) / (5 - target));
+  output.style.display = 'block';
+  output.innerHTML = `<strong>Result:</strong> You need approximately <strong>${needed}</strong> more consecutive 5-star reviews to reach your target of ${target}★!`;
+}
+
+function generateReviewLink() {
+  const placeId = document.getElementById('placeIdInput').value.trim();
+  const output = document.getElementById('qrOutput');
+
+  if (!placeId) {
+    output.style.display = 'block';
+    output.innerText = 'Please enter your Google Place ID or Business name.';
+    return;
+  }
+
+  const directUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+  output.style.display = 'block';
+  output.innerHTML = `<strong>Direct Review Link:</strong><br><a href="${directUrl}" target="_blank" style="color:#818cf8; word-break:break-all;">${directUrl}</a>`;
+}
+
+
 async function runAutopilot() {
   const token = localStorage.getItem('accessToken');
   const locationName = document.getElementById('locationSelect').value;
