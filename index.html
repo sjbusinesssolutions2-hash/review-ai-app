@@ -3,42 +3,191 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Reviews AI Dashboard</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; text-align: center; }
-    .card { background: #1e293b; border-radius: 12px; padding: 20px; max-width: 480px; margin: 20px auto; border: 1px solid #334155; }
-    button { background: #2563eb; color: #fff; border: none; padding: 14px 24px; font-size: 16px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
-    button:active { background: #1d4ed8; }
-    select { width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #475569; margin-top: 10px; font-size: 15px; }
-    .review-card { background: #0f172a; padding: 15px; margin-top: 12px; border-radius: 8px; text-align: left; border: 1px solid #334155; }
-    .reply-box { background: #1e1b4b; color: #a5b4fc; padding: 10px; border-radius: 6px; margin-top: 8px; font-size: 14px; }
-  </style>
+  <title>Review AI | Automated Google Review Responses Powered by Gemini</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h2>Google Reviews AI Dashboard</h2>
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Review<strong>AI</strong></span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features" onclick="showTab('landing')">Features</a>
+        <a href="#pricing" onclick="showTab('landing')">Pricing</a>
+        <a href="#privacy" onclick="openModal('privacyModal')">Privacy</a>
+        <a href="#terms" onclick="openModal('termsModal')">Terms</a>
+      </nav>
+      <div class="nav-actions">
+        <button id="navLoginBtn" class="btn btn-primary" onclick="loginWithGoogle()">Sign in with Google</button>
+        <button id="navDashboardBtn" class="btn btn-secondary" onclick="showTab('dashboard')" style="display:none;">Go to Dashboard</button>
+      </div>
+    </div>
+  </header>
 
-  <!-- SIGN IN VIEW -->
-  <div id="loginSection" class="card">
-    <h3>Welcome Back</h3>
-    <p>Sign in with your Google Account to manage business reviews automatically.</p>
-    <button id="googleBtn" onclick="loginWithGoogle()">Sign in with Google</button>
+  <!-- LANDING PAGE VIEW -->
+  <main id="landingPage" class="page-section active">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge">🚀 100% Fully Automated Background Sync</div>
+      <h1>Turn Google Reviews Into Customer Loyalty On Autopilot</h1>
+      <p class="hero-subtext">
+        Connect your Google Business Profile in 60 seconds. Our Gemini AI engine responds to every customer review instantly with warm, context-aware, personalized replies.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-hero" onclick="loginWithGoogle()">Start Free Trial with Google</button>
+        <span class="cta-subtext">No credit card required • Instant OAuth setup</span>
+      </div>
+    </section>
+
+    <!-- Social Proof Bar -->
+    <section class="metrics-bar">
+      <div class="metric">
+        <h3>10,000+</h3>
+        <p>Reviews Responded</p>
+      </div>
+      <div class="metric">
+        <h3>&lt; 5 Mins</h3>
+        <p>Avg Response Time</p>
+      </div>
+      <div class="metric">
+        <h3>100%</h3>
+        <p>Context Accuracy</p>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section-container">
+      <h2 class="section-title">Engineered for Modern Businesses</h2>
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>Zero Generic Boilerplate</h3>
+          <p>Gemini AI analyzes specific reviewer comments and details, generating authentic customer replies tailored to each experience.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>24/7 Background Sync</h3>
+          <p>Our background cloud runner polls Google Business APIs continuously. Your phone can be off while AI handles replies silently.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏢</div>
+          <h3>Multi-Location Management</h3>
+          <p>Seamlessly toggle across multiple business profiles and branch locations from a single unified dashboard.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section-container">
+      <h2 class="section-title">Simple, Transparent Pricing</h2>
+      <div class="grid-3">
+        <div class="pricing-card">
+          <h3>Starter</h3>
+          <div class="price">$0 <span>/ month</span></div>
+          <p>Perfect for single storefronts starting out.</p>
+          <ul>
+            <li>✓ 1 Business Location</li>
+            <li>✓ Up to 50 AI Replies / mo</li>
+            <li>✓ Standard Gemini Model</li>
+            <li>✓ Manual Autopilot Sync</li>
+          </ul>
+          <button class="btn btn-outline" onclick="loginWithGoogle()">Get Started Free</button>
+        </div>
+        <div class="pricing-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <h3>Pro Autopilot</h3>
+          <div class="price">$29 <span>/ month</span></div>
+          <p>Complete background automation for growing brands.</p>
+          <ul>
+            <li>✓ Up to 5 Business Locations</li>
+            <li>✓ Unlimited AI Replies</li>
+            <li>✓ Gemini Flash 3.8 Engine</li>
+            <li>✓ 24/7 Cloud Background Sync</li>
+          </ul>
+          <button class="btn btn-primary" onclick="loginWithGoogle()">Start 14-Day Trial</button>
+        </div>
+        <div class="pricing-card">
+          <h3>Agency</h3>
+          <div class="price">$79 <span>/ month</span></div>
+          <p>For franchises and multi-branch agencies.</p>
+          <ul>
+            <li>✓ Unlimited Locations</li>
+            <li>✓ Custom AI Voice Prompts</li>
+            <li>✓ Priority API Processing</li>
+            <li>✓ Dedicated Manager Access</li>
+          </ul>
+          <button class="btn btn-outline" onclick="loginWithGoogle()">Contact Sales</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- APP DASHBOARD VIEW -->
+  <main id="dashboardPage" class="page-section" style="display: none;">
+    <div class="dashboard-container">
+      <div class="dash-header">
+        <h2>Google Reviews Management</h2>
+        <p id="userEmail" class="text-muted"></p>
+        <button class="btn btn-sm btn-danger" onclick="logout()">Sign Out</button>
+      </div>
+
+      <div class="dash-card">
+        <label for="locationSelect" class="form-label">Select Active Location:</label>
+        <select id="locationSelect" class="form-select" onchange="onLocationChange()">
+          <option value="">Loading locations...</option>
+        </select>
+
+        <button class="btn btn-success btn-block" onclick="runAutopilot()" style="margin-top: 15px;">
+          🚀 Run Manual AI Sync
+        </button>
+        
+        <div id="statusMsg" class="status-banner"></div>
+        <div id="reviewList" class="reviews-grid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- LEGAL MODAL: Privacy Policy -->
+  <div id="privacyModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
+      <h2>Privacy Policy</h2>
+      <p>Last updated: October 2026</p>
+      <hr>
+      <p>ReviewAI values your privacy. We only request access to Google Business Profile APIs (`business.manage`) to retrieve reviews and post AI-generated responses authorized by you.</p>
+      <h3>Data Retained</h3>
+      <p>We securely store OAuth authentication refresh tokens in encrypted MongoDB Atlas instances to maintain background sync services. We never sell or share user data with third parties.</p>
+    </div>
   </div>
 
-  <!-- MAIN DASHBOARD VIEW (Hidden initially) -->
-  <div id="dashboardSection" class="card" style="display: none;">
-    <p id="userEmail" style="color: #94a3b8;"></p>
-    
-    <label for="locationSelect" style="display: block; text-align: left; font-weight: 600;">Select Business Location:</label>
-    <select id="locationSelect" onchange="onLocationChange()">
-      <option value="">Loading your businesses...</option>
-    </select>
-
-    <button onclick="runAutopilot()" style="background: #10b981; margin-top: 15px;">🚀 Run AI Autopilot</button>
-    
-    <div id="statusMsg" style="margin-top: 15px; font-weight: 600;"></div>
-    <div id="reviewList" style="margin-top: 20px;"></div>
+  <!-- LEGAL MODAL: Terms of Service -->
+  <div id="termsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('termsModal')">&times;</span>
+      <h2>Terms of Service</h2>
+      <hr>
+      <p>By using ReviewAI, you agree to allow our Gemini AI engine to interact with your Google Business Profile according to your configured parameters.</p>
+      <p>You remain responsible for maintaining valid Google owner/manager permissions on target business locations.</p>
+    </div>
   </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>&copy; 2026 ReviewAI Inc. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#privacy" onclick="openModal('privacyModal')">Privacy Policy</a>
+        <a href="#terms" onclick="openModal('termsModal')">Terms of Service</a>
+        <a href="https://status.render.com" target="_blank">System Status</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
