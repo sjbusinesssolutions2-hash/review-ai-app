@@ -28,6 +28,13 @@ function toggleProfileDropdown() {
   menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
 }
 
+function navigateHome() {
+  if (!localStorage.getItem('accessToken')) {
+    document.getElementById('landingView').style.display = 'block';
+    document.getElementById('dashboardView').style.display = 'none';
+  }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const authCode = urlParams.get('code');
@@ -46,8 +53,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (data.success && data.accessToken) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('userEmail', data.email);
-        setupUserUI(data.email);
-        loadBusinessLocations();
+        activateDashboard(data.email);
       } else {
         alert('Login failed: ' + (data.error || 'Unknown error'));
         logout();
@@ -58,17 +64,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Check active session
   if (localStorage.getItem('accessToken')) {
-    setupUserUI(localStorage.getItem('userEmail'));
-    loadBusinessLocations();
+    activateDashboard(localStorage.getItem('userEmail'));
+  } else {
+    document.getElementById('landingView').style.display = 'block';
+    document.getElementById('dashboardView').style.display = 'none';
   }
 });
 
-function setupUserUI(email) {
+function activateDashboard(email) {
+  document.getElementById('landingView').style.display = 'none';
+  document.getElementById('publicNav').style.display = 'none';
   document.getElementById('navLoginBtn').style.display = 'none';
+  
   document.getElementById('userMenu').style.display = 'block';
   document.getElementById('dropdownEmail').innerText = email || 'Google Account';
   document.getElementById('userAvatar').innerText = (email || 'U').charAt(0).toUpperCase();
+  
+  document.getElementById('dashboardView').style.display = 'block';
+  loadBusinessLocations();
 }
 
 async function loadBusinessLocations() {
@@ -106,7 +121,6 @@ function onLocationChange() {
   if (loc) fetchRealReviews(loc);
 }
 
-// Convert numeric star strings like "FIVE" into ★★★★★ icons
 function renderStarIcons(ratingStr) {
   const map = { 'ONE': 1, 'TWO': 2, 'THREE': 3, 'FOUR': 4, 'FIVE': 5 };
   const count = map[ratingStr] || parseInt(ratingStr) || 5;
@@ -130,9 +144,7 @@ async function fetchRealReviews(locationName) {
     const data = await res.json();
     cachedReviews = data.reviews || [];
 
-    // Update Analytics Stats
     document.getElementById('statTotal').innerText = cachedReviews.length;
-
     renderReviewsList(cachedReviews);
   } catch (err) {
     reviewContainer.innerHTML = '<p style="color:#ef4444; text-align:center;">Failed to fetch reviews.</p>';
