@@ -22,7 +22,7 @@
     </div>
 
     <div style="display: flex; align-items: center; gap: 12px;">
-      <!-- Dynamic Upgrade Plan CTA (Controlled per active location state) -->
+      <!-- Dynamic Upgrade Plan CTA (Controlled per selected location) -->
       <button id="upgradePlanBtn" class="btn btn-outline btn-pill" onclick="window.location.href='pricing.html'">
         <span class="badge badge-amber" style="margin-right: 4px;">PRO</span> Upgrade plan
       </button>
@@ -32,12 +32,11 @@
     </div>
   </header>
 
-  <!-- Main Dashboard Layout -->
+  <!-- Dashboard Layout -->
   <div class="dashboard-layout">
-
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Persistent Left Sidebar -->
+    <!-- Unified Sidebar Navigation -->
     <aside id="appSidebar" class="sidebar">
       <div>
         <div class="sidebar-section-title">CURRENT LOCATION</div>
@@ -50,7 +49,7 @@
         </div>
 
         <div id="locationDropdown" style="display: none; background: #fff; border: 1px solid var(--surface-border); border-radius: 10px; margin-top: 6px; padding: 8px; box-shadow: var(--shadow-md);">
-          <input type="text" placeholder="Search branch name..." style="width: 100%; padding: 8px; border: 1px solid var(--surface-border); border-radius: 6px; font-size: 13px; margin-bottom: 8px;" oninput="filterLocations()">
+          <input type="text" placeholder="Search branch name..." style="width: 100%; padding: 8px; border: 1px solid var(--surface-border); border-radius: 6px; font-size: 13px; margin-bottom: 8px;">
           <div id="locationListResults" style="max-height: 180px; overflow-y: auto;"></div>
         </div>
       </div>
@@ -67,6 +66,13 @@
           <span style="display: flex; align-items: center; gap: 10px;">
             <span class="material-symbols-outlined">rate_review</span> Reviews
           </span>
+        </a>
+
+        <a href="posts.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">campaign</span> Google Posts
+          </span>
+          <span class="badge badge-amber">PRO</span>
         </a>
 
         <a href="autoreply.html" class="sidebar-nav-item active">
@@ -105,7 +111,6 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
-      
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 4px 0;">Auto-Reply Automation</h1>
@@ -141,14 +146,12 @@
           <span class="badge badge-blue" style="font-size: 14px; padding: 6px 12px;">Balance: 94 Credits</span>
         </div>
 
-        <!-- Credit Pack Cards Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-          
           <div class="task-card" style="text-align: center; margin-bottom: 0;">
             <div style="font-weight: 700; font-size: 18px; color: var(--text-primary);">Starter Pack</div>
             <div style="font-size: 28px; font-weight: 800; margin: 12px 0; color: var(--primary);">100 <span style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Credits</span></div>
             <div style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">$9.99</div>
-            <button class="btn btn-outline" style="width: 100%;" onclick="buyCreditPack(100, 9.99)">Buy Pack</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="alert('Initiating checkout for 100 credits...')">Buy Pack</button>
           </div>
 
           <div class="task-card" style="text-align: center; margin-bottom: 0; border: 2px solid var(--primary); position: relative;">
@@ -156,29 +159,22 @@
             <div style="font-weight: 700; font-size: 18px; color: var(--text-primary); margin-top: 6px;">Growth Pack</div>
             <div style="font-size: 28px; font-weight: 800; margin: 12px 0; color: var(--primary);">600 <span style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Credits</span></div>
             <div style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">$49.99</div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="buyCreditPack(600, 49.99)">Buy Pack</button>
+            <button class="btn btn-primary" style="width: 100%;" onclick="alert('Initiating checkout for 600 credits...')">Buy Pack</button>
           </div>
 
           <div class="task-card" style="text-align: center; margin-bottom: 0;">
             <div style="font-weight: 700; font-size: 18px; color: var(--text-primary);">Enterprise Pack</div>
             <div style="font-size: 28px; font-weight: 800; margin: 12px 0; color: var(--primary);">1,500 <span style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Credits</span></div>
             <div style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">$99.99</div>
-            <button class="btn btn-outline" style="width: 100%;" onclick="buyCreditPack(1500, 99.99)">Buy Pack</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="alert('Initiating checkout for 1500 credits...')">Buy Pack</button>
           </div>
-
         </div>
       </div>
-
     </main>
   </div>
 
   <script>
-    // Selected branch location state simulator
-    let activeLocation = {
-      id: "loc_001",
-      name: "India Bat Service",
-      isPro: false // Controls Upgrade CTA visibility specifically for this location
-    };
+    let activeLocation = { id: "loc_001", name: "India Bat Service", isPro: false };
 
     window.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('authToken');
@@ -186,17 +182,12 @@
         window.location.href = 'login.html';
         return;
       }
-      
-      updateLocationStateUI();
-    });
 
-    function updateLocationStateUI() {
-      document.getElementById('currentLocationName').innerText = activeLocation.name;
       const upgradeBtn = document.getElementById('upgradePlanBtn');
       if (upgradeBtn) {
         upgradeBtn.style.display = activeLocation.isPro ? 'none' : 'inline-flex';
       }
-    }
+    });
 
     function toggleSidebar() {
       document.getElementById('appSidebar').classList.toggle('open');
@@ -212,10 +203,7 @@
       localStorage.clear();
       window.location.href = 'login.html';
     }
-
-    function buyCreditPack(credits, price) {
-      alert(`Initiating Razorpay checkout for ${credits} AI credits ($${price})...`);
-    }
   </script>
 </body>
 </html>
+ 
