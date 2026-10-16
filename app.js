@@ -1,7 +1,7 @@
 // ==========================================
 // CONFIGURATION & GLOBAL STATE
 // ==========================================
-const BACKEND_URL = "https://review-ai-backend-03sb.onrender.com"; // Your Render backend URL
+const BACKEND_URL = "https://review-ai-backend-03sb.onrender.com";
 let currentUser = null;
 let userLocations = [];
 let selectedLocation = null;
@@ -13,7 +13,6 @@ let loadedReviews = [];
 document.addEventListener("DOMContentLoaded", async () => {
   checkUserSession();
   
-  // Page-specific initialization
   const path = window.location.pathname;
   if (path.includes("dashboard.html")) {
     await initDashboard();
@@ -28,7 +27,6 @@ function checkUserSession() {
     currentUser = JSON.parse(userJson);
     renderUserUI();
   } else {
-    // Check if returning from Google OAuth redirect with user query params
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get("email");
     const name = urlParams.get("name");
@@ -76,7 +74,6 @@ function toggleProfileDropdown() {
   }
 }
 
-// Close dropdown when clicking outside
 window.onclick = function(event) {
   if (!event.target.matches('.user-avatar')) {
     const dropdown = document.getElementById("profileDropdown");
@@ -101,7 +98,7 @@ async function initDashboard() {
     
     if (data.success && data.locations.length > 0) {
       userLocations = data.locations;
-      renderLocationResults(userLocations.slice(0, 50)); // Render first 50 initially
+      renderLocationResults(userLocations.slice(0, 50));
       selectLocation(userLocations[0]);
     } else {
       document.getElementById("reviewsFeedContainer").innerHTML = `
@@ -163,10 +160,9 @@ function onLocationSelect(locationName) {
 async function selectLocation(location) {
   selectedLocation = location;
   
-  // Update Plan Badge
   const badge = document.getElementById("locationPlanBadge");
   const plan = location.planTier || "free";
-  if (plan === "active" || plan === "pro_monthly") {
+  if (plan === "active") {
     badge.textContent = "Plan: Pro Autopilot ✨";
     badge.style.background = "#dcfce7";
     badge.style.color = "#15803d";
@@ -268,14 +264,12 @@ function switchTab(type) {
 
 async function triggerAutopilot() {
   if (!selectedLocation) return alert("Please select a location first.");
-  
   const btn = event.currentTarget;
   btn.disabled = true;
   btn.innerHTML = `<span class="material-symbols-outlined">sync</span> Processing Gemini Replies...`;
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/cron/autopilot`);
-    const data = await res.json();
+    await fetch(`${BACKEND_URL}/api/cron/autopilot`);
     alert("Gemini Autopilot executed successfully!");
     await fetchReviews(selectedLocation.name);
   } catch (err) {
@@ -293,21 +287,14 @@ async function openRazorpayCheckout() {
   if (!selectedLocation) return alert("Please select a location to upgrade.");
 
   try {
-    // 1. Create order on backend
     const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: currentUser.email,
-        locationName: selectedLocation.name,
-        amount: 2900 // ₹2900 or $29 equivalent in paise/cents
-      })
+      body: JSON.stringify({ email: currentUser.email, locationName: selectedLocation.name, amount: 2900 })
     });
     const orderData = await res.json();
-
     if (!orderData.success) throw new Error(orderData.error || "Order creation failed");
 
-    // 2. Open Razorpay Popup
     const options = {
       key: orderData.keyId,
       amount: orderData.order.amount,
@@ -316,14 +303,12 @@ async function openRazorpayCheckout() {
       description: `Subscription for ${selectedLocation.title}`,
       order_id: orderData.order.id,
       handler: async function (response) {
-        // Verify payment on backend
         const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
             email: currentUser.email,
             locationName: selectedLocation.name
           })
@@ -345,7 +330,7 @@ async function openRazorpayCheckout() {
 }
 
 // ==========================================
-// FREE TOOLS CALCULATORS (tools.html)
+// FREE TOOLS CALCULATORS
 // ==========================================
 async function generateFreeReply() {
   const reviewText = document.getElementById("freeReviewText").value;
@@ -364,9 +349,9 @@ async function generateFreeReply() {
       body: JSON.stringify({ reviewText, tone })
     });
     const data = await res.json();
-    output.textContent = data.reply || "Thank you for visiting us! We appreciate your feedback.";
+    output.textContent = data.reply || "Thank you for visiting us!";
   } catch (err) {
-    output.textContent = "Thank you so much for your feedback! We look forward to serving you again.";
+    output.textContent = "Thank you so much for your feedback!";
   }
 }
 
@@ -377,10 +362,6 @@ function calculateRatingNeeded() {
   const output = document.getElementById("calcOutput");
 
   if (!current || !count || !target) return alert("Please fill in all fields.");
-  if (target <= current) return alert("Target rating must be higher than current rating.");
-  if (target >= 5.0) return alert("Target rating must be less than 5.0.");
-
-  // Formula: (Target * Count + 5 * Needed) / (Count + Needed) = Target
   const needed = Math.ceil((count * (target - current)) / (5.0 - target));
 
   output.style.display = "block";
@@ -390,7 +371,6 @@ function calculateRatingNeeded() {
 function generateReviewLink() {
   const placeId = document.getElementById("placeIdInput").value.trim();
   const output = document.getElementById("qrOutput");
-
   if (!placeId) return alert("Please enter a Google Place ID.");
 
   const directUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
@@ -399,7 +379,7 @@ function generateReviewLink() {
 }
 
 // ==========================================
-// ADMIN CONTROL PANEL (admin.html)
+// ADMIN CONTROL PANEL
 // ==========================================
 async function initAdminConsole() {
   const adminKey = prompt("Enter Admin Secret Key:");
