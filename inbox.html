@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inbox — ProsperAI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-bar">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn btn-outline" style="padding: 6px; border: none; background: transparent;" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined" style="font-size: 24px;">menu</span>
+      </button>
+      <a href="inbox.html" class="app-bar-brand">
+        <span class="brand-logo">⭐</span>
+        <span>Prosper<strong>AI</strong></span>
+      </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn btn-outline btn-pill" onclick="window.location.href='pricing.html'">
+        <span class="badge badge-amber" style="margin-right: 4px;">PRO</span> Upgrade plan
+      </button>
+      <div id="userAvatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; cursor: pointer;" onclick="toggleUserDropdown()">
+        JD
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Shell -->
+  <div class="dashboard-layout">
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="appSidebar" class="sidebar">
+      
+      <!-- Current Location Selector Widget -->
+      <div>
+        <div class="sidebar-section-title">CURRENT LOCATION</div>
+        <div class="sidebar-location-card" onclick="toggleLocationDropdown()">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 14px;" id="currentLocationName">India Bat Service</div>
+            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-secondary);">unfold_more</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">450+ Locations connected</div>
+        </div>
+
+        <!-- Location Search Dropdown (Hidden by default) -->
+        <div id="locationDropdown" style="display: none; background: #fff; border: 1px solid var(--surface-border); border-radius: 10px; margin-top: 6px; padding: 8px; box-shadow: var(--shadow-md);">
+          <input type="text" id="locationSearchInput" placeholder="Search branch name..." style="width: 100%; padding: 8px; border: 1px solid var(--surface-border); border-radius: 6px; font-size: 13px; margin-bottom: 8px;" oninput="filterLocations()">
+          <div id="locationListResults" style="max-height: 180px; overflow-y: auto;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav style="display: flex; flex-direction: column; gap: 4px;">
+        <a href="inbox.html" class="sidebar-nav-item active">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">inbox</span> Inbox
+          </span>
+          <span id="inboxCountBadge" class="badge badge-amber">3</span>
+        </a>
+
+        <a href="reviews.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">rate_review</span> Reviews
+          </span>
+        </a>
+
+        <a href="autoreply.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">auto_awesome</span> Auto-Reply
+          </span>
+          <span class="badge badge-blue">94 Credits</span>
+        </a>
+
+        <a href="analytics.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">analytics</span> Analytics
+          </span>
+          <span class="badge badge-amber">PRO</span>
+        </a>
+
+        <a href="reports.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">description</span> Reports
+          </span>
+        </a>
+
+        <a href="settings.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">settings</span> Settings
+          </span>
+        </a>
+      </nav>
+
+      <!-- Logout Button at bottom -->
+      <div style="margin-top: auto;">
+        <button class="btn btn-outline" style="width: 100%; justify-content: flex-start; gap: 10px;" onclick="handleLogout()">
+          <span class="material-symbols-outlined">logout</span> Log Out
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Page Title & Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 4px 0;">Inbox</h1>
+          <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Items that need your attention</p>
+        </div>
+        <button class="btn btn-outline btn-pill" onclick="loadInboxTasks()">
+          <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span> Refresh
+        </button>
+      </div>
+
+      <!-- Task List Queue -->
+      <div id="inboxContainer">
+        <!-- Sample Active AI Draft Task Card -->
+        <div class="task-card" id="task-card-1">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <span class="badge badge-amber" style="margin-bottom: 8px;">Pending Reply</span>
+              <div style="font-weight: 700; font-size: 16px;">Rahul Sharma</div>
+              <div style="color: var(--google-star); font-size: 14px; margin-top: 2px;">★★★★★</div>
+            </div>
+            <span style="font-size: 12px; color: var(--text-secondary);">2 hours ago</span>
+          </div>
+
+          <p style="font-size: 14px; color: var(--text-primary); margin-bottom: 12px;">
+            "Excellent battery service! Replaced my car battery in 10 minutes flat."
+          </p>
+
+          <!-- AI Draft Response Box -->
+          <div class="ai-draft-box">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> AI Suggested Reply:
+            </div>
+            <textarea id="reply-text-1" style="width: 100%; background: transparent; border: none; font-size: 14px; color: var(--text-primary); font-family: inherit; resize: vertical;" rows="3">Hi Rahul, thank you for the 5-star rating! We're glad we could replace your battery quickly. See you next time!</textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+            <button class="btn btn-outline" onclick="ignoreTask('task-card-1')">Ignore</button>
+            <button class="btn btn-primary" onclick="approveAndPublish('task-card-1', 'reply-text-1')">
+              <span class="material-symbols-outlined" style="font-size: 16px;">send</span> Approve & Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Session Verification Guard
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    }
+
+    function toggleLocationDropdown() {
+      const dropdown = document.getElementById('locationDropdown');
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function handleLogout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    function ignoreTask(cardId) {
+      document.getElementById(cardId).style.display = 'none';
+    }
+
+    function approveAndPublish(cardId, textareaId) {
+      const card = document.getElementById(cardId);
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+      setTimeout(() => {
+        card.style.display = 'none';
+        alert('Reply posted successfully to Google!');
+      }, 800);
+    }
+  </script>
+</body>
+</html>
+ 
