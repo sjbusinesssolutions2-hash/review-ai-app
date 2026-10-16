@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Master Control — ReviewAI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+  <!-- Admin Header -->
+  <header class="app-bar">
+    <a href="index.html" class="app-bar-brand">
+      <span class="brand-logo">🛡️</span>
+      <span class="brand-name">Review<strong>AI</strong> Admin</span>
+    </a>
+    <div class="user-menu">
+      <span style="font-size: 13px; color: var(--accent-green); font-weight: 700; display: flex; align-items: center; gap: 6px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">verified_user</span> System Online
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <!-- Admin Metrics Dashboard -->
+    <section class="saas-section" style="padding-top: 10px;">
+      <h2 style="text-align: left;">Platform Performance Overview</h2>
+      <p class="section-sub" style="text-align: left;">Real-time metrics on user acquisition, connected Google locations, and revenue.</p>
+      
+      <div class="analytics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="stat-card">
+          <span class="stat-value" id="adminTotalUsers">0</span>
+          <span class="stat-label">Total Registered Users</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="adminTotalLocations">0</span>
+          <span class="stat-label">Connected Google Locations</span>
+        </div>
+        <div class="stat-card highlight">
+          <span class="stat-value" id="adminActiveSubs">0</span>
+          <span class="stat-label">Active Pro Subscriptions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="adminMRR">₹0</span>
+          <span class="stat-label">Estimated Monthly Revenue</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- User & Location Subscription Table -->
+    <section class="saas-section" style="text-align: left; padding-top: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+        <div>
+          <h3 style="margin: 0; font-size: 18px;">User & Location Database</h3>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-secondary);">Manage active location plans, monitor cron status, and grant pro overrides.</p>
+        </div>
+        <input type="text" id="adminSearchInput" class="tool-input" style="max-width: 280px;" placeholder="Filter by email or location name..." oninput="filterAdminTable()">
+      </div>
+
+      <div style="overflow-x: auto; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; box-shadow: var(--shadow-sm);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--surface-border); background: #f8fafc; color: var(--text-secondary);">
+              <th style="padding: 14px;">User Email</th>
+              <th style="padding: 14px;">Location Title / ID</th>
+              <th style="padding: 14px;">Plan Status</th>
+              <th style="padding: 14px; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                Loading platform performance data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <p>&copy; 2026 ReviewAI Inc. Private Master Admin Console.</p>
+    <div class="footer-links">
+      <a href="dashboard.html">Client Dashboard</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+ 
