@@ -22,7 +22,7 @@
     </div>
 
     <div style="display: flex; align-items: center; gap: 12px;">
-      <!-- Dynamic Upgrade Plan CTA (Controlled via JS check) -->
+      <!-- Dynamic Upgrade Plan CTA (Controlled per selected location) -->
       <button id="upgradePlanBtn" class="btn btn-outline btn-pill" onclick="window.location.href='pricing.html'">
         <span class="badge badge-amber" style="margin-right: 4px;">PRO</span> Upgrade plan
       </button>
@@ -32,12 +32,11 @@
     </div>
   </header>
 
-  <!-- Main Dashboard Layout -->
+  <!-- Dashboard Layout -->
   <div class="dashboard-layout">
-
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Persistent Left Sidebar -->
+    <!-- Unified Sidebar Navigation -->
     <aside id="appSidebar" class="sidebar">
       <div>
         <div class="sidebar-section-title">CURRENT LOCATION</div>
@@ -69,8 +68,15 @@
           </span>
         </a>
 
-        <a href="autoreply.html" class="sidebar-nav-item">
+        <a href="posts.html" class="sidebar-nav-item">
           <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="material-symbols-outlined">campaign</span> Google Posts
+          </span>
+          <span class="badge badge-amber">PRO</span>
+        </a>
+
+        <a href="autoreply.html" class="sidebar-nav-item">
+          <span style="display: flex; align-items: gap: 10px;">
             <span class="material-symbols-outlined">auto_awesome</span> Auto-Reply
           </span>
           <span class="badge badge-blue">94 Credits</span>
@@ -105,7 +111,6 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
-      
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 4px 0;">Review Manager</h1>
@@ -124,7 +129,7 @@
       <!-- Reviews Feed Container -->
       <div id="reviewsList">
         
-        <!-- Review Item Card 1 -->
+        <!-- Review Card 1 -->
         <div class="task-card">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
             <div>
@@ -141,7 +146,7 @@
           </div>
         </div>
 
-        <!-- Review Item Card 2 -->
+        <!-- Review Card 2 -->
         <div class="task-card">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
             <div>
@@ -153,18 +158,18 @@
           <p style="font-size: 14px; color: var(--text-primary); margin-bottom: 12px;">
             "Wait time was longer than expected during peak hours. Service was good though."
           </p>
-          <button class="btn btn-primary" style="font-size: 13px; padding: 8px 14px;" onclick="openReplyEditor('Priya Sundaram', 'Wait time was longer than expected...')">
+          <button class="btn btn-primary" style="font-size: 13px; padding: 8px 14px;" onclick="alert('Opening AI Reply Editor...')">
             <span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> Draft AI Reply
           </button>
         </div>
 
       </div>
-
     </main>
   </div>
 
   <script>
-    // Global Subscription & Auth Verification Helper
+    let activeLocation = { id: "loc_001", name: "India Bat Service", isPro: false };
+
     window.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('authToken');
       if (!token) {
@@ -172,11 +177,9 @@
         return;
       }
 
-      // Check Pro status to conditionally show/hide Upgrade Plan CTA
-      const isPro = localStorage.getItem('isProSubscriber') === 'true';
       const upgradeBtn = document.getElementById('upgradePlanBtn');
       if (upgradeBtn) {
-        upgradeBtn.style.display = isPro ? 'none' : 'inline-flex';
+        upgradeBtn.style.display = activeLocation.isPro ? 'none' : 'inline-flex';
       }
     });
 
@@ -194,11 +197,6 @@
       localStorage.clear();
       window.location.href = 'login.html';
     }
-
-    function openReplyEditor(name, comment) {
-      alert(`Opening AI Reply generator for ${name}`);
-    }
   </script>
 </body>
 </html>
- 
