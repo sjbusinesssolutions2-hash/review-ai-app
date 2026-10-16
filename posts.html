@@ -22,7 +22,7 @@
     </div>
 
     <div style="display: flex; align-items: center; gap: 12px;">
-      <!-- Dynamic Upgrade Plan CTA (Per location state) -->
+      <!-- Dynamic Upgrade Plan CTA (Controlled per selected location) -->
       <button id="upgradePlanBtn" class="btn btn-outline btn-pill" onclick="window.location.href='pricing.html'">
         <span class="badge badge-amber" style="margin-right: 4px;">PRO</span> Upgrade plan
       </button>
@@ -32,12 +32,11 @@
     </div>
   </header>
 
-  <!-- Main Dashboard Layout -->
+  <!-- Dashboard Layout -->
   <div class="dashboard-layout">
-
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Persistent Left Sidebar -->
+    <!-- Unified Sidebar Navigation -->
     <aside id="appSidebar" class="sidebar">
       <div>
         <div class="sidebar-section-title">CURRENT LOCATION</div>
@@ -87,6 +86,7 @@
           <span style="display: flex; align-items: center; gap: 10px;">
             <span class="material-symbols-outlined">analytics</span> Analytics
           </span>
+          <span class="badge badge-amber">PRO</span>
         </a>
 
         <a href="reports.html" class="sidebar-nav-item">
@@ -111,7 +111,6 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
-      
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 4px 0;">Google Posts Automation</h1>
@@ -130,7 +129,6 @@
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; border-top: 1px solid var(--surface-border); padding-top: 16px;">
-          
           <div>
             <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Posting Frequency</label>
             <select style="width: 100%; padding: 10px; border: 1px solid var(--surface-border); border-radius: 8px; font-size: 14px; background: #fff;">
@@ -157,7 +155,6 @@
               <option value="BOOK">Book Appointment</option>
             </select>
           </div>
-
         </div>
       </div>
 
@@ -169,16 +166,15 @@
         <textarea id="customPrompt" placeholder="e.g. Write a post about 10% off battery health checkups this weekend..." style="width: 100%; padding: 12px; border: 1px solid var(--surface-border); border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 12px;" rows="3"></textarea>
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <button class="btn btn-outline" onclick="generateAiPost()">
+          <button class="btn btn-outline" onclick="alert('AI is crafting your local post draft...')">
             <span class="material-symbols-outlined" style="font-size: 18px;">auto_awesome</span> Generate Draft
           </button>
           
-          <button class="btn btn-primary" onclick="publishInstantPost()">
+          <button class="btn btn-primary" onclick="alert('Post published successfully to Google Business Profile!')">
             <span class="material-symbols-outlined" style="font-size: 18px;">send</span> Publish to Google Now
           </button>
         </div>
       </div>
-
     </main>
   </div>
 
@@ -191,8 +187,11 @@
         window.location.href = 'login.html';
         return;
       }
+
       const upgradeBtn = document.getElementById('upgradePlanBtn');
-      if (upgradeBtn) upgradeBtn.style.display = activeLocation.isPro ? 'none' : 'inline-flex';
+      if (upgradeBtn) {
+        upgradeBtn.style.display = activeLocation.isPro ? 'none' : 'inline-flex';
+      }
     });
 
     function toggleSidebar() {
@@ -209,15 +208,7 @@
       localStorage.clear();
       window.location.href = 'login.html';
     }
-
-    function generateAiPost() {
-      alert("AI is crafting your local post draft...");
-    }
-
-    function publishInstantPost() {
-      alert("Post published successfully to Google Business Profile!");
-    }
   </script>
 </body>
-              </html>
-              
+</html>
+ 
