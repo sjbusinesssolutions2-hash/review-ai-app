@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Local Business Tools — ReviewAI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-bar">
+    <a href="index.html" class="app-bar-brand">
+      <span class="brand-logo">⚡</span>
+      <span class="brand-name">Review<strong>AI</strong></span>
+    </a>
+
+    <nav class="nav-menu">
+      <a href="features.html">Features</a>
+      <a href="tools.html" class="active">Free Tools</a>
+      <a href="pricing.html">Pricing</a>
+    </nav>
+
+    <button id="navLoginBtn" class="google-auth-btn" onclick="loginWithGoogle()">
+      <span>Sign in with Google</span>
+    </button>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    <section class="saas-section" style="padding-top: 10px;">
+      <h2>🛠️ Free Local Business Utilities</h2>
+      <p class="section-sub">Try our instant calculators and review response generators right in your browser. No signup required.</p>
+
+      <div class="tools-grid">
+        <!-- Tool 1: AI Response Generator -->
+        <div class="tool-card">
+          <h3>💬 AI Review Reply Generator</h3>
+          <p>Paste any customer review and instantly draft a polite, professional owner response.</p>
+          <textarea id="freeReviewText" class="tool-textarea" placeholder="e.g., Great food and fast service, but parking was tight."></textarea>
+          <select id="freeToneSelect" class="tool-select">
+            <option value="professional">Professional & Appreciative</option>
+            <option value="warm">Warm & Friendly</option>
+            <option value="apologetic">Polite & Constructive</option>
+          </select>
+          <button class="btn btn-primary" onclick="generateFreeReply()">Generate Reply</button>
+          <div id="freeReplyOutput" class="tool-output" style="display:none;"></div>
+        </div>
+
+        <!-- Tool 2: Star Rating Calculator -->
+        <div class="tool-card">
+          <h3>⭐ Google Star Rating Calculator</h3>
+          <p>Calculate exactly how many 5-star reviews you need to reach your target score.</p>
+          <div class="calc-inputs">
+            <input type="number" id="currentRating" class="tool-input" placeholder="Current Rating (e.g. 4.3)" step="0.1">
+            <input type="number" id="totalReviews" class="tool-input" placeholder="Total Review Count (e.g. 45)">
+            <input type="number" id="targetRating" class="tool-input" placeholder="Target Rating (e.g. 4.7)" step="0.1">
+          </div>
+          <button class="btn btn-primary" onclick="calculateRatingNeeded()">Calculate Needed 5★</button>
+          <div id="calcOutput" class="tool-output" style="display:none;"></div>
+        </div>
+
+        <!-- Tool 3: Direct Review Link Builder -->
+        <div class="tool-card">
+          <h3>📱 Google Review Link Builder</h3>
+          <p>Convert your Google Place ID or Business name into a direct review link.</p>
+          <input type="text" id="placeIdInput" class="tool-input" placeholder="Enter Google Place ID">
+          <button class="btn btn-primary" onclick="generateReviewLink()">Create Direct Link</button>
+          <div id="qrOutput" class="tool-output" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <p>&copy; 2026 ReviewAI Inc. Free Tools Suite.</p>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <span>•</span>
+      <a href="pricing.html">Pricing</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+ 
