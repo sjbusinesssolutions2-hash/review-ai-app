@@ -16,10 +16,10 @@
     .btn-black:hover { background-color: #1e293b; }
   </style>
 </head>
-<body class="flex flex-col lg:flex-row h-screen overflow-hidden bg-slate-50">
+<body class="min-h-screen bg-slate-50 flex flex-col lg:flex-row overflow-x-hidden">
 
   <!-- Mobile Top Bar Header -->
-  <div class="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-20">
+  <div class="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-20 sticky top-0">
     <div class="flex items-center space-x-3">
       <button onclick="toggleMobileSidebar()" class="text-slate-700 focus:outline-none p-1">
         <i class="fa-solid fa-bars text-xl"></i>
@@ -57,11 +57,10 @@
         </button>
       </div>
 
-      <!-- Custom Floating Location Selector (ProsperQR Style) -->
+      <!-- Location Selector -->
       <div class="p-4 relative">
         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Location</label>
         
-        <!-- Trigger Card Button -->
         <button onclick="toggleDropdown('locationDropdownMenu')" class="w-full bg-white border border-slate-200 rounded-2xl p-3 flex items-center justify-between text-left shadow-sm hover:border-slate-300 transition focus:outline-none">
           <div class="overflow-hidden pr-2">
             <div id="selectedLocTitle" class="font-bold text-slate-900 text-xs truncate">India Bat Service</div>
@@ -73,7 +72,6 @@
           <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
         </button>
 
-        <!-- Custom Floating Dropdown Menu -->
         <div id="locationDropdownMenu" class="hidden absolute left-4 right-4 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1">
           <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Locations</div>
           
@@ -100,7 +98,6 @@
         </div>
       </div>
 
-      <!-- Navigation Sheet -->
       <nav class="px-4 space-y-1">
         <a href="inbox.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50/80 rounded-xl">
           <i class="fa-solid fa-inbox w-5 h-5 mr-3 text-blue-600"></i> Inbox
@@ -120,7 +117,7 @@
       </nav>
     </div>
 
-    <!-- Message Us Support Card -->
+    <!-- Message Us Support Box -->
     <div class="p-4 m-4 bg-blue-50/60 border border-blue-100 rounded-2xl text-center space-y-3">
       <div class="w-12 h-12 mx-auto rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
         SJ
@@ -136,8 +133,8 @@
     </div>
   </aside>
 
-  <!-- Main Content Workspace -->
-  <main class="flex-1 overflow-y-auto flex flex-col min-w-0">
+  <!-- Main Workspace -->
+  <main class="flex-1 w-full min-w-0 pb-16">
 
     <header class="hidden lg:flex h-16 bg-white border-b border-slate-200 px-8 items-center justify-between">
       <div class="text-xs font-semibold text-slate-500">Your most important tasks for today</div>
@@ -167,7 +164,7 @@
 
     <div class="p-4 sm:p-6 lg:p-8 max-w-4xl w-full mx-auto space-y-6">
 
-      <!-- AI Daily Post Generator Card -->
+      <!-- AI Daily Post Card -->
       <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="text-base font-bold text-slate-900">Daily Google Post Suggestion</h2>
@@ -182,7 +179,7 @@
         </div>
       </div>
 
-      <!-- Live Unreplied Reviews Feed (ProsperQR Layout) -->
+      <!-- Unreplied Reviews -->
       <div class="space-y-4">
         <h2 class="text-base font-bold text-slate-900">Unreplied Reviews</h2>
         <div id="reviewsList" class="space-y-4"></div>
@@ -196,7 +193,6 @@
     let currentUserId = new URLSearchParams(window.location.search).get('userId') || localStorage.getItem('userId');
     let activeLocationId = 'loc_bat_service';
     let activeLocationName = 'India Bat Service';
-    let locationsData = [];
 
     if (currentUserId) localStorage.setItem('userId', currentUserId);
 
@@ -215,38 +211,26 @@
     }
 
     async function initInbox() {
-      if (!currentUserId) {
-        window.location.href = 'login.html';
-        return;
-      }
+      if (currentUserId) {
+        try {
+          const userRes = await fetch(`${BACKEND_URL}/api/user`, { headers: { 'Authorization': currentUserId } });
+          const user = await userRes.json();
 
-      try {
-        const userRes = await fetch(`${BACKEND_URL}/api/user`, { headers: { 'Authorization': currentUserId } });
-        const user = await userRes.json();
-
-        if (user && user.displayName) {
-          const initials = user.displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || 'JD';
-          document.getElementById('desktopAvatar').innerText = initials;
-          document.getElementById('mobileAvatarInitials').innerText = initials;
+          if (user && user.displayName) {
+            const initials = user.displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || 'JD';
+            document.getElementById('desktopAvatar').innerText = initials;
+            document.getElementById('mobileAvatarInitials').innerText = initials;
+          }
+        } catch (err) {
+          console.warn('User state fallback');
         }
-
-        const locRes = await fetch(`${BACKEND_URL}/api/locations`, { headers: { 'Authorization': currentUserId } });
-        const data = await locRes.json();
-        locationsData = data.locations || [];
-
-        // Set default to India Bat Service (Pro branch)
-        selectLocation('loc_bat_service');
-
-      } catch (err) {
-        console.error('Error initializing page:', err);
-        fetchLiveReviews('loc_bat_service');
       }
+      selectLocation('loc_bat_service');
     }
 
     function selectLocation(locId) {
       activeLocationId = locId;
 
-      // Hide checkmarks
       document.getElementById('check_all').classList.add('hidden');
       document.getElementById('check_loc_bat_service').classList.add('hidden');
       document.getElementById('check_loc_sj_solutions').classList.add('hidden');
@@ -254,7 +238,6 @@
       const checkElem = document.getElementById(`check_${locId}`);
       if (checkElem) checkElem.classList.remove('hidden');
 
-      // Update button trigger & header state
       const upgradeBtn = document.getElementById('desktopUpgradeBtn');
       const mobileUpgradeBtn = document.getElementById('mobileUpgradeBtn');
 
@@ -263,7 +246,6 @@
         document.getElementById('selectedLocTitle').innerText = 'India Bat Service';
         document.getElementById('selectedLocRating').innerHTML = '★ 5.0 (29) <span class="text-slate-400 font-normal">36-Sargam society...</span>';
         
-        // Paid Tier Behavior
         if (upgradeBtn) { upgradeBtn.innerText = 'Pro Active'; upgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-4 py-2 rounded-full font-bold border border-emerald-200'; }
         if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Pro Active'; mobileUpgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-bold'; }
 
@@ -272,20 +254,18 @@
         document.getElementById('selectedLocTitle').innerText = 'SJ Business Solutions';
         document.getElementById('selectedLocRating').innerHTML = '★ 0.0 (0)';
         
-        // Free Tier Behavior
         if (upgradeBtn) { upgradeBtn.innerText = 'Upgrade plan'; upgradeBtn.className = 'btn-blue text-xs px-4 py-2 rounded-full font-medium shadow-sm'; }
         if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Upgrade plan'; mobileUpgradeBtn.className = 'btn-blue text-xs px-3 py-1.5 rounded-full'; }
 
       } else {
         activeLocationName = 'All locations';
         document.getElementById('selectedLocTitle').innerText = 'All locations';
-        document.getElementById('selectedLocRating').innerHTML = 'Showing all 2 branches';
+        document.getElementById('selectedLocRating').innerHTML = 'Showing all branches';
       }
 
       document.getElementById('activePostBusinessName').innerText = activeLocationName;
       document.getElementById('locationDropdownMenu').classList.add('hidden');
 
-      // Refresh reviews feed for selected branch
       fetchLiveReviews(locId);
     }
 
@@ -361,10 +341,11 @@
         });
 
         const data = await res.json();
+        const postText = data.postContent || data.reply || data.text || 'Generated post ready for review.';
 
         container.innerHTML = `
           <div class="space-y-3">
-            <p class="text-xs text-slate-800 leading-relaxed font-medium">${data.postContent}</p>
+            <p class="text-xs text-slate-800 leading-relaxed font-medium">${postText}</p>
             ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-xl border border-slate-200">` : ''}
             <div class="flex justify-end space-x-2 pt-2">
               <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
@@ -395,6 +376,7 @@
         });
 
         const data = await res.json();
+        const replyText = data.reply || data.postContent || data.text || 'Thank you for your review!';
 
         replyBox.innerHTML = `
           <div class="flex items-center space-x-1.5 text-[11px] font-bold text-blue-600 uppercase tracking-wider">
@@ -402,7 +384,7 @@
             <span>Auto-Reply Draft</span>
           </div>
           <div class="text-xs font-bold text-slate-900">Response from owner</div>
-          <textarea id="text_${reviewId}" class="w-full p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none bg-white text-slate-800" rows="3">${data.reply}</textarea>
+          <textarea id="text_${reviewId}" class="w-full p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none bg-white text-slate-800" rows="3">${replyText}</textarea>
           <div class="flex space-x-2 pt-1">
             <button onclick="alert('Reply published to Google review!')" class="btn-blue text-xs px-3.5 py-1.5 rounded-lg flex items-center space-x-1">
               <i class="fa-solid fa-paper-plane"></i>
@@ -421,4 +403,3 @@
   </script>
 </body>
 </html>
-  
