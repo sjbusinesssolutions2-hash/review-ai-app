@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProsperAI - Inbox</title>
+  <title>SJbs.AI - Inbox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -14,14 +14,45 @@
     .btn-outline:hover { background-color: #f3f4f6; }
   </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex flex-col lg:flex-row h-screen overflow-hidden bg-gray-50">
 
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between">
+  <!-- Mobile Top Bar Header -->
+  <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-3">
+      <button onclick="toggleMobileSidebar()" class="text-gray-700 focus:outline-none p-1">
+        <i class="fa-solid fa-bars text-xl"></i>
+      </button>
+      <span class="text-lg font-bold tracking-tight text-gray-900">SJbs.<span class="text-gray-500">AI</span></span>
+    </div>
+    <span class="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">Credits: <span id="mobileCredits">100</span></span>
+  </div>
+
+  <!-- Mobile Overlay Backdrop -->
+  <div id="mobileBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-gray-900/50 z-30 hidden lg:hidden"></div>
+
+  <!-- Persistent / Mobile Drawer Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-auto">
     <div>
-      <div class="h-16 flex items-center px-6 border-b border-gray-100">
-        <span class="text-xl font-bold tracking-tight text-gray-900">Prosper<span class="text-gray-500">AI</span></span>
+      <!-- Brand Logo -->
+      <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100">
+        <span class="text-xl font-bold tracking-tight text-gray-900">SJbs.<span class="text-gray-500">AI</span></span>
+        <button onclick="toggleMobileSidebar()" class="lg:hidden text-gray-400 hover:text-gray-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
+
+      <!-- Business Location Switcher Dropdown (Top of Sidebar) -->
+      <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Select Location</label>
+        <div class="flex items-center space-x-2 bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
+          <i class="fa-solid fa-store text-gray-500 text-xs"></i>
+          <select id="locationSelect" onchange="onLocationChange()" class="w-full bg-transparent font-medium text-gray-800 text-xs focus:outline-none cursor-pointer truncate">
+            <option>Loading locations...</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Navigation Sheet -->
       <nav class="p-4 space-y-1">
         <a href="inbox.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg">
           <i class="fa-solid fa-inbox w-5 h-5 mr-3 text-gray-700"></i> Inbox
@@ -44,13 +75,13 @@
       </nav>
     </div>
 
-    <!-- Upgrade & User Banner -->
+    <!-- User Profile & Upgrade Footer -->
     <div class="p-4 border-t border-gray-100">
       <button class="w-full btn-black py-2.5 px-4 rounded-lg text-sm mb-3">Upgrade</button>
       <div class="flex items-center">
         <div id="userAvatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-xs">US</div>
         <div class="ml-3 overflow-hidden">
-          <p id="userName" class="text-sm font-medium text-gray-900 truncate">Loading...</p>
+          <p id="userName" class="text-sm font-medium text-gray-900 truncate">Loading Account...</p>
           <p id="userEmail" class="text-xs text-gray-500 truncate">account@google.com</p>
         </div>
       </div>
@@ -58,56 +89,50 @@
   </aside>
 
   <!-- Main Content Area -->
-  <main class="flex-1 overflow-y-auto flex flex-col bg-gray-50">
+  <main class="flex-1 overflow-y-auto flex flex-col min-w-0">
 
-    <!-- Top Navigation Header -->
-    <header class="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-store text-gray-400"></i>
-        <select id="locationSelect" class="bg-transparent font-semibold text-gray-800 text-sm focus:outline-none cursor-pointer">
-          <option>Loading locations...</option>
-        </select>
+    <!-- Desktop Navigation Header -->
+    <header class="hidden lg:flex h-16 bg-white border-b border-gray-200 px-8 items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-500">Active Location:</span>
+        <span id="activeLocationName" class="font-semibold text-gray-900 text-sm">--</span>
       </div>
       <div class="flex items-center space-x-4 text-sm text-gray-600">
-        <span>AI Credits: <strong id="aiCredits" class="text-gray-900">--</strong></span>
+        <span>AI Credits: <strong id="aiCredits" class="text-gray-900">100</strong></span>
       </div>
     </header>
 
-    <!-- Content Workspace -->
-    <div class="p-8 max-w-6xl w-full mx-auto space-y-6">
+    <!-- Workspace Container -->
+    <div class="p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6">
 
-      <!-- Header Section -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Inbox & Suggestions</h1>
-          <p class="text-sm text-gray-500 mt-1">Manage recent Google reviews and AI post suggestions for your location.</p>
-        </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Inbox & Suggestions</h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Manage recent Google reviews and AI post suggestions for your location.</p>
       </div>
 
       <!-- AI Daily Post Generator Card -->
-      <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">Daily Google Post Suggestion</h2>
-          <button id="btnGeneratePost" onclick="generateDailyPost()" class="btn-black text-xs px-3 py-2 rounded-lg flex items-center space-x-1">
+      <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900">Daily Google Post Suggestion</h2>
+          <button id="btnGeneratePost" onclick="generateDailyPost()" class="btn-black text-xs px-3 py-2 rounded-lg flex items-center justify-center space-x-1.5 w-full sm:w-auto">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Generate Post</span>
           </button>
         </div>
 
-        <div id="aiPostContainer" class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm text-gray-700">
+        <div id="aiPostContainer" class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-xs sm:text-sm text-gray-700">
           <p class="text-gray-500 italic">Click "Generate Post" to create a fresh localized update with an AI visual for your location.</p>
         </div>
       </div>
 
       <!-- Live Reviews Feed -->
-      <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Google Reviews</h2>
+      <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Recent Google Reviews</h2>
 
         <div id="reviewsList" class="space-y-4">
-          <!-- Placeholder state while loading -->
           <div class="p-4 border border-gray-100 rounded-lg bg-gray-50 text-center py-8">
             <i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl mb-2"></i>
-            <p class="text-sm text-gray-500">Connecting to Google Business Profile...</p>
+            <p class="text-xs sm:text-sm text-gray-500">Fetching live customer reviews from Google...</p>
           </div>
         </div>
       </div>
@@ -120,6 +145,13 @@
     let currentUserId = new URLSearchParams(window.location.search).get('userId') || localStorage.getItem('userId');
 
     if (currentUserId) localStorage.setItem('userId', currentUserId);
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('mobileBackdrop');
+      sidebar.classList.toggle('-translate-x-full');
+      backdrop.classList.toggle('hidden');
+    }
 
     async function initInbox() {
       if (!currentUserId) {
@@ -139,27 +171,93 @@
           if (user.avatar) document.getElementById('userAvatar').innerHTML = `<img src="${user.avatar}" class="w-8 h-8 rounded-full">`;
 
           const locSelect = document.getElementById('locationSelect');
-          locSelect.innerHTML = '';
-          user.locations.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc.locationId;
-            opt.innerText = loc.locationName;
-            locSelect.appendChild(opt);
-          });
+          if (user.locations && user.locations.length > 0) {
+            locSelect.innerHTML = '';
+            user.locations.forEach(loc => {
+              const opt = document.createElement('option');
+              opt.value = loc.locationId;
+              opt.innerText = loc.locationName;
+              locSelect.appendChild(opt);
+            });
 
-          document.getElementById('aiCredits').innerText = user.locations[0]?.aiCredits || 100;
+            const activeLocName = user.locations[0].locationName;
+            document.getElementById('activeLocationName').innerText = activeLocName;
+            
+            const credits = user.locations[0]?.aiCredits || 100;
+            document.getElementById('aiCredits').innerText = credits;
+            document.getElementById('mobileCredits').innerText = credits;
+
+            // Fetch live reviews for active location
+            fetchLiveReviews(user.locations[0].locationId);
+          }
         }
-
-        renderSampleReview();
 
       } catch (err) {
         console.error('Error initializing inbox:', err);
       }
     }
 
+    function onLocationChange() {
+      const locSelect = document.getElementById('locationSelect');
+      const selectedLocId = locSelect.value;
+      const selectedLocName = locSelect.options[locSelect.selectedIndex].text;
+
+      document.getElementById('activeLocationName').innerText = selectedLocName;
+      fetchLiveReviews(selectedLocId);
+    }
+
+    async function fetchLiveReviews(locationId) {
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = `
+        <div class="p-4 border border-gray-100 rounded-lg bg-gray-50 text-center py-8">
+          <i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl mb-2"></i>
+          <p class="text-xs sm:text-sm text-gray-500">Loading live Google Business Profile reviews...</p>
+        </div>
+      `;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/reviews?locationId=${locationId}`, {
+          headers: { 'Authorization': currentUserId }
+        });
+        const data = await res.json();
+
+        if (data.reviews && data.reviews.length > 0) {
+          reviewsList.innerHTML = '';
+          data.reviews.forEach(rev => {
+            const starsHtml = Array(rev.starRating || 5).fill('<i class="fa-solid fa-star"></i>').join('');
+            
+            reviewsList.innerHTML += `
+              <div class="p-4 border border-gray-200 rounded-lg bg-white space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-xs sm:text-sm text-gray-900">${rev.reviewerName || 'Google Customer'}</span>
+                    <div class="text-amber-400 text-xs flex space-x-0.5">${starsHtml}</div>
+                  </div>
+                  <span class="text-xs text-gray-400">${new Date(rev.createTime).toLocaleDateString()}</span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-700">${rev.comment || 'No comment text provided.'}</p>
+                
+                <div id="replyBox_${rev.reviewId}" class="pt-2 flex justify-end">
+                  <button onclick="generateAIReply('${rev.reviewId}', '${rev.comment}', ${rev.starRating})" class="btn-black px-3 py-1.5 text-xs rounded-lg flex items-center space-x-1">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Generate AI Reply</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          reviewsList.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 text-center py-6">No recent reviews found for this location.</p>';
+        }
+      } catch (err) {
+        console.error('Failed to fetch reviews:', err);
+        reviewsList.innerHTML = '<p class="text-xs sm:text-sm text-red-500 text-center py-6">Failed to load Google reviews. Please try again.</p>';
+      }
+    }
+
     async function generateDailyPost() {
       const container = document.getElementById('aiPostContainer');
-      container.innerHTML = '<p class="text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Crafting high-quality post & visual (this may take a few seconds)...</p>';
+      container.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Crafting localized post & visual...</p>';
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/ai/post`, {
@@ -168,69 +266,49 @@
           body: JSON.stringify({
             topic: 'Weekly Service Promotion & Local Customer Satisfaction',
             businessType: 'Local Business',
-            businessName: document.getElementById('locationSelect').selectedOptions[0]?.text || 'Our Business'
+            businessName: document.getElementById('activeLocationName').innerText || 'SJbs.AI'
           })
         });
         const data = await res.json();
 
+        const textContent = data.postContent || data.reply || data.text || data.content || 'Generated post ready for review.';
+        const imageUrl = data.imageUrl || '';
+
         container.innerHTML = `
           <div class="space-y-3">
-            <p class="text-sm font-medium text-gray-800 leading-relaxed">${data.postContent}</p>
-            ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-lg border border-gray-200">` : ''}
+            <p class="text-xs sm:text-sm font-medium text-gray-800 leading-relaxed">${textContent}</p>
+            ${imageUrl ? `<img src="${imageUrl}" class="w-full max-h-64 object-cover rounded-lg border border-gray-200">` : ''}
             <div class="flex justify-end space-x-2 pt-2">
               <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
-              <button onclick="alert('Post published directly to your Google Business Profile!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
+              <button onclick="alert('Post published directly to Google!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
             </div>
           </div>
         `;
       } catch (err) {
-        container.innerHTML = '<p class="text-sm text-red-500">Generation timed out. Please try again.</p>';
+        container.innerHTML = '<p class="text-xs sm:text-sm text-red-500">Generation error. Please try again.</p>';
       }
     }
 
-    function renderSampleReview() {
-      const reviewsList = document.getElementById('reviewsList');
-      reviewsList.innerHTML = `
-        <div class="p-4 border border-gray-200 rounded-lg bg-white space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="font-semibold text-sm text-gray-900">David Miller</span>
-              <div class="text-amber-400 text-xs flex space-x-0.5">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-            </div>
-            <span class="text-xs text-gray-400">2 hours ago</span>
-          </div>
-          <p class="text-sm text-gray-700">Fantastic customer service! The staff was super helpful and resolved my query immediately. Will definitely visit again.</p>
-          
-          <div id="replyBox" class="pt-2 flex justify-end">
-            <button onclick="generateAIReply('Fantastic customer service! The staff was super helpful and resolved my query immediately. Will definitely visit again.', 5)" class="btn-black px-3 py-1.5 text-xs rounded-lg flex items-center space-x-1">
-              <i class="fa-solid fa-robot"></i>
-              <span>Generate AI Reply</span>
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    async function generateAIReply(reviewText, rating) {
-      const replyBox = document.getElementById('replyBox');
-      replyBox.innerHTML = '<p class="text-xs text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Generating personalized AI response...</p>';
+    async function generateAIReply(reviewId, reviewText, rating) {
+      const replyBox = document.getElementById(`replyBox_${reviewId}`);
+      replyBox.innerHTML = '<p class="text-xs text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Generating AI response...</p>';
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/ai/reply`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reviewText, rating, businessName: 'Our Location' })
+          body: JSON.stringify({ reviewText, rating, businessName: document.getElementById('activeLocationName').innerText || 'SJbs.AI' })
         });
         const data = await res.json();
+
+        const replyText = data.reply || data.postContent || data.text || data.content || 'Thank you for your feedback!';
 
         replyBox.innerHTML = `
           <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 mt-2">
             <p class="text-xs font-semibold text-gray-700">AI Response:</p>
-            <textarea id="replyText" class="w-full p-2 text-xs border border-gray-300 rounded focus:outline-none bg-white text-gray-800" rows="2">${data.reply}</textarea>
+            <textarea id="replyText_${reviewId}" class="w-full p-2 text-xs border border-gray-300 rounded focus:outline-none bg-white text-gray-800" rows="3">${replyText}</textarea>
             <div class="flex justify-end space-x-2">
-              <button onclick="renderSampleReview()" class="btn-outline px-3 py-1 text-xs rounded">Cancel</button>
+              <button onclick="fetchLiveReviews(document.getElementById('locationSelect').value)" class="btn-outline px-3 py-1 text-xs rounded">Cancel</button>
               <button onclick="alert('Response published to Google review!')" class="btn-black px-3 py-1 text-xs rounded">Publish Reply</button>
             </div>
           </div>
