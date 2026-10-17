@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SJbs.AI - Blog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .btn-blue { background-color: #3b82f6; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-blue:hover { background-color: #2563eb; }
+    
+    #mobile-menu-modal {
+      transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+    }
+    #mobile-menu-modal.hidden-modal {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #mobile-menu-modal.visible-modal {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-2 text-2xl font-black tracking-tight text-slate-900">
+        <span>SJbs.</span><span class="text-blue-600">AI</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+        <a href="for-businesses.html" class="hover:text-blue-600 transition-colors">For Businesses</a>
+        <a href="case-studies.html" class="hover:text-blue-600 transition-colors">Case Studies</a>
+        <a href="blog.html" class="text-blue-600 font-bold">Blog</a>
+        <a href="community.html" class="hover:text-blue-600 transition-colors">Community</a>
+      </nav>
+
+      <div class="hidden md:flex items-center space-x-4">
+        <a href="https://review-ai-backend-03sb.onrender.com/auth/google" class="btn-blue px-6 py-2.5 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-sm">
+          <i class="fa-brands fa-google"></i>
+          <span>Login with Google</span>
+        </a>
+      </div>
+
+      <!-- Hamburger Button -->
+      <button id="menu-toggle-btn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-800 focus:outline-none z-50">
+        <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Fullscreen Floating Mobile Menu Modal -->
+  <div id="mobile-menu-modal" class="fixed inset-0 bg-white z-40 flex flex-col justify-between px-6 py-8 hidden-modal md:hidden">
+    <div class="pt-16 space-y-6 text-center">
+      <nav class="flex flex-col space-y-6 text-lg font-bold text-slate-800">
+        <a href="for-businesses.html" class="hover:text-blue-600">For Businesses</a>
+        <a href="case-studies.html" class="hover:text-blue-600">Case Studies</a>
+        <a href="blog.html" class="text-blue-600">Blog</a>
+        <a href="community.html" class="hover:text-blue-600">Community</a>
+      </nav>
+    </div>
+
+    <div class="space-y-4">
+      <a href="https://review-ai-backend-03sb.onrender.com/auth/google" class="btn-blue w-full py-4 rounded-full text-sm font-bold inline-flex items-center justify-center space-x-2 shadow-md">
+        <i class="fa-brands fa-google"></i>
+        <span>Login with Google</span>
+      </a>
+      <p class="text-center text-xs text-slate-400">Copyright © 2024 – 2026 SJbs.AI</p>
+    </div>
+  </div>
+
+  <!-- Main Content Box -->
+  <main class="flex-1 flex items-center justify-center px-6 py-12">
+    <div class="max-w-md w-full bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl text-center space-y-6">
+      <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-xs">
+        <i class="fa-solid fa-newspaper"></i>
+      </div>
+      
+      <div class="space-y-3">
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">Blog</h1>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          Articles and strategic guides for Google Business Profile optimization will be published here soon.
+        </p>
+      </div>
+
+      <div class="pt-2">
+        <a href="index.html" class="btn-blue w-full py-3.5 px-4 rounded-full text-xs font-bold inline-flex items-center justify-center space-x-2 shadow-sm">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Return to Home</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+      <a href="index.html" class="text-2xl font-black tracking-tight text-slate-900">
+        <span>SJbs.</span><span class="text-blue-600">AI</span>
+      </a>
+      <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-500">
+        <a href="for-businesses.html" class="hover:text-blue-600">For Businesses</a>
+        <a href="case-studies.html" class="hover:text-blue-600">Case Studies</a>
+        <a href="blog.html" class="hover:text-blue-600">Blog</a>
+        <a href="community.html" class="hover:text-blue-600">Community</a>
+        <a href="coming-soon.html" class="hover:text-blue-600">Privacy Policy</a>
+        <a href="coming-soon.html" class="hover:text-blue-600">Terms of Service</a>
+      </div>
+      <p class="text-xs text-slate-400">Copyright © 2024 – 2026 SJbs.AI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const menuBtn = document.getElementById('menu-toggle-btn');
+    const menuIcon = document.getElementById('menu-icon');
+    const mobileModal = document.getElementById('mobile-menu-modal');
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mobileModal.classList.contains('visible-modal');
+      if (isOpen) {
+        mobileModal.classList.remove('visible-modal');
+        mobileModal.classList.add('hidden-modal');
+        menuIcon.classList.remove('fa-xmark');
+        menuIcon.classList.add('fa-bars');
+      } else {
+        mobileModal.classList.remove('hidden-modal');
+        mobileModal.classList.add('visible-modal');
+        menuIcon.classList.remove('fa-bars');
+        menuIcon.classList.add('fa-xmark');
+      }
+    });
+  </script>
+</body>
+</html>
+ 
