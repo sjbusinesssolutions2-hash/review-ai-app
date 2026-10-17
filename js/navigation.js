@@ -6,6 +6,29 @@ let activeLocationId = null;
 let activeLocationName = '';
 let userLocations = [];
 
+// Ensure click handlers bind properly when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  setupGlobalClickHandlers();
+});
+
+function setupGlobalClickHandlers() {
+  // Close dropdowns if clicked outside
+  window.addEventListener('click', (e) => {
+    if (!e.target.closest('#locationDropdownMenu') && !e.target.closest('button[onclick*="locationDropdownMenu"]')) {
+      const locMenu = document.getElementById('locationDropdownMenu');
+      if (locMenu) locMenu.classList.add('hidden');
+    }
+    if (!e.target.closest('#desktopDropdown') && !e.target.closest('button[onclick*="desktopDropdown"]')) {
+      const desktopDrop = document.getElementById('desktopDropdown');
+      if (desktopDrop) desktopDrop.classList.add('hidden');
+    }
+    if (!e.target.closest('#mobileDropdown') && !e.target.closest('button[onclick*="mobileDropdown"]')) {
+      const mobileDrop = document.getElementById('mobileDropdown');
+      if (mobileDrop) mobileDrop.classList.add('hidden');
+    }
+  });
+}
+
 function toggleMobileSidebar() {
   const sidebar = document.getElementById('sidebar');
   const backdrop = document.getElementById('mobileBackdrop');
@@ -15,7 +38,9 @@ function toggleMobileSidebar() {
 
 function toggleDropdown(id) {
   const dropdown = document.getElementById(id);
-  if (dropdown) dropdown.classList.toggle('hidden');
+  if (dropdown) {
+    dropdown.classList.toggle('hidden');
+  }
 }
 
 // Fetch Live Google Locations for the Logged-in User
@@ -32,7 +57,6 @@ async function loadUserLocations(callback) {
 
     renderLocationDropdown(callback);
 
-    // Auto-select the user's primary/first Google location
     if (userLocations.length > 0) {
       selectLocation(userLocations[0].locationId, callback);
     } else {
@@ -51,7 +75,7 @@ function renderLocationDropdown(callback) {
   let html = `
     <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Locations</div>
     
-    <button onclick="selectLocation('all', ${callback ? callback.name : 'null'})" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs font-semibold text-slate-700">
+    <button type="button" onclick="selectLocation('all')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs font-semibold text-slate-700">
       <span>All locations</span>
       <i id="check_all" class="fa-solid fa-check text-blue-600 text-xs hidden"></i>
     </button>
@@ -62,7 +86,7 @@ function renderLocationDropdown(callback) {
     const addressText = loc.address ? `<span class="text-slate-400 font-normal"> ${loc.address}</span>` : '';
 
     html += `
-      <button onclick="selectLocation('${loc.locationId}', ${callback ? callback.name : 'null'})" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs">
+      <button type="button" onclick="selectLocation('${loc.locationId}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs">
         <div>
           <div class="font-bold text-slate-900">${loc.locationName}</div>
           <div class="text-[11px] text-amber-500 font-medium mt-0.5">${ratingText} ${addressText}</div>
@@ -79,25 +103,26 @@ function renderLocationDropdown(callback) {
 function selectLocation(locId, callback) {
   activeLocationId = locId;
 
-  // Hide all checkmarks
   const checkmarks = document.querySelectorAll('#locationDropdownMenu i.fa-check');
   checkmarks.forEach(icon => icon.classList.add('hidden'));
 
-  // Show checkmark for active location
   const activeCheck = document.getElementById(`check_${locId}`);
   if (activeCheck) activeCheck.classList.remove('hidden');
 
+  let currentSubscriptionStatus = 'free';
+
   if (locId === 'all') {
     activeLocationName = 'All locations';
-    updateLocationTriggerUI('All locations', `Showing all ${userLocations.length} locations`, 'pro');
+    updateLocationTriggerUI('All locations', `Showing all ${userLocations.length} locations`, 'free');
   } else {
     const selectedLoc = userLocations.find(l => l.locationId === locId);
     if (selectedLoc) {
       activeLocationName = selectedLoc.locationName;
+      currentSubscriptionStatus = selectedLoc.subscriptionStatus || 'free';
       const subtext = selectedLoc.rating 
         ? `★ ${selectedLoc.rating.toFixed(1)} (${selectedLoc.reviewCount || 0})` 
         : 'Google Verified Branch';
-      updateLocationTriggerUI(selectedLoc.locationName, subtext, selectedLoc.subscriptionStatus || 'free');
+      updateLocationTriggerUI(selectedLoc.locationName, subtext, currentSubscriptionStatus);
     }
   }
 
@@ -107,9 +132,9 @@ function selectLocation(locId, callback) {
   const locMenu = document.getElementById('locationDropdownMenu');
   if (locMenu) locMenu.classList.add('hidden');
 
-  // Trigger page data reload
+  // Trigger page data reload with subscription context
   if (typeof callback === 'function') {
-    callback(locId);
+    callback(locId, currentSubscriptionStatus);
   }
 }
 
@@ -122,7 +147,6 @@ function updateLocationTriggerUI(title, ratingSubtext, status) {
   if (titleElem) titleElem.innerText = title;
   if (ratingElem) ratingElem.innerHTML = ratingSubtext;
 
-  // Dynamically update Pro vs Free badge based on subscription status in DB
   if (status === 'pro') {
     if (upgradeBtn) { upgradeBtn.innerText = 'Pro Active'; upgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-4 py-2 rounded-full font-bold border border-emerald-200'; }
     if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Pro Active'; mobileUpgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-bold'; }
