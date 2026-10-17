@@ -3,217 +3,248 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inbox — ProsperAI</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>ProsperAI - Inbox</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; color: #111827; }
+    .btn-black { background-color: #111827; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-black:hover { background-color: #1f2937; }
+    .btn-outline { border: 1px solid #e5e7eb; background-color: #ffffff; color: #374151; font-weight: 500; }
+    .btn-outline:hover { background-color: #f3f4f6; }
+  </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-  <!-- App Header -->
-  <header class="app-bar">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="btn btn-outline" style="padding: 6px; border: none; background: transparent;" onclick="toggleSidebar()">
-        <span class="material-symbols-outlined" style="font-size: 24px;">menu</span>
-      </button>
-      <a href="inbox.html" class="app-bar-brand">
-        <span class="brand-logo">⭐</span>
-        <span>Prosper<strong>AI</strong></span>
-      </a>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button id="upgradePlanBtn" class="btn btn-outline btn-pill" onclick="window.location.href='pricing.html'">
-        <span class="badge badge-amber" style="margin-right: 4px;">PRO</span> Upgrade plan
-      </button>
-      <div id="userAvatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; cursor: pointer;">
-        JD
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between">
+    <div>
+      <div class="h-16 flex items-center px-6 border-b border-gray-100">
+        <span class="text-xl font-bold tracking-tight text-gray-900">Prosper<span class="text-gray-500">AI</span></span>
       </div>
-    </div>
-  </header>
-
-  <!-- Dashboard Layout -->
-  <div class="dashboard-layout">
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Unified Sidebar Navigation -->
-    <aside id="appSidebar" class="sidebar">
-      <div>
-        <div class="sidebar-section-title">CURRENT LOCATION</div>
-        <div class="sidebar-location-card" onclick="toggleLocationDropdown()">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 700; font-size: 14px;" id="currentLocationName">India Bat Service</div>
-            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-secondary);">unfold_more</span>
-          </div>
-          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">450+ Locations connected</div>
-        </div>
-
-        <div id="locationDropdown" style="display: none; background: #fff; border: 1px solid var(--surface-border); border-radius: 10px; margin-top: 6px; padding: 8px; box-shadow: var(--shadow-md);">
-          <input type="text" placeholder="Search branch name..." style="width: 100%; padding: 8px; border: 1px solid var(--surface-border); border-radius: 6px; font-size: 13px; margin-bottom: 8px;">
-          <div id="locationListResults" style="max-height: 180px; overflow-y: auto;"></div>
-        </div>
-      </div>
-
-      <nav style="display: flex; flex-direction: column; gap: 4px;">
-        <a href="inbox.html" class="sidebar-nav-item active">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">inbox</span> Inbox
-          </span>
-          <span id="inboxCountBadge" class="badge badge-amber">3</span>
+      <nav class="p-4 space-y-1">
+        <a href="inbox.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg">
+          <i class="fa-solid fa-inbox w-5 h-5 mr-3 text-gray-700"></i> Inbox
         </a>
-
-        <a href="reviews.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">rate_review</span> Reviews
-          </span>
+        <a href="reviews.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-star w-5 h-5 mr-3 text-gray-400"></i> Reviews
         </a>
-
-        <a href="posts.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">campaign</span> Google Posts
-          </span>
-          <span class="badge badge-amber">PRO</span>
+        <a href="posts.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-pen-to-square w-5 h-5 mr-3 text-gray-400"></i> Posts
         </a>
-
-        <a href="autoreply.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">auto_awesome</span> Auto-Reply
-          </span>
-          <span class="badge badge-blue">94 Credits</span>
+        <a href="autoreply.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-robot w-5 h-5 mr-3 text-gray-400"></i> Auto Reply
         </a>
-
-        <a href="analytics.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">analytics</span> Analytics
-          </span>
-          <span class="badge badge-amber">PRO</span>
+        <a href="analytics.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-chart-line w-5 h-5 mr-3 text-gray-400"></i> Analytics
         </a>
-
-        <a href="reports.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">description</span> Reports
-          </span>
-        </a>
-
-        <a href="settings.html" class="sidebar-nav-item">
-          <span style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined">settings</span> Settings
-          </span>
+        <a href="settings.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+          <i class="fa-solid fa-gear w-5 h-5 mr-3 text-gray-400"></i> Settings
         </a>
       </nav>
+    </div>
 
-      <div style="margin-top: auto;">
-        <button class="btn btn-outline" style="width: 100%; justify-content: flex-start; gap: 10px;" onclick="handleLogout()">
-          <span class="material-symbols-outlined">logout</span> Log Out
-        </button>
+    <!-- Upgrade & User Banner -->
+    <div class="p-4 border-t border-gray-100">
+      <button class="w-full btn-black py-2.5 px-4 rounded-lg text-sm mb-3">Upgrade Plan</button>
+      <div class="flex items-center">
+        <div id="userAvatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-xs">US</div>
+        <div class="ml-3 overflow-hidden">
+          <p id="userName" class="text-sm font-medium text-gray-900 truncate">Loading Account...</p>
+          <p id="userEmail" class="text-xs text-gray-500 truncate">account@google.com</p>
+        </div>
       </div>
-    </aside>
+    </div>
+  </aside>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto flex flex-col bg-gray-50">
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-store text-gray-400"></i>
+        <select id="locationSelect" class="bg-transparent font-semibold text-gray-800 text-sm focus:outline-none cursor-pointer">
+          <option>Loading locations...</option>
+        </select>
+      </div>
+      <div class="flex items-center space-x-4 text-sm text-gray-600">
+        <span>AI Credits: <strong id="aiCredits" class="text-gray-900">--</strong></span>
+      </div>
+    </header>
+
+    <!-- Content Workspace -->
+    <div class="p-8 max-w-6xl w-full mx-auto space-y-6">
+
+      <!-- Header Section -->
+      <div class="flex items-center justify-between">
         <div>
-          <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 4px 0;">Inbox</h1>
-          <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Items that need your attention</p>
+          <h1 class="text-2xl font-bold text-gray-900">Inbox & Post Suggestions</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage recent Google reviews and AI post suggestions for your location.</p>
         </div>
-        <button class="btn btn-outline btn-pill" onclick="location.reload()">
-          <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span> Refresh
-        </button>
       </div>
 
-      <div id="inboxContainer">
-        <!-- Daily AI Suggested Local Post Card (Free Tier Feature) -->
-        <div class="task-card" id="daily-post-card" style="border: 2px solid var(--primary-light); background: #fdfbf7;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-            <div>
-              <span class="badge badge-amber" style="margin-bottom: 8px;">Daily Suggested Post</span>
-              <div style="font-weight: 700; font-size: 16px; color: var(--primary);">Google Business Profile Update</div>
-            </div>
-            <span style="font-size: 12px; color: var(--text-secondary);">Today</span>
-          </div>
-
-          <div class="ai-draft-box" style="background: #ffffff;">
-            <textarea id="dailyPostContent" style="width: 100%; background: transparent; border: none; font-size: 14px; color: var(--text-primary); font-family: inherit; resize: vertical;" rows="3">Need quick battery testing or emergency replacement? Visit India Bat Service today for fast 10-minute turnaround and transparent pricing! Call us now for immediate help.</textarea>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 12px; font-weight: 700;">CTA Button:</span>
-              <select style="padding: 6px; border: 1px solid var(--surface-border); border-radius: 6px; font-size: 12px; background: #fff;">
-                <option>Call Now</option>
-                <option>Learn More</option>
-                <option>Book</option>
-              </select>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-outline" onclick="document.getElementById('daily-post-card').style.display='none'">Dismiss</button>
-              <button class="btn btn-primary" onclick="alert('Post published directly to Google Business Profile!'); document.getElementById('daily-post-card').style.display='none'">
-                <span class="material-symbols-outlined" style="font-size: 16px;">send</span> Post to Google
-              </button>
-            </div>
-          </div>
+      <!-- AI Daily Post Generator Card -->
+      <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">Daily Google Post Suggestion</h2>
+          <button id="btnGeneratePost" onclick="generateDailyPost()" class="btn-black text-xs px-3 py-2 rounded-lg flex items-center space-x-1">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generate Post</span>
+          </button>
         </div>
 
-        <!-- Sample AI Review Reply Task Card -->
-        <div class="task-card" id="task-card-1">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-            <div>
-              <span class="badge badge-amber" style="margin-bottom: 8px;">Pending Reply</span>
-              <div style="font-weight: 700; font-size: 16px;">Rahul Sharma</div>
-              <div style="color: var(--google-star); font-size: 14px; margin-top: 2px;">★★★★★</div>
-            </div>
-            <span style="font-size: 12px; color: var(--text-secondary);">2 hours ago</span>
-          </div>
-
-          <p style="font-size: 14px; color: var(--text-primary); margin-bottom: 12px;">
-            "Excellent battery service! Replaced my car battery in 10 minutes flat."
-          </p>
-
-          <div class="ai-draft-box">
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
-              <span class="material-symbols-outlined" style="font-size: 16px;">auto_awesome</span> AI Suggested Reply:
-            </div>
-            <textarea style="width: 100%; background: transparent; border: none; font-size: 14px; color: var(--text-primary); font-family: inherit; resize: vertical;" rows="3">Hi Rahul, thank you for the 5-star rating! We're glad we could replace your battery quickly. See you next time!</textarea>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
-            <button class="btn btn-outline" onclick="document.getElementById('task-card-1').style.display='none'">Ignore</button>
-            <button class="btn btn-primary" onclick="alert('Reply posted successfully!'); document.getElementById('task-card-1').style.display='none'">
-              <span class="material-symbols-outlined" style="font-size: 16px;">send</span> Approve & Post
-            </button>
-          </div>
+        <div id="aiPostContainer" class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm text-gray-700">
+          <p class="text-gray-500 italic">Click "Generate Post" to create a fresh localized update with an AI visual for your location.</p>
         </div>
-
       </div>
-    </main>
-  </div>
+
+      <!-- Live Reviews Feed -->
+      <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Google Reviews</h2>
+
+        <div id="reviewsList" class="space-y-4">
+          <!-- Placeholder state while connecting -->
+          <div class="p-4 border border-gray-100 rounded-lg bg-gray-50 text-center py-8">
+            <i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl mb-2"></i>
+            <p class="text-sm text-gray-500">Connecting to Google Business Profile API...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
 
   <script>
-    let activeLocation = { id: "loc_001", name: "India Bat Service", isPro: false };
+    const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
+    let currentUserId = new URLSearchParams(window.location.search).get('userId') || localStorage.getItem('userId');
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
+    if (currentUserId) localStorage.setItem('userId', currentUserId);
+
+    async function initInbox() {
+      if (!currentUserId) {
         window.location.href = 'login.html';
         return;
       }
-      const upgradeBtn = document.getElementById('upgradePlanBtn');
-      if (upgradeBtn) upgradeBtn.style.display = activeLocation.isPro ? 'none' : 'inline-flex';
-    });
 
-    function toggleSidebar() {
-      document.getElementById('appSidebar').classList.toggle('open');
-      document.getElementById('sidebarOverlay').classList.toggle('open');
+      try {
+        // Load User Profile Data
+        const userRes = await fetch(`${BACKEND_URL}/api/user`, {
+          headers: { 'Authorization': currentUserId }
+        });
+        const user = await userRes.json();
+
+        if (user) {
+          document.getElementById('userName').innerText = user.displayName || 'Google Account';
+          document.getElementById('userEmail').innerText = user.email || '';
+          if (user.avatar) document.getElementById('userAvatar').innerHTML = `<img src="${user.avatar}" class="w-8 h-8 rounded-full">`;
+
+          // Locations
+          const locSelect = document.getElementById('locationSelect');
+          locSelect.innerHTML = '';
+          user.locations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc.locationId;
+            opt.innerText = loc.locationName;
+            locSelect.appendChild(opt);
+          });
+
+          document.getElementById('aiCredits').innerText = user.locations[0]?.aiCredits || 100;
+        }
+
+        renderSampleReview();
+
+      } catch (err) {
+        console.error('Error initializing inbox:', err);
+      }
     }
 
-    function toggleLocationDropdown() {
-      const dropdown = document.getElementById('locationDropdown');
-      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    // AI Daily Post Generator
+    async function generateDailyPost() {
+      const container = document.getElementById('aiPostContainer');
+      container.innerHTML = '<p class="text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating localized AI post & photo...</p>';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/ai/post`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: 'Weekly Service Promotion & Local SEO Update',
+            businessType: 'Local Business',
+            businessName: document.getElementById('locationSelect').selectedOptions[0]?.text || 'Our Business'
+          })
+        });
+        const data = await res.json();
+
+        container.innerHTML = `
+          <div class="space-y-3">
+            <p class="text-sm font-medium text-gray-800">${data.postContent}</p>
+            ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-lg border border-gray-200">` : ''}
+            <div class="flex justify-end space-x-2 pt-2">
+              <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
+              <button onclick="alert('Post published successfully to Google Business Profile!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = '<p class="text-sm text-red-500">Failed to generate post. Please try again.</p>';
+      }
     }
 
-    function handleLogout() {
-      localStorage.clear();
-      window.location.href = 'login.html';
+    // Render Clean Sample Review with Live AI Reply Trigger
+    function renderSampleReview() {
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = `
+        <div class="p-4 border border-gray-200 rounded-lg bg-white space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="font-semibold text-sm text-gray-900">David Miller</span>
+              <div class="text-amber-400 text-xs flex space-x-0.5">
+                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+            <span class="text-xs text-gray-400">2 hours ago</span>
+          </div>
+          <p class="text-sm text-gray-700">Fantastic customer service! The staff was super helpful and resolved my query immediately. Will definitely visit again.</p>
+          
+          <div id="replyBox" class="pt-2 flex justify-end">
+            <button onclick="generateAIReply('Fantastic customer service! The staff was super helpful and resolved my query immediately. Will definitely visit again.', 5)" class="btn-black px-3 py-1.5 text-xs rounded-lg flex items-center space-x-1">
+              <i class="fa-solid fa-robot"></i>
+              <span>Generate AI Reply</span>
+            </button>
+          </div>
+        </div>
+      `;
     }
+
+    async function generateAIReply(reviewText, rating) {
+      const replyBox = document.getElementById('replyBox');
+      replyBox.innerHTML = '<p class="text-xs text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Drafting AI reply...</p>';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/ai/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reviewText, rating, businessName: 'Our Location' })
+        });
+        const data = await res.json();
+
+        replyBox.innerHTML = `
+          <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 mt-2">
+            <p class="text-xs font-semibold text-gray-700">AI Suggested Reply:</p>
+            <textarea id="replyText" class="w-full p-2 text-xs border border-gray-300 rounded focus:outline-none bg-white text-gray-800" rows="2">${data.reply}</textarea>
+            <div class="flex justify-end space-x-2">
+              <button onclick="renderSampleReview()" class="btn-outline px-3 py-1 text-xs rounded">Cancel</button>
+              <button onclick="alert('Reply published to Google review!')" class="btn-black px-3 py-1 text-xs rounded">Publish Reply</button>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        replyBox.innerHTML = '<p class="text-xs text-red-500">Failed to generate AI reply.</p>';
+      }
+    }
+
+    window.onload = initInbox;
   </script>
 </body>
 </html>
