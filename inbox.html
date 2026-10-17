@@ -304,6 +304,151 @@
                   <div class="flex items-center space-x-1.5 text-[11px] font-bold text-blue-600 uppercase tracking-wider">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>Auto-Reply Draft</span>
+  <script>
+    const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
+    let activeLocationId = 'loc_bat_service';
+    let activeLocationName = 'India Bat Service';
+
+    function toggleMobileSidebar() {
+      document.getElementById('sidebar').classList.toggle('-translate-x-full');
+      document.getElementById('mobileBackdrop').classList.toggle('hidden');
+    }
+
+    function toggleDropdown(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    // Complete Logout Function (Clears Frontend & Backend Session)
+    async function logoutUser() {
+      try {
+        await fetch(`${BACKEND_URL}/auth/logout`, { method: 'GET', credentials: 'include' });
+      } catch (err) {
+        console.warn('Backend logout call warning:', err);
+      }
+
+      localStorage.removeItem('userId');
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    // Auth Initialization & Session Guard
+    async function initInbox() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get('userId');
+
+      if (tokenFromUrl) {
+        localStorage.setItem('userId', tokenFromUrl);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const currentUserId = localStorage.getItem('userId');
+
+      if (!currentUserId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const userRes = await fetch(`${BACKEND_URL}/api/user`, {
+          headers: { 'Authorization': currentUserId }
+        });
+
+        if (userRes.status === 401 || userRes.status === 404) {
+          localStorage.removeItem('userId');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const user = await userRes.json();
+        if (user && (user.displayName || user.email)) {
+          const nameString = user.displayName || user.email;
+          const initials = nameString.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || 'JD';
+          document.getElementById('desktopAvatar').innerText = initials;
+          document.getElementById('mobileAvatarInitials').innerText = initials;
+        }
+      } catch (err) {
+        console.warn('Auth check error:', err);
+      }
+
+      selectLocation('loc_bat_service');
+    }
+
+    function selectLocation(locId) {
+      activeLocationId = locId;
+
+      document.getElementById('check_all').classList.add('hidden');
+      document.getElementById('check_loc_bat_service').classList.add('hidden');
+      document.getElementById('check_loc_sj_solutions').classList.add('hidden');
+
+      const checkElem = document.getElementById(`check_${locId}`);
+      if (checkElem) checkElem.classList.remove('hidden');
+
+      const upgradeBtn = document.getElementById('desktopUpgradeBtn');
+      const mobileUpgradeBtn = document.getElementById('mobileUpgradeBtn');
+
+      if (locId === 'loc_bat_service') {
+        activeLocationName = 'India Bat Service';
+        document.getElementById('selectedLocTitle').innerText = 'India Bat Service';
+        document.getElementById('selectedLocRating').innerHTML = '★ 5.0 (29) <span class="text-slate-400 font-normal">36-Sargam society...</span>';
+        
+        if (upgradeBtn) { upgradeBtn.innerText = 'Pro Active'; upgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-4 py-2 rounded-full font-bold border border-emerald-200'; }
+        if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Pro Active'; mobileUpgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-bold'; }
+
+      } else if (locId === 'loc_sj_solutions') {
+        activeLocationName = 'SJ Business Solutions';
+        document.getElementById('selectedLocTitle').innerText = 'SJ Business Solutions';
+        document.getElementById('selectedLocRating').innerHTML = '★ 0.0 (0)';
+        
+        if (upgradeBtn) { upgradeBtn.innerText = 'Upgrade plan'; upgradeBtn.className = 'btn-blue text-xs px-4 py-2 rounded-full font-medium shadow-sm'; }
+        if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Upgrade plan'; mobileUpgradeBtn.className = 'btn-blue text-xs px-3 py-1.5 rounded-full'; }
+
+      } else {
+        activeLocationName = 'All locations';
+        document.getElementById('selectedLocTitle').innerText = 'All locations';
+        document.getElementById('selectedLocRating').innerHTML = 'Showing all branches';
+      }
+
+      document.getElementById('activePostBusinessName').innerText = activeLocationName;
+      document.getElementById('locationDropdownMenu').classList.add('hidden');
+
+      fetchLiveReviews(locId);
+    }
+
+    async function fetchLiveReviews(locId) {
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = '<p class="text-xs text-slate-400 italic py-4">Fetching unreplied reviews...</p>';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/reviews?locationId=${locId}`);
+        const data = await res.json();
+
+        if (data.reviews && data.reviews.length > 0) {
+          reviewsList.innerHTML = '';
+          data.reviews.forEach(rev => {
+            const starsHtml = Array(rev.starRating || 5).fill('<i class="fa-solid fa-star"></i>').join('');
+
+            reviewsList.innerHTML += `
+              <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="text-xs font-bold text-slate-900 tracking-wide">Post this review reply</div>
+                
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                    ${rev.reviewerInitials || 'US'}
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-900">${rev.reviewerName}</h4>
+                    <div class="text-amber-400 text-[10px] flex space-x-0.5 mt-0.5">${starsHtml}</div>
+                  </div>
+                </div>
+
+                <div class="pl-3 border-l-2 border-amber-400 text-xs italic text-slate-700">
+                  "${rev.comment}"
+                </div>
+
+                <div id="replyBox_${rev.reviewId}" class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center space-x-1.5 text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Auto-Reply Draft</span>
                   </div>
                   <div class="text-xs font-bold text-slate-900">Response from owner</div>
                   <p class="text-xs text-slate-600 leading-relaxed">Click "Draft AI Reply" to generate a tailored response for ${activeLocationName}.</p>
