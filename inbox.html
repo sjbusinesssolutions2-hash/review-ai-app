@@ -46,11 +46,11 @@
 
     <!-- Upgrade & User Banner -->
     <div class="p-4 border-t border-gray-100">
-      <button class="w-full btn-black py-2.5 px-4 rounded-lg text-sm mb-3">Upgrade Plan</button>
+      <button class="w-full btn-black py-2.5 px-4 rounded-lg text-sm mb-3">Upgrade</button>
       <div class="flex items-center">
         <div id="userAvatar" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-xs">US</div>
         <div class="ml-3 overflow-hidden">
-          <p id="userName" class="text-sm font-medium text-gray-900 truncate">Loading Account...</p>
+          <p id="userName" class="text-sm font-medium text-gray-900 truncate">Loading...</p>
           <p id="userEmail" class="text-xs text-gray-500 truncate">account@google.com</p>
         </div>
       </div>
@@ -79,7 +79,7 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Inbox & Post Suggestions</h1>
+          <h1 class="text-2xl font-bold text-gray-900">Inbox & Suggestions</h1>
           <p class="text-sm text-gray-500 mt-1">Manage recent Google reviews and AI post suggestions for your location.</p>
         </div>
       </div>
@@ -104,10 +104,10 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Google Reviews</h2>
 
         <div id="reviewsList" class="space-y-4">
-          <!-- Placeholder state while connecting -->
+          <!-- Placeholder state while loading -->
           <div class="p-4 border border-gray-100 rounded-lg bg-gray-50 text-center py-8">
             <i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl mb-2"></i>
-            <p class="text-sm text-gray-500">Connecting to Google Business Profile API...</p>
+            <p class="text-sm text-gray-500">Connecting to Google Business Profile...</p>
           </div>
         </div>
       </div>
@@ -128,7 +128,6 @@
       }
 
       try {
-        // Load User Profile Data
         const userRes = await fetch(`${BACKEND_URL}/api/user`, {
           headers: { 'Authorization': currentUserId }
         });
@@ -139,7 +138,6 @@
           document.getElementById('userEmail').innerText = user.email || '';
           if (user.avatar) document.getElementById('userAvatar').innerHTML = `<img src="${user.avatar}" class="w-8 h-8 rounded-full">`;
 
-          // Locations
           const locSelect = document.getElementById('locationSelect');
           locSelect.innerHTML = '';
           user.locations.forEach(loc => {
@@ -159,17 +157,16 @@
       }
     }
 
-    // AI Daily Post Generator
     async function generateDailyPost() {
       const container = document.getElementById('aiPostContainer');
-      container.innerHTML = '<p class="text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating localized AI post & photo...</p>';
+      container.innerHTML = '<p class="text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Crafting high-quality post & visual (this may take a few seconds)...</p>';
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/ai/post`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            topic: 'Weekly Service Promotion & Local SEO Update',
+            topic: 'Weekly Service Promotion & Local Customer Satisfaction',
             businessType: 'Local Business',
             businessName: document.getElementById('locationSelect').selectedOptions[0]?.text || 'Our Business'
           })
@@ -178,20 +175,19 @@
 
         container.innerHTML = `
           <div class="space-y-3">
-            <p class="text-sm font-medium text-gray-800">${data.postContent}</p>
+            <p class="text-sm font-medium text-gray-800 leading-relaxed">${data.postContent}</p>
             ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-lg border border-gray-200">` : ''}
             <div class="flex justify-end space-x-2 pt-2">
               <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
-              <button onclick="alert('Post published successfully to Google Business Profile!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
+              <button onclick="alert('Post published directly to your Google Business Profile!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
             </div>
           </div>
         `;
       } catch (err) {
-        container.innerHTML = '<p class="text-sm text-red-500">Failed to generate post. Please try again.</p>';
+        container.innerHTML = '<p class="text-sm text-red-500">Generation timed out. Please try again.</p>';
       }
     }
 
-    // Render Clean Sample Review with Live AI Reply Trigger
     function renderSampleReview() {
       const reviewsList = document.getElementById('reviewsList');
       reviewsList.innerHTML = `
@@ -219,7 +215,7 @@
 
     async function generateAIReply(reviewText, rating) {
       const replyBox = document.getElementById('replyBox');
-      replyBox.innerHTML = '<p class="text-xs text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Drafting AI reply...</p>';
+      replyBox.innerHTML = '<p class="text-xs text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Generating personalized AI response...</p>';
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/ai/reply`, {
@@ -231,16 +227,16 @@
 
         replyBox.innerHTML = `
           <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 mt-2">
-            <p class="text-xs font-semibold text-gray-700">AI Suggested Reply:</p>
+            <p class="text-xs font-semibold text-gray-700">AI Response:</p>
             <textarea id="replyText" class="w-full p-2 text-xs border border-gray-300 rounded focus:outline-none bg-white text-gray-800" rows="2">${data.reply}</textarea>
             <div class="flex justify-end space-x-2">
               <button onclick="renderSampleReview()" class="btn-outline px-3 py-1 text-xs rounded">Cancel</button>
-              <button onclick="alert('Reply published to Google review!')" class="btn-black px-3 py-1 text-xs rounded">Publish Reply</button>
+              <button onclick="alert('Response published to Google review!')" class="btn-black px-3 py-1 text-xs rounded">Publish Reply</button>
             </div>
           </div>
         `;
       } catch (err) {
-        replyBox.innerHTML = '<p class="text-xs text-red-500">Failed to generate AI reply.</p>';
+        replyBox.innerHTML = '<p class="text-xs text-red-500">Failed to generate AI response. Please try again.</p>';
       }
     }
 
