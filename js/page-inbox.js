@@ -3,7 +3,7 @@
  */
 
 async function initInboxPage() {
-  const user = await verifyUserAuth();
+  const user = verifyUserAuth();
   if (user) {
     await loadUserLocations(renderInboxContent);
   }
