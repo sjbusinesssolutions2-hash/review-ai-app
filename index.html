@@ -3,98 +3,224 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReviewAI — Get more customers and revenue from Google</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>SJbs.AI - Get More Customers and Revenue from Google</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .btn-blue { background-color: #3b82f6; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-blue:hover { background-color: #2563eb; }
+    .btn-dark { background-color: #0f172a; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-dark:hover { background-color: #1e293b; }
+    .underline-wave { position: relative; display: inline-block; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- App Header -->
-  <header class="app-bar">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="btn btn-outline" style="padding: 6px; border: none; background: transparent;" onclick="toggleMobileSidebar()">
-        <span class="material-symbols-outlined" style="font-size: 24px;">menu</span>
-      </button>
-      <a href="index.html" class="app-bar-brand">
-        <span class="brand-logo">⭐</span>
-        <span>Prosper<strong>AI</strong></span>
+  <!-- Navigation Bar -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center space-x-2 text-2xl font-black tracking-tight text-slate-900">
+        <span>SJbs.</span><span class="text-blue-600">AI</span>
       </a>
-    </div>
 
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="btn btn-primary btn-pill" onclick="window.location.href='login.html'">
-        <span class="material-symbols-outlined" style="font-size: 16px;">shopping_bag</span> Shop Now
-      </button>
+      <!-- Right Action Controls -->
+      <div class="flex items-center space-x-4">
+        <a href="coming-soon.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm">
+          <i class="fa-solid fa-bag-shopping text-xs"></i>
+          <span>Shop Now</span>
+        </a>
+        <button type="button" onclick="toggleMenu()" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-700 hover:bg-slate-100 transition focus:outline-none cursor-pointer">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+
     </div>
   </header>
 
-  <!-- Mobile Sidebar Overlay & Drawer -->
-  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-  <aside id="mobileSidebar" class="sidebar" style="position: fixed; top: 0; left: -270px; bottom: 0; z-index: 200; transition: left 0.3s ease;">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--surface-border);">
-      <span style="font-weight: 700; font-size: 16px;">Menu</span>
-      <button class="btn btn-outline" style="padding: 4px; border: none; background: transparent;" onclick="toggleMobileSidebar()">
-        <span class="material-symbols-outlined">close</span>
+  <!-- Floating Menu Modal Overlay (ProsperQR Style) -->
+  <div id="menuOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+  
+  <div id="floatingMenu" class="fixed top-24 right-6 w-80 bg-white border border-slate-200 rounded-3xl shadow-2xl z-50 hidden p-4 space-y-2">
+    <div class="flex items-center justify-between pb-3 px-3 border-b border-slate-100">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Navigation Menu</span>
+      <button type="button" onclick="toggleMenu()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 cursor-pointer">
+        <i class="fa-solid fa-xmark text-sm"></i>
       </button>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px;">
-      <a href="login.html" class="sidebar-nav-item">Login</a>
-      <a href="pricing.html" class="sidebar-nav-item">For Businesses</a>
-      <a href="tools.html" class="sidebar-nav-item">Free Tools</a>
-      <a href="pricing.html" class="sidebar-nav-item">Pricing</a>
-    </div>
-  </aside>
 
-  <!-- Main Container -->
-  <main class="app-container" style="max-width: 800px; text-align: center; padding: 60px 20px;">
-    
-    <!-- Hero Section -->
-    <section style="margin-bottom: 50px;">
-      <h1 style="font-size: 44px; font-weight: 800; line-height: 1.15; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.5px;">
-        Get more customers and <span style="color: var(--primary); position: relative;">revenue</span> from Google.
+    <nav class="space-y-1 py-1">
+      <a href="coming-soon.html?page=login" onclick="triggerGoogleLogin()" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold text-slate-900 hover:bg-slate-50 transition">
+        <span>Login</span>
+        <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+      </a>
+      <a href="coming-soon.html?page=businesses" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span>For Businesses</span>
+      </a>
+      <a href="coming-soon.html?page=casestudies" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span>Case Studies</span>
+      </a>
+      <a href="coming-soon.html?page=blog" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span>Blog</span>
+      </a>
+      <a href="coming-soon.html?page=tools" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span>Tools</span>
+      </a>
+      <a href="coming-soon.html?page=community" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span>Community</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Hero Section -->
+  <main class="flex-1">
+    <section class="max-w-4xl mx-auto px-6 pt-16 pb-20 text-center space-y-8">
+      <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-[1.1]">
+        Get more customers and <span class="text-blue-600 underline decoration-blue-300 underline-offset-8">revenue</span> from Google.
       </h1>
-      <p style="font-size: 17px; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto 32px auto;">
+      
+      <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
         The easiest way to get 5-star reviews and boost your rating on Google.
       </p>
-      <button class="btn btn-primary" style="padding: 14px 28px; font-size: 16px; border-radius: 12px;" onclick="window.location.href='login.html'">
-        <span class="material-symbols-outlined" style="font-size: 20px;">shopping_bag</span> Shop Now
-      </button>
-    </section>
 
-    <!-- Social Proof Trust Bar -->
-    <section style="padding-top: 30px; border-top: 1px solid var(--surface-border);">
-      <p style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.5px;">
-        Trusted by 15,000+ business locations worldwide
-      </p>
-      <div style="display: flex; justify-content: center; align-items: center; gap: 32px; flex-wrap: wrap; opacity: 0.7; font-weight: 700; font-size: 15px; color: var(--text-secondary);">
-        <span>TACO BELL</span>
-        <span>KFC</span>
-        <span>STARBUCKS</span>
-        <span>PIZZA HUT</span>
+      <div class="pt-2">
+        <a href="coming-soon.html" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span>Shop Now</span>
+        </a>
+      </div>
+
+      <!-- Trusted Brand Locations -->
+      <div class="pt-12 space-y-6">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Trusted by 15,000+ business locations worldwide</p>
+        <div class="flex flex-wrap items-center justify-center gap-8 opacity-70 grayscale hover:grayscale-0 transition duration-300">
+          <span class="text-sm font-bold tracking-wider text-slate-800">TAVOLA</span>
+          <span class="text-sm font-black tracking-widest text-slate-800">KFC</span>
+          <span class="text-sm font-bold text-slate-800">Tim Hortons</span>
+          <span class="text-sm font-bold text-slate-800">STARBUCKS</span>
+          <span class="text-sm font-bold text-slate-800">CHICK-FIL-A</span>
+          <span class="text-sm font-bold text-slate-800">PIZZA HUT</span>
+        </div>
       </div>
     </section>
 
+    <!-- Core Feature 1: Auto Reply -->
+    <section class="bg-blue-600 text-white py-20 px-6 my-8">
+      <div class="max-w-4xl mx-auto text-center space-y-6">
+        <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto text-white text-xl">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Automatically reply to every review with a personalized message.</h2>
+        <p class="text-blue-100 text-base max-w-xl mx-auto leading-relaxed">
+          Save time and improve your response rate with AI responses that customers love.
+        </p>
+      </div>
+    </section>
+
+    <!-- Core Feature 2: Review Monitoring -->
+    <section class="max-w-4xl mx-auto px-6 py-20 text-center space-y-6">
+      <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-xl shadow-xs">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Get notified of new reviews so you respond right away.</h2>
+      <p class="text-slate-600 text-base max-w-xl mx-auto leading-relaxed">
+        Responding to reviews shows you care about your customers and helps you build trust.
+      </p>
+    </section>
+
+    <!-- Industry Grid -->
+    <section class="bg-white border-y border-slate-200 py-24 px-6">
+      <div class="max-w-5xl mx-auto text-center space-y-12">
+        <div class="space-y-3">
+          <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Built for Every Business Type</h2>
+          <p class="text-slate-600 text-sm">SJbs.AI helps businesses across every industry collect more Google reviews.</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Nail Salons</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Barber Shops</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Restaurants</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Dentists</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Auto Repair Shops</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Car Dealers</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Coffee Shops</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Medical Clinics</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Chiropractors</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Beauty Salons</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hair Salons</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hotels</div>
+        </div>
+
+        <div>
+          <a href="coming-soon.html?page=industries" class="text-xs font-bold text-blue-600 hover:underline inline-flex items-center space-x-1">
+            <span>View all business types</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom CTA Banner -->
+    <section class="bg-gradient-to-b from-slate-50 to-blue-50 py-24 px-6 text-center">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">Start collecting reviews in less than 60 seconds</h2>
+        <p class="text-slate-600 text-sm sm:text-base">Get real results fast. More reviews, more customers, more sales.</p>
+        <div class="pt-4">
+          <a href="coming-soon.html" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Shop Now</span>
+          </a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- App Footer -->
-  <footer class="app-footer" style="justify-content: center; gap: 24px; margin-top: auto;">
-    <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
-    <a href="tools.html" style="color: var(--text-secondary); text-decoration: none;">Free Tools</a>
-    <a href="pricing.html" style="color: var(--text-secondary); text-decoration: none;">Pricing</a>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-12 px-6">
+    <div class="max-w-6xl mx-auto flex flex-col items-center space-y-6 text-center">
+      <a href="index.html" class="text-xl font-black tracking-tight text-slate-900">
+        <span>SJbs.</span><span class="text-blue-600">AI</span>
+      </a>
+
+      <div class="flex items-center space-x-6 text-slate-600 text-lg">
+        <a href="coming-soon.html?social=instagram" class="hover:text-blue-600 transition"><i class="fa-brands fa-instagram"></i></a>
+        <a href="coming-soon.html?social=youtube" class="hover:text-blue-600 transition"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+
+      <p class="text-xs text-slate-400">Copyright © 2024 – 2026 SJbs.AI. All rights reserved.</p>
+
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
+        <a href="coming-soon.html?page=privacy" class="hover:underline">Privacy Policy</a>
+        <a href="coming-soon.html?page=terms" class="hover:underline">Terms of Service</a>
+        <a href="coming-soon.html?page=businesses" class="hover:underline">For Businesses</a>
+        <a href="coming-soon.html?page=community" class="hover:underline">Community</a>
+        <a href="coming-soon.html?page=casestudies" class="hover:underline">Case Studies</a>
+        <a href="coming-soon.html?page=guide" class="hover:underline">Get More Reviews Guide</a>
+        <a href="coming-soon.html?page=blog" class="hover:underline">Blog</a>
+        <a href="coming-soon.html?page=tools" class="hover:underline">Free Tools</a>
+      </div>
+    </div>
   </footer>
 
+  <!-- Modular Script -->
+  <script src="js/config.js"></script>
   <script>
-    function toggleMobileSidebar() {
-      const sidebar = document.getElementById('mobileSidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      if (sidebar.style.left === '0px') {
-        sidebar.style.left = '-270px';
-        overlay.style.display = 'none';
-      } else {
-        sidebar.style.left = '0px';
-        overlay.style.display = 'block';
+    function toggleMenu() {
+      const menu = document.getElementById('floatingMenu');
+      const overlay = document.getElementById('menuOverlay');
+      if (menu && overlay) {
+        menu.classList.toggle('hidden');
+        overlay.classList.toggle('hidden');
       }
+    }
+
+    function triggerGoogleLogin() {
+      // Directs to backend Google OAuth route when Login is clicked from floating menu
+      window.location.href = `${CONFIG.BACKEND_URL}/auth/google`;
     }
   </script>
 </body>
 </html>
+ 
