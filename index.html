@@ -12,7 +12,6 @@
     .btn-blue:hover { background-color: #2563eb; }
     .btn-dark { background-color: #0f172a; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
     .btn-dark:hover { background-color: #1e293b; }
-    .underline-wave { position: relative; display: inline-block; }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-500 selection:text-white">
@@ -27,49 +26,41 @@
       </a>
 
       <!-- Right Action Controls -->
-      <div class="flex items-center space-x-4">
-        <a href="coming-soon.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm">
+      <div class="flex items-center space-x-3">
+        <a href="coming-soon.html?feature=shop" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm">
           <i class="fa-solid fa-bag-shopping text-xs"></i>
           <span>Shop Now</span>
         </a>
         <button type="button" onclick="toggleMenu()" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-700 hover:bg-slate-100 transition focus:outline-none cursor-pointer">
-          <i class="fa-solid fa-bars text-lg"></i>
+          <i id="menuIcon" class="fa-solid fa-bars text-lg"></i>
         </button>
       </div>
 
     </div>
   </header>
 
-  <!-- Floating Menu Modal Overlay (ProsperQR Style) -->
-  <div id="menuOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+  <!-- Floating Menu Dropdown (Exact ProsperQR Style) -->
+  <div id="menuOverlay" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-45 hidden transition-opacity" onclick="toggleMenu()"></div>
   
-  <div id="floatingMenu" class="fixed top-24 right-6 w-80 bg-white border border-slate-200 rounded-3xl shadow-2xl z-50 hidden p-4 space-y-2">
-    <div class="flex items-center justify-between pb-3 px-3 border-b border-slate-100">
-      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Navigation Menu</span>
-      <button type="button" onclick="toggleMenu()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 cursor-pointer">
-        <i class="fa-solid fa-xmark text-sm"></i>
-      </button>
-    </div>
-
-    <nav class="space-y-1 py-1">
-      <a href="coming-soon.html?page=login" onclick="triggerGoogleLogin()" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold text-slate-900 hover:bg-slate-50 transition">
-        <span>Login</span>
-        <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+  <div id="floatingMenu" class="fixed top-24 right-6 w-72 bg-white border border-slate-200/80 rounded-3xl shadow-2xl z-50 hidden py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <nav class="flex flex-col">
+      <a href="#" onclick="triggerGoogleLogin()" class="px-6 py-3.5 text-sm font-bold text-slate-900 hover:bg-slate-50 transition border-b border-slate-100">
+        Login
       </a>
-      <a href="coming-soon.html?page=businesses" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-        <span>For Businesses</span>
+      <a href="#" class="px-6 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        For Businesses
       </a>
-      <a href="coming-soon.html?page=casestudies" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-        <span>Case Studies</span>
+      <a href="#" class="px-6 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        Case Studies
       </a>
-      <a href="coming-soon.html?page=blog" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-        <span>Blog</span>
+      <a href="#" class="px-6 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        Blog
       </a>
-      <a href="coming-soon.html?page=tools" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-        <span>Tools</span>
+      <a href="#" class="px-6 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        Tools
       </a>
-      <a href="coming-soon.html?page=community" class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-        <span>Community</span>
+      <a href="#" class="px-6 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+        Community
       </a>
     </nav>
   </div>
@@ -78,15 +69,15 @@
   <main class="flex-1">
     <section class="max-w-4xl mx-auto px-6 pt-16 pb-20 text-center space-y-8">
       <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-[1.1]">
-        Get more customers and <span class="text-blue-600 underline decoration-blue-300 underline-offset-8">revenue</span> from Google.
+        Get more customers and <span class="text-blue-600 underline decoration-blue-300 underline-offset-8">revenue</span> from Google[span_2](start_span)[span_2](end_span).
       </h1>
       
       <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-        The easiest way to get 5-star reviews and boost your rating on Google.
+        The easiest way to get 5-star reviews and boost your rating on Google[span_3](start_span)[span_3](end_span).
       </p>
 
       <div class="pt-2">
-        <a href="coming-soon.html" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
+        <a href="coming-soon.html?feature=shop" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
           <i class="fa-solid fa-bag-shopping"></i>
           <span>Shop Now</span>
         </a>
@@ -94,14 +85,14 @@
 
       <!-- Trusted Brand Locations -->
       <div class="pt-12 space-y-6">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Trusted by 15,000+ business locations worldwide</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Trusted by 15,000+ business locations worldwide[span_4](start_span)[span_4](end_span)</p>
         <div class="flex flex-wrap items-center justify-center gap-8 opacity-70 grayscale hover:grayscale-0 transition duration-300">
           <span class="text-sm font-bold tracking-wider text-slate-800">TAVOLA</span>
-          <span class="text-sm font-black tracking-widest text-slate-800">KFC</span>
-          <span class="text-sm font-bold text-slate-800">Tim Hortons</span>
-          <span class="text-sm font-bold text-slate-800">STARBUCKS</span>
-          <span class="text-sm font-bold text-slate-800">CHICK-FIL-A</span>
-          <span class="text-sm font-bold text-slate-800">PIZZA HUT</span>
+          <span class="text-sm font-black tracking-widest text-slate-800">KFC[span_5](start_span)[span_5](end_span)</span>
+          <span class="text-sm font-bold text-slate-800">Tim Hortons[span_6](start_span)[span_6](end_span)</span>
+          <span class="text-sm font-bold text-slate-800">STARBUCKS[span_7](start_span)[span_7](end_span)</span>
+          <span class="text-sm font-bold text-slate-800">CHICK-FIL-A[span_8](start_span)[span_8](end_span)</span>
+          <span class="text-sm font-bold text-slate-800">PIZZA HUT[span_9](start_span)[span_9](end_span)</span>
         </div>
       </div>
     </section>
@@ -109,24 +100,24 @@
     <!-- Core Feature 1: Auto Reply -->
     <section class="bg-blue-600 text-white py-20 px-6 my-8">
       <div class="max-w-4xl mx-auto text-center space-y-6">
-        <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto text-white text-xl">
+        <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center mx-auto text-white text-xl shadow-sm">
           <i class="fa-solid fa-robot"></i>
         </div>
-        <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Automatically reply to every review with a personalized message.</h2>
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Automatically reply to every review with a personalized message[span_10](start_span)[span_10](end_span).</h2>
         <p class="text-blue-100 text-base max-w-xl mx-auto leading-relaxed">
-          Save time and improve your response rate with AI responses that customers love.
+          Save time and improve your response rate with AI responses that customers love[span_11](start_span)[span_11](end_span).
         </p>
       </div>
     </section>
 
-    <!-- Core Feature 2: Review Monitoring -->
+    <!-- Core Feature 2: Smart Low-Rating Alerts -->
     <section class="max-w-4xl mx-auto px-6 py-20 text-center space-y-6">
-      <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-xl shadow-xs">
-        <i class="fa-solid fa-bell"></i>
+      <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl shadow-xs">
+        <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
-      <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Get notified of new reviews so you respond right away.</h2>
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Instant alerts for 1 to 3-star reviews so you can act fast.</h2>
       <p class="text-slate-600 text-base max-w-xl mx-auto leading-relaxed">
-        Responding to reviews shows you care about your customers and helps you build trust.
+        While autopilot handles the rest, get immediate notifications on critical feedback to salvage customer relationships right away.
       </p>
     </section>
 
@@ -134,28 +125,28 @@
     <section class="bg-white border-y border-slate-200 py-24 px-6">
       <div class="max-w-5xl mx-auto text-center space-y-12">
         <div class="space-y-3">
-          <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Built for Every Business Type</h2>
-          <p class="text-slate-600 text-sm">SJbs.AI helps businesses across every industry collect more Google reviews.</p>
+          <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Built for Every Business Type[span_12](start_span)[span_12](end_span)</h2>
+          <p class="text-slate-600 text-sm">SJbs.AI helps businesses across every industry collect more Google reviews[span_13](start_span)[span_13](end_span).</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Nail Salons</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Barber Shops</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Restaurants</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Dentists</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Auto Repair Shops</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Car Dealers</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Coffee Shops</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Medical Clinics</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Chiropractors</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Beauty Salons</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hair Salons</div>
-          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hotels</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Nail Salons[span_14](start_span)[span_14](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Barber Shops[span_15](start_span)[span_15](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Restaurants[span_16](start_span)[span_16](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Dentists[span_17](start_span)[span_17](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Auto Repair Shops[span_18](start_span)[span_18](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Car Dealers[span_19](start_span)[span_19](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Coffee Shops[span_20](start_span)[span_20](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Medical Clinics[span_21](start_span)[span_21](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Chiropractors[span_22](start_span)[span_22](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Beauty Salons[span_23](start_span)[span_23](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hair Salons[span_24](start_span)[span_24](end_span)</div>
+          <div class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-bold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition shadow-2xs">Hotels[span_25](start_span)[span_25](end_span)</div>
         </div>
 
         <div>
-          <a href="coming-soon.html?page=industries" class="text-xs font-bold text-blue-600 hover:underline inline-flex items-center space-x-1">
-            <span>View all business types</span>
+          <a href="#" class="text-xs font-bold text-blue-600 hover:underline inline-flex items-center space-x-1">
+            <span>View all business types[span_26](start_span)[span_26](end_span)</span>
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </a>
         </div>
@@ -165,10 +156,10 @@
     <!-- Bottom CTA Banner -->
     <section class="bg-gradient-to-b from-slate-50 to-blue-50 py-24 px-6 text-center">
       <div class="max-w-3xl mx-auto space-y-6">
-        <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">Start collecting reviews in less than 60 seconds</h2>
-        <p class="text-slate-600 text-sm sm:text-base">Get real results fast. More reviews, more customers, more sales.</p>
+        <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">Start collecting reviews in less than 60 seconds[span_27](start_span)[span_27](end_span)</h2>
+        <p class="text-slate-600 text-sm sm:text-base">Get real results fast. More reviews, more customers, more sales[span_28](start_span)[span_28](end_span).</p>
         <div class="pt-4">
-          <a href="coming-soon.html" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
+          <a href="coming-soon.html?feature=shop" class="btn-dark px-8 py-4 rounded-full text-sm font-bold inline-flex items-center space-x-2 shadow-lg shadow-slate-900/10">
             <i class="fa-solid fa-bag-shopping"></i>
             <span>Shop Now</span>
           </a>
@@ -185,39 +176,46 @@
       </a>
 
       <div class="flex items-center space-x-6 text-slate-600 text-lg">
-        <a href="coming-soon.html?social=instagram" class="hover:text-blue-600 transition"><i class="fa-brands fa-instagram"></i></a>
-        <a href="coming-soon.html?social=youtube" class="hover:text-blue-600 transition"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="hover:text-blue-600 transition"><i class="fa-brands fa-youtube"></i></a>
       </div>
 
-      <p class="text-xs text-slate-400">Copyright © 2024 – 2026 SJbs.AI. All rights reserved.</p>
+      <p class="text-xs text-slate-400">Copyright © 2024 – 2026 SJbs.AI. All rights reserved[span_29](start_span)[span_29](end_span).</p>
 
       <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
-        <a href="coming-soon.html?page=privacy" class="hover:underline">Privacy Policy</a>
-        <a href="coming-soon.html?page=terms" class="hover:underline">Terms of Service</a>
-        <a href="coming-soon.html?page=businesses" class="hover:underline">For Businesses</a>
-        <a href="coming-soon.html?page=community" class="hover:underline">Community</a>
-        <a href="coming-soon.html?page=casestudies" class="hover:underline">Case Studies</a>
-        <a href="coming-soon.html?page=guide" class="hover:underline">Get More Reviews Guide</a>
-        <a href="coming-soon.html?page=blog" class="hover:underline">Blog</a>
-        <a href="coming-soon.html?page=tools" class="hover:underline">Free Tools</a>
+        <a href="#" class="hover:underline">Privacy Policy[span_30](start_span)[span_30](end_span)</a>
+        <a href="#" class="hover:underline">Terms of Service[span_31](start_span)[span_31](end_span)</a>
+        <a href="#" class="hover:underline">For Businesses[span_32](start_span)[span_32](end_span)</a>
+        <a href="#" class="hover:underline">Community[span_33](start_span)[span_33](end_span)</a>
+        <a href="#" class="hover:underline">Case Studies[span_34](start_span)[span_34](end_span)</a>
+        <a href="#" class="hover:underline">Get More Reviews Guide[span_35](start_span)[span_35](end_span)</a>
+        <a href="#" class="hover:underline">Blog[span_36](start_span)[span_36](end_span)</a>
+        <a href="#" class="hover:underline">Free Tools[span_37](start_span)[span_37](end_span)</a>
       </div>
     </div>
   </footer>
 
-  <!-- Modular Script -->
+  <!-- Scripts -->
   <script src="js/config.js"></script>
   <script>
     function toggleMenu() {
       const menu = document.getElementById('floatingMenu');
       const overlay = document.getElementById('menuOverlay');
-      if (menu && overlay) {
+      const icon = document.getElementById('menuIcon');
+      
+      if (menu && overlay && icon) {
         menu.classList.toggle('hidden');
         overlay.classList.toggle('hidden');
+        
+        if (menu.classList.contains('hidden')) {
+          icon.className = 'fa-solid fa-bars text-lg';
+        } else {
+          icon.className = 'fa-solid fa-xmark text-lg';
+        }
       }
     }
 
     function triggerGoogleLogin() {
-      // Directs to backend Google OAuth route when Login is clicked from floating menu
       window.location.href = `${CONFIG.BACKEND_URL}/auth/google`;
     }
   </script>
