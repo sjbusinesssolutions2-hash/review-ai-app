@@ -7,82 +7,115 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; color: #111827; }
-    .btn-black { background-color: #111827; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
-    .btn-black:hover { background-color: #1f2937; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
     .btn-blue { background-color: #2563eb; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
     .btn-blue:hover { background-color: #1d4ed8; }
-    .btn-outline { border: 1px solid #e5e7eb; background-color: #ffffff; color: #374151; font-weight: 500; }
-    .btn-outline:hover { background-color: #f3f4f6; }
+    .btn-outline { border: 1px solid #e2e8f0; background-color: #ffffff; color: #334155; font-weight: 500; }
+    .btn-outline:hover { background-color: #f1f5f9; }
+    .btn-black { background-color: #0f172a; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-black:hover { background-color: #1e293b; }
   </style>
 </head>
-<body class="flex flex-col lg:flex-row h-screen overflow-hidden bg-gray-50">
+<body class="flex flex-col lg:flex-row h-screen overflow-hidden bg-slate-50">
 
-  <!-- Mobile Header -->
-  <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-20">
+  <!-- Mobile Top Bar Header -->
+  <div class="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-20">
     <div class="flex items-center space-x-3">
-      <button onclick="toggleMobileSidebar()" class="text-gray-700 focus:outline-none p-1">
+      <button onclick="toggleMobileSidebar()" class="text-slate-700 focus:outline-none p-1">
         <i class="fa-solid fa-bars text-xl"></i>
       </button>
-      <span class="text-lg font-bold tracking-tight text-gray-900">SJbs.<span class="text-gray-500">AI</span></span>
+      <span class="text-lg font-bold tracking-tight text-slate-900">SJbs.<span class="text-slate-500">AI</span></span>
     </div>
+
     <div class="flex items-center space-x-3">
-      <button class="btn-blue text-xs px-3 py-1.5 rounded-full">Upgrade plan</button>
+      <button id="mobileUpgradeBtn" class="btn-blue text-xs px-3 py-1.5 rounded-full">Upgrade plan</button>
       <div class="relative">
-        <button onclick="toggleProfileDropdown('mobileDropdown')" class="w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-xs flex items-center justify-center focus:outline-none">
-          <span id="mobileAvatarInitials">--</span>
+        <button onclick="toggleDropdown('mobileDropdown')" class="w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-xs flex items-center justify-center focus:outline-none">
+          <span id="mobileAvatarInitials">JD</span>
         </button>
-        <div id="mobileDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
-          <a href="settings.html" class="flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-100">
-            <i class="fa-solid fa-gear mr-2 text-gray-400"></i> Settings
+        <div id="mobileDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50">
+          <a href="settings.html" class="flex items-center px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
+            <i class="fa-solid fa-gear mr-2 text-slate-400"></i> Settings
           </a>
-          <button onclick="logoutUser()" class="w-full text-left flex items-center px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 border-t border-gray-100">
-            <i class="fa-solid fa-right-from-bracket mr-2 text-gray-400"></i> Log out
+          <button onclick="logoutUser()" class="w-full text-left flex items-center px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 border-t border-slate-100">
+            <i class="fa-solid fa-right-from-bracket mr-2 text-slate-400"></i> Log out
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="mobileBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-gray-900/50 z-30 hidden lg:hidden"></div>
+  <div id="mobileBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-auto">
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-200 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-auto">
     <div>
-      <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100">
-        <span class="text-xl font-bold tracking-tight text-gray-900">SJbs.<span class="text-gray-500">AI</span></span>
-        <button onclick="toggleMobileSidebar()" class="lg:hidden text-gray-400 hover:text-gray-600">
+      <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
+        <span class="text-xl font-bold tracking-tight text-slate-900">SJbs.<span class="text-slate-500">AI</span></span>
+        <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-slate-600">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <!-- Real Business Location Switcher -->
-      <div class="p-4 border-b border-gray-100 bg-gray-50/50">
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">OVERVIEW</label>
-        <div class="flex items-center space-x-2 bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
-          <i class="fa-solid fa-store text-gray-500 text-xs"></i>
-          <select id="locationSelect" onchange="onLocationChange()" class="w-full bg-transparent font-medium text-gray-800 text-xs focus:outline-none cursor-pointer truncate">
-            <option value="">Fetching Google accounts...</option>
-          </select>
+      <!-- Custom Floating Location Selector (ProsperQR Style) -->
+      <div class="p-4 relative">
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Location</label>
+        
+        <!-- Trigger Card Button -->
+        <button onclick="toggleDropdown('locationDropdownMenu')" class="w-full bg-white border border-slate-200 rounded-2xl p-3 flex items-center justify-between text-left shadow-sm hover:border-slate-300 transition focus:outline-none">
+          <div class="overflow-hidden pr-2">
+            <div id="selectedLocTitle" class="font-bold text-slate-900 text-xs truncate">India Bat Service</div>
+            <div id="selectedLocRating" class="text-[11px] text-amber-500 font-medium mt-0.5 flex items-center space-x-1">
+              <span>★ 5.0 (29)</span>
+              <span id="selectedLocSubtext" class="text-slate-400 truncate font-normal">36-Sargam society...</span>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+        </button>
+
+        <!-- Custom Floating Dropdown Menu -->
+        <div id="locationDropdownMenu" class="hidden absolute left-4 right-4 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1">
+          <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Locations</div>
+          
+          <button onclick="selectLocation('all')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs font-semibold text-slate-700">
+            <span>All locations</span>
+            <i id="check_all" class="fa-solid fa-check text-blue-600 text-xs hidden"></i>
+          </button>
+
+          <button onclick="selectLocation('loc_bat_service')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs">
+            <div>
+              <div class="font-bold text-slate-900">India Bat Service</div>
+              <div class="text-[11px] text-amber-500 font-medium mt-0.5">★ 5.0 (29) <span class="text-slate-400 font-normal">36-Sargam society, nea...</span></div>
+            </div>
+            <i id="check_loc_bat_service" class="fa-solid fa-check text-blue-600 text-xs"></i>
+          </button>
+
+          <button onclick="selectLocation('loc_sj_solutions')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs">
+            <div>
+              <div class="font-bold text-slate-900">SJ Business Solutions</div>
+              <div class="text-[11px] text-amber-500 font-medium mt-0.5">★ 0.0 (0)</div>
+            </div>
+            <i id="check_loc_sj_solutions" class="fa-solid fa-check text-blue-600 text-xs hidden"></i>
+          </button>
         </div>
       </div>
 
-      <!-- Nav Sheet -->
-      <nav class="p-4 space-y-1">
-        <a href="inbox.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg">
-          <i class="fa-solid fa-inbox w-5 h-5 mr-3 text-gray-700"></i> Inbox
+      <!-- Navigation Sheet -->
+      <nav class="px-4 space-y-1">
+        <a href="inbox.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-blue-600 bg-blue-50/80 rounded-xl">
+          <i class="fa-solid fa-inbox w-5 h-5 mr-3 text-blue-600"></i> Inbox
         </a>
-        <a href="reviews.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-          <i class="fa-solid fa-star w-5 h-5 mr-3 text-gray-400"></i> Reviews
+        <a href="reviews.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl">
+          <i class="fa-solid fa-star w-5 h-5 mr-3 text-slate-400"></i> Reviews
         </a>
-        <a href="posts.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-          <i class="fa-solid fa-pen-to-square w-5 h-5 mr-3 text-gray-400"></i> Posts
+        <a href="posts.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl">
+          <i class="fa-solid fa-pen-to-square w-5 h-5 mr-3 text-slate-400"></i> Posts
         </a>
-        <a href="autoreply.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-          <i class="fa-solid fa-robot w-5 h-5 mr-3 text-gray-400"></i> Auto Reply
+        <a href="autoreply.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl">
+          <i class="fa-solid fa-robot w-5 h-5 mr-3 text-slate-400"></i> Auto Reply
         </a>
-        <a href="analytics.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
-          <i class="fa-solid fa-chart-line w-5 h-5 mr-3 text-gray-400"></i> Analytics
+        <a href="analytics.html" class="flex items-center px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl">
+          <i class="fa-solid fa-chart-line w-5 h-5 mr-3 text-slate-400"></i> Analytics
         </a>
       </nav>
     </div>
@@ -93,8 +126,8 @@
         SJ
       </div>
       <div>
-        <h4 class="text-sm font-bold text-gray-900">Message Us</h4>
-        <p class="text-xs text-gray-500 mt-1 leading-snug">Whether you have questions or feature requests we are always happy to support you.</p>
+        <h4 class="text-sm font-bold text-slate-900">Message Us</h4>
+        <p class="text-xs text-slate-500 mt-1 leading-snug">Whether you have questions or feature requests we are always happy to support you.</p>
       </div>
       <a href="mailto:sj.business.solutions.2@gmail.com" class="inline-flex items-center justify-center w-full btn-blue py-2 px-3 rounded-xl text-xs font-semibold space-x-1.5 shadow-sm">
         <i class="fa-solid fa-comment-dots"></i>
@@ -103,68 +136,56 @@
     </div>
   </aside>
 
-  <!-- Workspace -->
+  <!-- Main Content Workspace -->
   <main class="flex-1 overflow-y-auto flex flex-col min-w-0">
 
-    <header class="hidden lg:flex h-16 bg-white border-b border-gray-200 px-8 items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Active Location:</span>
-        <span id="activeLocationName" class="font-semibold text-gray-900 text-sm">Loading Google Account...</span>
-      </div>
+    <header class="hidden lg:flex h-16 bg-white border-b border-slate-200 px-8 items-center justify-between">
+      <div class="text-xs font-semibold text-slate-500">Your most important tasks for today</div>
 
       <div class="flex items-center space-x-4">
-        <button class="btn-blue text-xs px-4 py-2 rounded-full font-medium shadow-sm">Upgrade plan</button>
+        <button id="desktopUpgradeBtn" class="btn-blue text-xs px-4 py-2 rounded-full font-medium shadow-sm">Upgrade plan</button>
 
         <div class="relative">
-          <button onclick="toggleProfileDropdown('desktopDropdown')" class="flex items-center space-x-1 focus:outline-none">
-            <div id="desktopAvatar" class="w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-xs flex items-center justify-center">
-              --
+          <button onclick="toggleDropdown('desktopDropdown')" class="flex items-center space-x-1 focus:outline-none">
+            <div id="desktopAvatar" class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+              JD
             </div>
-            <i class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+            <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
           </button>
 
-          <div id="desktopDropdown" class="hidden absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-50">
-            <a href="settings.html" class="flex items-center px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
-              <i class="fa-solid fa-gear mr-2.5 text-gray-400"></i> Settings
+          <div id="desktopDropdown" class="hidden absolute right-0 mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50">
+            <a href="settings.html" class="flex items-center px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+              <i class="fa-solid fa-gear mr-2.5 text-slate-400"></i> Settings
             </a>
-            <button onclick="logoutUser()" class="w-full text-left flex items-center px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 border-t border-gray-100">
-              <i class="fa-solid fa-right-from-bracket mr-2.5 text-gray-400"></i> Log out
+            <button onclick="logoutUser()" class="w-full text-left flex items-center px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 border-t border-slate-100">
+              <i class="fa-solid fa-right-from-bracket mr-2.5 text-slate-400"></i> Log out
             </button>
           </div>
         </div>
       </div>
     </header>
 
-    <div class="p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6">
+    <div class="p-4 sm:p-6 lg:p-8 max-w-4xl w-full mx-auto space-y-6">
 
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Inbox & Suggestions</h1>
-        <p class="text-xs sm:text-sm text-gray-500 mt-1">Manage recent Google reviews and AI post suggestions for your location.</p>
-      </div>
-
-      <!-- Real AI Post Card -->
-      <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <h2 class="text-base sm:text-lg font-semibold text-gray-900">Daily Google Post Suggestion</h2>
-          <button id="btnGeneratePost" onclick="generateDailyPost()" class="btn-black text-xs px-3 py-2 rounded-lg flex items-center justify-center space-x-1.5 w-full sm:w-auto">
+      <!-- AI Daily Post Generator Card -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-bold text-slate-900">Daily Google Post Suggestion</h2>
+          <button onclick="generateDailyPost()" class="btn-black text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Generate AI Post</span>
+            <span>Generate Post</span>
           </button>
         </div>
 
-        <div id="aiPostContainer" class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-xs sm:text-sm text-gray-700">
-          <p class="text-gray-500 italic">Click "Generate AI Post" to produce an actual Gemini AI post tailored to your connected business.</p>
+        <div id="aiPostContainer" class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-600">
+          <p class="italic">Click "Generate Post" to create a fresh localized update with an AI visual for <strong id="activePostBusinessName">India Bat Service</strong>.</p>
         </div>
       </div>
 
-      <!-- Reviews Feed -->
-      <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
-        <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Recent Google Reviews</h2>
-        <div id="reviewsList" class="space-y-4">
-          <div class="p-4 border border-gray-100 rounded-lg bg-gray-50 text-center py-6">
-            <p class="text-xs sm:text-sm text-gray-500">Connected to live Google Business Profile account.</p>
-          </div>
-        </div>
+      <!-- Live Unreplied Reviews Feed (ProsperQR Layout) -->
+      <div class="space-y-4">
+        <h2 class="text-base font-bold text-slate-900">Unreplied Reviews</h2>
+        <div id="reviewsList" class="space-y-4"></div>
       </div>
 
     </div>
@@ -173,6 +194,9 @@
   <script>
     const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
     let currentUserId = new URLSearchParams(window.location.search).get('userId') || localStorage.getItem('userId');
+    let activeLocationId = 'loc_bat_service';
+    let activeLocationName = 'India Bat Service';
+    let locationsData = [];
 
     if (currentUserId) localStorage.setItem('userId', currentUserId);
 
@@ -181,7 +205,7 @@
       document.getElementById('mobileBackdrop').classList.toggle('hidden');
     }
 
-    function toggleProfileDropdown(id) {
+    function toggleDropdown(id) {
       document.getElementById(id).classList.toggle('hidden');
     }
 
@@ -197,82 +221,199 @@
       }
 
       try {
-        // Load User Profile
         const userRes = await fetch(`${BACKEND_URL}/api/user`, { headers: { 'Authorization': currentUserId } });
         const user = await userRes.json();
 
         if (user && user.displayName) {
-          const initials = user.displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+          const initials = user.displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || 'JD';
           document.getElementById('desktopAvatar').innerText = initials;
           document.getElementById('mobileAvatarInitials').innerText = initials;
         }
 
-        // Fetch Real Google Business Locations from API
         const locRes = await fetch(`${BACKEND_URL}/api/locations`, { headers: { 'Authorization': currentUserId } });
-        const locData = await locRes.json();
+        const data = await locRes.json();
+        locationsData = data.locations || [];
 
-        const locSelect = document.getElementById('locationSelect');
-        locSelect.innerHTML = '';
-
-        if (locData.locations && locData.locations.length > 0) {
-          locData.locations.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc.locationId;
-            opt.innerText = loc.locationName;
-            locSelect.appendChild(opt);
-          });
-          document.getElementById('activeLocationName').innerText = locData.locations[0].locationName;
-        } else {
-          locSelect.innerHTML = '<option value="">No Google locations found</option>';
-          document.getElementById('activeLocationName').innerText = user.displayName + ' Business';
-        }
+        // Set default to India Bat Service (Pro branch)
+        selectLocation('loc_bat_service');
 
       } catch (err) {
-        console.error('Initialization error:', err);
+        console.error('Error initializing page:', err);
+        fetchLiveReviews('loc_bat_service');
       }
     }
 
-    function onLocationChange() {
-      const locSelect = document.getElementById('locationSelect');
-      const selectedName = locSelect.options[locSelect.selectedIndex]?.text || 'My Business';
-      document.getElementById('activeLocationName').innerText = selectedName;
+    function selectLocation(locId) {
+      activeLocationId = locId;
+
+      // Hide checkmarks
+      document.getElementById('check_all').classList.add('hidden');
+      document.getElementById('check_loc_bat_service').classList.add('hidden');
+      document.getElementById('check_loc_sj_solutions').classList.add('hidden');
+
+      const checkElem = document.getElementById(`check_${locId}`);
+      if (checkElem) checkElem.classList.remove('hidden');
+
+      // Update button trigger & header state
+      const upgradeBtn = document.getElementById('desktopUpgradeBtn');
+      const mobileUpgradeBtn = document.getElementById('mobileUpgradeBtn');
+
+      if (locId === 'loc_bat_service') {
+        activeLocationName = 'India Bat Service';
+        document.getElementById('selectedLocTitle').innerText = 'India Bat Service';
+        document.getElementById('selectedLocRating').innerHTML = '★ 5.0 (29) <span class="text-slate-400 font-normal">36-Sargam society...</span>';
+        
+        // Paid Tier Behavior
+        if (upgradeBtn) { upgradeBtn.innerText = 'Pro Active'; upgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-4 py-2 rounded-full font-bold border border-emerald-200'; }
+        if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Pro Active'; mobileUpgradeBtn.className = 'bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-bold'; }
+
+      } else if (locId === 'loc_sj_solutions') {
+        activeLocationName = 'SJ Business Solutions';
+        document.getElementById('selectedLocTitle').innerText = 'SJ Business Solutions';
+        document.getElementById('selectedLocRating').innerHTML = '★ 0.0 (0)';
+        
+        // Free Tier Behavior
+        if (upgradeBtn) { upgradeBtn.innerText = 'Upgrade plan'; upgradeBtn.className = 'btn-blue text-xs px-4 py-2 rounded-full font-medium shadow-sm'; }
+        if (mobileUpgradeBtn) { mobileUpgradeBtn.innerText = 'Upgrade plan'; mobileUpgradeBtn.className = 'btn-blue text-xs px-3 py-1.5 rounded-full'; }
+
+      } else {
+        activeLocationName = 'All locations';
+        document.getElementById('selectedLocTitle').innerText = 'All locations';
+        document.getElementById('selectedLocRating').innerHTML = 'Showing all 2 branches';
+      }
+
+      document.getElementById('activePostBusinessName').innerText = activeLocationName;
+      document.getElementById('locationDropdownMenu').classList.add('hidden');
+
+      // Refresh reviews feed for selected branch
+      fetchLiveReviews(locId);
+    }
+
+    async function fetchLiveReviews(locId) {
+      const reviewsList = document.getElementById('reviewsList');
+      reviewsList.innerHTML = '<p class="text-xs text-slate-400 italic py-4">Fetching unreplied reviews...</p>';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/reviews?locationId=${locId}`);
+        const data = await res.json();
+
+        if (data.reviews && data.reviews.length > 0) {
+          reviewsList.innerHTML = '';
+          data.reviews.forEach(rev => {
+            const starsHtml = Array(rev.starRating || 5).fill('<i class="fa-solid fa-star"></i>').join('');
+
+            reviewsList.innerHTML += `
+              <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="text-xs font-bold text-slate-900 tracking-wide">Post this review reply</div>
+                
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                    ${rev.reviewerInitials || 'US'}
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-900">${rev.reviewerName}</h4>
+                    <div class="text-amber-400 text-[10px] flex space-x-0.5 mt-0.5">${starsHtml}</div>
+                  </div>
+                </div>
+
+                <div class="pl-3 border-l-2 border-amber-400 text-xs italic text-slate-700">
+                  "${rev.comment}"
+                </div>
+
+                <div id="replyBox_${rev.reviewId}" class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center space-x-1.5 text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Auto-Reply Draft</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-900">Response from owner</div>
+                  <p class="text-xs text-slate-600 leading-relaxed">Click "Draft AI Reply" to generate a tailored response for ${activeLocationName}.</p>
+                  <div class="flex space-x-2 pt-1">
+                    <button onclick="generateAIReply('${rev.reviewId}', \`${rev.comment}\`, ${rev.starRating}, '${rev.reviewerName}')" class="btn-blue text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1">
+                      <i class="fa-solid fa-paper-plane"></i>
+                      <span>Draft AI Reply</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          reviewsList.innerHTML = '<p class="text-xs text-slate-500 py-6 text-center">No unreplied reviews found for this branch!</p>';
+        }
+
+      } catch (err) {
+        reviewsList.innerHTML = '<p class="text-xs text-red-500 py-4">Failed to load reviews.</p>';
+      }
     }
 
     async function generateDailyPost() {
       const container = document.getElementById('aiPostContainer');
-      const activeBusiness = document.getElementById('activeLocationName').innerText;
-
-      container.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Gemini AI is crafting a custom post for ' + activeBusiness + '...</p>';
+      container.innerHTML = `<p class="text-xs text-slate-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Gemini AI is crafting post for ${activeLocationName}...</p>`;
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/ai/post`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            businessName: activeBusiness,
-            topic: 'customer satisfaction, quality service, and weekly local offer'
+            businessName: activeLocationName,
+            topic: 'quality service, expertise, and customer satisfaction'
           })
         });
 
         const data = await res.json();
 
-        if (data.postContent) {
-          container.innerHTML = `
-            <div class="space-y-3">
-              <p class="text-xs sm:text-sm font-medium text-gray-800 leading-relaxed">${data.postContent}</p>
-              ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-lg border border-gray-200">` : ''}
-              <div class="flex justify-end space-x-2 pt-2">
-                <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
-                <button onclick="alert('Post published to Google Business Profile!')" class="btn-black px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
-              </div>
+        container.innerHTML = `
+          <div class="space-y-3">
+            <p class="text-xs text-slate-800 leading-relaxed font-medium">${data.postContent}</p>
+            ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full max-h-64 object-cover rounded-xl border border-slate-200">` : ''}
+            <div class="flex justify-end space-x-2 pt-2">
+              <button class="btn-outline px-3 py-1.5 text-xs rounded-lg">Edit</button>
+              <button onclick="alert('Post published directly to Google Business Profile!')" class="btn-blue px-3 py-1.5 text-xs rounded-lg">Publish Post</button>
             </div>
-          `;
-        } else {
-          container.innerHTML = '<p class="text-xs text-red-500">Failed to generate AI content. Please try again.</p>';
-        }
+          </div>
+        `;
 
       } catch (err) {
-        container.innerHTML = '<p class="text-xs text-red-500">Connection error. Please try again.</p>';
+        container.innerHTML = '<p class="text-xs text-red-500">Failed to generate AI post. Please try again.</p>';
+      }
+    }
+
+    async function generateAIReply(reviewId, reviewText, rating, reviewerName) {
+      const replyBox = document.getElementById(`replyBox_${reviewId}`);
+      replyBox.innerHTML = `<p class="text-xs text-slate-500 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Drafting AI response for ${activeLocationName}...</p>`;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/ai/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reviewText,
+            rating,
+            reviewerName,
+            businessName: activeLocationName
+          })
+        });
+
+        const data = await res.json();
+
+        replyBox.innerHTML = `
+          <div class="flex items-center space-x-1.5 text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Auto-Reply Draft</span>
+          </div>
+          <div class="text-xs font-bold text-slate-900">Response from owner</div>
+          <textarea id="text_${reviewId}" class="w-full p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none bg-white text-slate-800" rows="3">${data.reply}</textarea>
+          <div class="flex space-x-2 pt-1">
+            <button onclick="alert('Reply published to Google review!')" class="btn-blue text-xs px-3.5 py-1.5 rounded-lg flex items-center space-x-1">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Post this reply</span>
+            </button>
+            <button onclick="fetchLiveReviews(activeLocationId)" class="btn-outline text-xs px-3.5 py-1.5 rounded-lg">Cancel</button>
+          </div>
+        `;
+
+      } catch (err) {
+        replyBox.innerHTML = '<p class="text-xs text-red-500">Failed to draft AI response.</p>';
       }
     }
 
@@ -280,3 +421,4 @@
   </script>
 </body>
 </html>
+  
