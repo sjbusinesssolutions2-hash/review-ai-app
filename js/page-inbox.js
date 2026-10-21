@@ -12,11 +12,10 @@ const InboxPage = {
     const badgeCount = document.getElementById('inbox-badge-count');
     if (!feedContainer) return;
 
-    // Loading State
     feedContainer.innerHTML = `
       <div id="loading-state" class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
         <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Fetching live unreplied Google reviews for ${business.name}...</p>
+        <p class="text-xs font-semibold text-slate-500">Fetching live unreplied Google reviews & generating AI replies...</p>
       </div>
     `;
 
@@ -24,33 +23,32 @@ const InboxPage = {
     let unrepliedReviews = [];
 
     try {
-      // Real API Endpoint fetching unreplied reviews & Gemini AI draft responses from backend
+      // Real API Endpoint fetching Google reviews + Gemini AI 2-line draft responses
       const response = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/unreplied?userId=${userId}&businessId=${business.id}`);
       
       if (response.ok) {
         unrepliedReviews = await response.json();
       } else {
-        throw new Error('Failed to fetch reviews');
+        throw new Error('Server returned an error');
       }
     } catch (err) {
-      console.error('Error loading live reviews:', err);
+      console.error('API Error:', err);
       feedContainer.innerHTML = `
         <div class="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-3 shadow-xs">
           <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-xl">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+            <i class="fa-solid fa-circle-exclamation"></i>
           </div>
-          <p class="text-sm font-bold text-slate-900">Unable to sync Google reviews</p>
-          <p class="text-xs text-slate-500">Please check your Google Business Profile connection or backend service status.</p>
+          <p class="text-sm font-bold text-slate-900">Syncing with Google Business Profile...</p>
+          <p class="text-xs text-slate-500">Ensure your backend server is active and Google Business permissions are granted.</p>
         </div>
       `;
       if (badgeCount) badgeCount.textContent = '0';
       return;
     }
 
-    // Update Sidebar Badge Count
     if (badgeCount) badgeCount.textContent = unrepliedReviews.length;
 
-    // Render "You are all caught up!" state if no unreplied reviews exist on Google
+    // Render "You are all caught up!" if no unreplied reviews exist
     if (unrepliedReviews.length === 0) {
       feedContainer.innerHTML = `
         <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
@@ -64,10 +62,9 @@ const InboxPage = {
       return;
     }
 
-    // Render Live Review Action Cards
+    // Render Review Cards
     feedContainer.innerHTML = '';
     unrepliedReviews.forEach(item => {
-      // Calculate initials from reviewer's actual Google display name
       const authorName = item.reviewerName || 'Google User';
       const nameParts = authorName.trim().split(' ');
       let initials = 'G';
@@ -77,7 +74,6 @@ const InboxPage = {
         initials = nameParts[0].substring(0, 2).toUpperCase();
       }
 
-      // Convert numerical rating (1-5) to stars
       const starRating = parseInt(item.starRating) || 5;
       const starsHtml = '★'.repeat(starRating) + '☆'.repeat(5 - starRating);
 
@@ -109,12 +105,10 @@ const InboxPage = {
           </p>
         </div>
 
-        <!-- Dynamic Reply Container (Swaps between View and Edit Mode) -->
         <div id="reply-container-${item.reviewId}">
           ${this.getReplyDraftViewMarkup(item.reviewId, item.aiDraftReply)}
         </div>
 
-        <!-- Action Buttons Container -->
         <div id="actions-container-${item.reviewId}" class="flex items-center space-x-4 pt-1">
           ${this.getStandardActionButtonsMarkup(item.reviewId)}
         </div>
@@ -227,13 +221,13 @@ const InboxPage = {
       });
 
       if (response.ok) {
-        alert('Response saved and posted to Google My Business!');
+        alert('Response saved and published to Google My Business!');
         this.dismissCard(id);
       } else {
-        alert('Failed to post reply. Please check your backend connection.');
+        alert('Failed to post reply to Google My Business.');
       }
     } catch (err) {
-      alert('Error posting reply. Please try again.');
+      alert('Network error while posting reply.');
     }
   },
 
@@ -254,13 +248,13 @@ const InboxPage = {
       });
 
       if (response.ok) {
-        alert('Response posted to Google My Business!');
+        alert('Response published to Google My Business!');
         this.dismissCard(id);
       } else {
-        alert('Failed to post reply. Please check your backend connection.');
+        alert('Failed to post reply to Google My Business.');
       }
     } catch (err) {
-      alert('Error posting reply. Please try again.');
+      alert('Network error while posting reply.');
     }
   },
 
