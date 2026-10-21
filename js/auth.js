@@ -1,40 +1,18 @@
 // js/auth.js
 const Auth = {
-  async init() {
+  init() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     const userName = urlParams.get('userName');
     const userEmail = urlParams.get('userEmail');
 
     if (userId) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
-    
-    // Clear out old cached SJ names if present
-    if (userName) {
-      const decodedName = decodeURIComponent(userName);
-      if (!decodedName.includes('SJ Business Solutions')) {
-        localStorage.setItem(CONFIG.STORAGE_KEYS.USER_NAME, decodedName);
-      }
-    }
-    if (userEmail) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_EMAIL, userEmail);
+    if (userName) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_NAME, decodeURIComponent(userName));
+    if (userEmail) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_EMAIL, decodeURIComponent(userEmail));
 
     if (userId || userName) {
       const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
       window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
-    }
-
-    // If name is missing from storage, fetch real profile from backend
-    if (!localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME) && this.getUserId()) {
-      try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/user?userId=${this.getUserId()}`);
-        if (res.ok) {
-          const userData = await res.json();
-          if (userData.displayName) {
-            localStorage.setItem(CONFIG.STORAGE_KEYS.USER_NAME, userData.displayName);
-          }
-        }
-      } catch (e) {
-        console.warn('Could not fetch user profile:', e);
-      }
     }
 
     this.renderUserProfile();
@@ -49,10 +27,11 @@ const Auth = {
     if (!avatarElem) return;
 
     let storedName = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME) || '';
-    
-    // Force fallback if old SJ name is stuck
-    if (!storedName || storedName.includes('SJ Business Solutions')) {
-      storedName = 'User Account';
+
+    // If no name is found or it got saved as the company name, fallback to User
+    if (!storedName || storedName.trim() === '') {
+      avatarElem.textContent = 'U';
+      return;
     }
 
     const nameParts = storedName.trim().split(' ').filter(Boolean);
