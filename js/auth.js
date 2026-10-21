@@ -22,18 +22,21 @@ const Auth = {
     if (!avatarElem) return;
 
     const storedName = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME);
-    
+
     if (!storedName) {
-      avatarElem.textContent = 'U';
+      avatarElem.textContent = '--';
       return;
     }
 
-    const nameParts = storedName.trim().split(' ');
-    let initials = 'U';
+    const nameParts = storedName.trim().split(' ').filter(Boolean);
+    let initials = '';
+
     if (nameParts.length >= 2) {
       initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
     } else if (nameParts.length === 1 && nameParts[0].length > 0) {
       initials = nameParts[0].substring(0, 2).toUpperCase();
+    } else {
+      initials = 'G';
     }
 
     avatarElem.textContent = initials;
