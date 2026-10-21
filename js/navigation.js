@@ -12,9 +12,7 @@ const Navigation = {
     const locationsList = document.getElementById('locations-list');
 
     if (!userId) {
-      if (locationsList) {
-        locationsList.innerHTML = `<p class="text-xs text-slate-400 p-3 text-center">Please log in via Google to load your locations.</p>`;
-      }
+      this.renderNoBusinessState("Please sign in with Google to access your locations.");
       return;
     }
 
@@ -26,32 +24,12 @@ const Navigation = {
         this.businesses = [];
       }
     } catch (err) {
-      console.warn('Backend connection error:', err);
+      console.warn('Network error loading locations:', err);
       this.businesses = [];
     }
 
-    // Zero hardcoded fallbacks: Handle empty state gracefully
     if (!this.businesses || this.businesses.length === 0) {
-      const nameElem = document.getElementById('selected-business-name');
-      const ratingElem = document.getElementById('selected-business-rating');
-      const reviewsElem = document.getElementById('selected-business-reviews');
-      const planElem = document.getElementById('selected-business-plan');
-
-      if (nameElem) nameElem.textContent = "No Connected Business";
-      if (ratingElem) ratingElem.textContent = "★ 0.0";
-      if (reviewsElem) reviewsElem.textContent = "(0)";
-      if (planElem) {
-        planElem.textContent = "Inactive";
-        planElem.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600";
-      }
-
-      if (locationsList) {
-        locationsList.innerHTML = `<p class="text-xs text-slate-400 p-3 text-center">No Google Business Profile locations found for this account.</p>`;
-      }
-
-      if (window.InboxPage && typeof window.InboxPage.renderEmptyState === 'function') {
-        window.InboxPage.renderEmptyState("No Google Business Profile connected.");
-      }
+      this.renderNoBusinessState("No Google Business Profile locations connected.");
       return;
     }
 
@@ -61,6 +39,30 @@ const Navigation = {
     this.renderLocationsList();
     if (initialBusiness) {
       this.selectBusiness(initialBusiness.id);
+    }
+  },
+
+  renderNoBusinessState(message) {
+    const nameElem = document.getElementById('selected-business-name');
+    const ratingElem = document.getElementById('selected-business-rating');
+    const reviewsElem = document.getElementById('selected-business-reviews');
+    const planElem = document.getElementById('selected-business-plan');
+    const locationsList = document.getElementById('locations-list');
+
+    if (nameElem) nameElem.textContent = "No Location Connected";
+    if (ratingElem) ratingElem.textContent = "";
+    if (reviewsElem) reviewsElem.textContent = "";
+    if (planElem) {
+      planElem.textContent = "Inactive";
+      planElem.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
+    }
+
+    if (locationsList) {
+      locationsList.innerHTML = `<p class="text-xs text-slate-400 p-3 text-center">${message}</p>`;
+    }
+
+    if (window.InboxPage && typeof window.InboxPage.renderEmptyState === 'function') {
+      window.InboxPage.renderEmptyState(message);
     }
   },
 
@@ -92,8 +94,8 @@ const Navigation = {
     const planElem = document.getElementById('selected-business-plan');
 
     if (nameElem) nameElem.textContent = business.name;
-    if (ratingElem) ratingElem.textContent = `★ ${business.rating || '0.0'}`;
-    if (reviewsElem) reviewsElem.textContent = `(${business.reviewCount || 0})`;
+    if (ratingElem) ratingElem.textContent = business.rating ? `★ ${business.rating}` : '';
+    if (reviewsElem) reviewsElem.textContent = business.reviewCount !== undefined ? `(${business.reviewCount})` : '';
 
     if (planElem) {
       planElem.textContent = business.hasActivePlan ? 'Active' : 'Free';
