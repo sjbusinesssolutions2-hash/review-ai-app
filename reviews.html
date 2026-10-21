@@ -1,1 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SJbs.AI - Reviews Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .btn-blue { background-color: #3b82f6; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
+    .btn-blue:hover { background-color: #2563eb; }
+    
+    #sidebar-overlay { transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out; }
+    #sidebar-overlay.overlay-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #sidebar-overlay.overlay-visible { opacity: 1; visibility: visible; pointer-events: auto; }
 
+    #app-sidebar { transition: transform 0.25s ease-in-out; }
+    #app-sidebar.sidebar-closed { transform: translateX(-100%); }
+    #app-sidebar.sidebar-open { transform: translateX(0); }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-500 selection:text-white">
+
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-40 overlay-hidden"></div>
+
+  <!-- Slide-out Sidebar -->
+  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-200 flex flex-col justify-between sidebar-closed overflow-y-auto">
+    <div class="p-5 space-y-6">
+      
+      <!-- Business Selector Dropdown -->
+      <div class="relative">
+        <button id="business-dropdown-btn" class="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-2xl p-3.5 flex items-center justify-between text-left transition">
+          <div class="overflow-hidden space-y-0.5">
+            <p id="selected-business-name" class="text-sm font-bold text-slate-900 truncate">Loading Business...</p>
+            <div class="flex items-center space-x-2 text-xs text-slate-500">
+              <span id="selected-business-rating" class="font-semibold text-slate-700">--</span>
+              <span id="selected-business-reviews"></span>
+              <span id="selected-business-plan" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">--</span>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2"></i>
+        </button>
+
+        <!-- Locations Switcher Popup -->
+        <div id="locations-menu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Locations</div>
+          <div id="locations-list" class="space-y-1 max-h-60 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-6">
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Overview</p>
+          <a href="inbox.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-inbox w-4 text-center text-slate-400"></i>
+            <span>Inbox</span>
+          </a>
+          <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-house w-4 text-center text-slate-400"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="get-more-reviews.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-qrcode w-4 text-center text-slate-400"></i>
+            <span>QR Codes</span>
+          </a>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Reputation</p>
+          <a href="reviews.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm">
+            <div class="flex items-center space-x-3">
+              <i class="fa-regular fa-star w-4 text-center"></i>
+              <span>Reviews</span>
+            </div>
+          </a>
+          <a href="auto-reply.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-rotate-left w-4 text-center text-slate-400"></i>
+            <span>Auto-Reply</span>
+          </a>
+          <a href="notifications.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-regular fa-bell w-4 text-center text-slate-400"></i>
+            <span>Notifications</span>
+          </a>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Insights</p>
+          <a href="reports.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-regular fa-file-lines w-4 text-center text-slate-400"></i>
+            <span>Reports</span>
+          </a>
+          <a href="analytics.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-chart-line w-4 text-center text-slate-400"></i>
+              <span>Analytics</span>
+            </div>
+            <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Pro</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Support Card -->
+    <div class="p-5 border-t border-slate-100">
+      <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center space-y-3">
+        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-lg shadow-xs">
+          <i class="fa-solid fa-user-tie"></i>
+        </div>
+        <div class="space-y-1">
+          <p class="font-bold text-slate-900 text-sm">Message Us</p>
+          <p class="text-xs text-slate-500 leading-relaxed">Whether you have questions or feature requests we are always happy to support you.</p>
+        </div>
+        <a href="mailto:sj.business.solutions.2@gmail.com?subject=SJbs.AI%20Support" class="btn-blue w-full py-2.5 rounded-xl text-xs font-bold inline-flex items-center justify-center space-x-2 shadow-xs transition">
+          <i class="fa-regular fa-comment-dots"></i>
+          <span>Tell us anything</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Global Header -->
+  <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-30 h-16 flex items-center justify-between px-4 sm:px-6">
+    <div class="flex items-center space-x-3">
+      <button id="hamburger-btn" class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-700 focus:outline-none transition">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+
+      <a href="inbox.html" class="flex items-center space-x-1.5 text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+        <i class="fa-solid fa-comment-dots text-blue-600 text-lg"></i>
+        <span>SJbs.<span class="text-blue-600">AI</span></span>
+      </a>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <div id="header-plan-action"></div>
+
+      <div class="relative">
+        <button id="user-menu-btn" class="flex items-center space-x-1.5 p-1 rounded-full hover:bg-slate-100 transition focus:outline-none">
+          <div id="user-avatar" class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+          </div>
+          <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] pr-1"></i>
+        </button>
+
+        <div id="user-menu-popup" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 space-y-1">
+          <a href="settings.html" class="flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-gear text-slate-400"></i>
+            <span>Settings</span>
+          </a>
+          <button id="logout-btn" class="w-full text-left flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Log out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Reviews Main Content -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Customer Reviews</h1>
+        <p class="text-xs sm:text-sm text-slate-500">View and manage all Google Business Profile reviews for your location</p>
+      </div>
+    </div>
+
+    <div id="reviews-feed-container" class="space-y-4">
+      <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
+        <p class="text-xs font-semibold text-slate-500">Loading reviews from Google Business Profile...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    // Reviews Page Specific Dynamic Feed Loader
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userId = Auth.getUserId();
+      if (!userId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const container = document.getElementById('reviews-feed-container');
+      if (!container) return;
+
+      try {
+        const businessId = localStorage.getItem('sjbs_selected_business_id');
+        if (!businessId) {
+          container.innerHTML = `
+            <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+              <i class="fa-solid fa-store text-3xl text-slate-400"></i>
+              <p class="text-sm font-bold text-slate-800">No Business Location Selected</p>
+              <p class="text-xs text-slate-500">Please choose a business from the top sidebar dropdown.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/unreplied?userId=${userId}&businessId=${businessId}`);
+        if (!res.ok) throw new Error('Failed to load reviews');
+
+        const reviews = await res.json();
+
+        if (reviews.length === 0) {
+          container.innerHTML = `
+            <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+              <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-lg">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <p class="text-base font-bold text-slate-900">All reviews are replied to!</p>
+              <p class="text-xs text-slate-500">There are no pending unreplied reviews for this location.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = reviews.map(r => `
+          <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-xs">
+            <div class="flex items-start justify-between">
+              <div class="space-y-1">
+                <p class="font-bold text-slate-900 text-sm sm:text-base">${r.reviewerName}</p>
+                <div class="flex items-center space-x-1 text-amber-400 text-xs">
+                  ${Array.from({length: 5}, (_, i) => `<i class="fa-${i < r.starRating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+                </div>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">${r.starRating} / 5 Stars</span>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.comment || 'No comment provided with this rating.'}</p>
+
+            <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Gemini AI Draft Reply</span>
+                </span>
+              </div>
+              <textarea id="reply-input-${r.reviewId}" class="w-full bg-white border border-blue-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="2">${r.aiDraftReply}</textarea>
+              <div class="flex justify-end">
+                <button onclick="postReply('${r.reviewId}')" class="btn-blue px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center space-x-2 shadow-xs">
+                  <span>Post Reply Live</span>
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error('Error loading reviews feed:', err);
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+            <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-lg">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <p class="text-base font-bold text-slate-900">Unable to load reviews</p>
+            <p class="text-xs text-slate-500">Please check your Google Business Profile connection and try again.</p>
+          </div>
+        `;
+      }
+    });
+
+    async function postReply(reviewId) {
+      const userId = Auth.getUserId();
+      const businessId = localStorage.getItem('sjbs_selected_business_id');
+      const textarea = document.getElementById(`reply-input-${reviewId}`);
+      if (!textarea) return;
+
+      const replyText = textarea.value.trim();
+      if (!replyText) {
+        alert('Reply text cannot be empty');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, businessId, reviewId, replyText })
+        });
+
+        if (res.ok) {
+          alert('Reply posted successfully to Google Business Profile!');
+          window.location.reload();
+        } else {
+          alert('Failed to post reply. Please try again.');
+        }
+      } catch (e) {
+        alert('Network error posting reply.');
+      }
+    }
+  </script>
+
+  <!-- Global Navigation Handlers -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hBtn = document.getElementById('hamburger-btn');
+      const sBar = document.getElementById('app-sidebar');
+      const sOverlay = document.getElementById('sidebar-overlay');
+
+      function toggleS() {
+        if (!sBar || !sOverlay) return;
+        const isOpen = sBar.classList.contains('sidebar-open');
+        if (isOpen) {
+          sBar.classList.remove('sidebar-open');
+          sBar.classList.add('sidebar-closed');
+          sOverlay.classList.remove('overlay-visible');
+          sOverlay.classList.add('overlay-hidden');
+        } else {
+          sBar.classList.remove('sidebar-closed');
+          sBar.classList.add('sidebar-open');
+          sOverlay.classList.remove('overlay-hidden');
+          sOverlay.classList.add('overlay-visible');
+        }
+      }
+
+      if (hBtn) hBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleS(); });
+      if (sOverlay) sOverlay.addEventListener('click', toggleS);
+
+      const uBtn = document.getElementById('user-menu-btn');
+      const uPop = document.getElementById('user-menu-popup');
+      if (uBtn && uPop) {
+        uBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          uPop.classList.toggle('hidden');
+        });
+      }
+
+      const bBtn = document.getElementById('business-dropdown-btn');
+      const bPop = document.getElementById('locations-menu');
+      if (bBtn && bPop) {
+        bBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          bPop.classList.toggle('hidden');
+        });
+      }
+
+      document.addEventListener('click', () => {
+        if (uPop) uPop.classList.add('hidden');
+        if (bPop) bPop.classList.add('hidden');
+      });
+
+      const lBtn = document.getElementById('logout-btn');
+      if (lBtn) {
+        lBtn.addEventListener('click', () => {
+          localStorage.clear();
+          window.location.href = 'login.html';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
