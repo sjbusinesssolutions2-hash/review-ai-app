@@ -10,147 +10,198 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
     .btn-blue { background-color: #3b82f6; color: #ffffff; font-weight: 500; transition: background 0.2s ease; }
     .btn-blue:hover { background-color: #2563eb; }
+    
+    #sidebar-overlay {
+      transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+    }
+    #sidebar-overlay.overlay-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #sidebar-overlay.overlay-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #app-sidebar {
+      transition: transform 0.25s ease-in-out;
+    }
+    #app-sidebar.sidebar-closed {
+      transform: translateX(-100%);
+    }
+    #app-sidebar.sidebar-open {
+      transform: translateX(0);
+    }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 flex selection:bg-blue-500 selection:text-white">
+<body class="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- Sidebar (ProsperQR App Style) -->
-  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-300 md:translate-x-0 -translate-x-full">
-    <div class="p-6 space-y-8">
-      <!-- Logo -->
-      <a href="inbox.html" class="flex items-center space-x-2 text-2xl font-black tracking-tight text-slate-900">
-        <span>SJbs.</span><span class="text-blue-600">AI</span>
-      </a>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-40 overlay-hidden"></div>
+
+  <!-- Slide-out Sidebar -->
+  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-200 flex flex-col justify-between sidebar-closed overflow-y-auto">
+    <div class="p-5 space-y-6">
+      
+      <!-- Business Selector Dropdown -->
+      <div class="relative">
+        <button id="business-dropdown-btn" class="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-2xl p-3.5 flex items-center justify-between text-left transition">
+          <div class="overflow-hidden space-y-0.5">
+            <p id="selected-business-name" class="text-sm font-bold text-slate-900 truncate">Loading locations...</p>
+            <div class="flex items-center space-x-2 text-xs text-slate-500">
+              <span id="selected-business-rating" class="font-semibold text-slate-700">★ 0.0</span>
+              <span id="selected-business-reviews">(0)</span>
+              <span id="selected-business-plan" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">Free</span>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2"></i>
+        </button>
+
+        <!-- Locations Switcher Popup -->
+        <div id="locations-menu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Locations</div>
+          <div id="locations-list" class="space-y-1 max-h-60 overflow-y-auto"></div>
+        </div>
+      </div>
 
       <!-- Navigation Links -->
-      <nav class="space-y-1 text-sm font-semibold text-slate-600">
-        <a href="inbox.html" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-600 font-bold">
-          <i class="fa-solid fa-inbox w-5"></i>
-          <span>Inbox & Reviews</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">
-          <i class="fa-solid fa-bullhorn w-5 text-slate-400"></i>
-          <span>Local Posts</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">
-          <i class="fa-solid fa-qrcode w-5 text-slate-400"></i>
-          <span>Review QR Codes</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors">
-          <i class="fa-solid fa-sliders w-5 text-slate-400"></i>
-          <span>AI Settings</span>
-        </a>
+      <nav class="space-y-6">
+        <!-- Overview Group -->
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Overview</p>
+          <a href="inbox.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-inbox w-4 text-center"></i>
+              <span>Inbox</span>
+            </div>
+            <span id="inbox-badge-count" class="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+          </a>
+          <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-house w-4 text-center text-slate-400"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="get-more-reviews.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-qrcode w-4 text-center text-slate-400"></i>
+            <span>QR Codes</span>
+          </a>
+        </div>
+
+        <!-- Reputation Group -->
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Reputation</p>
+          <a href="reviews.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-regular fa-star w-4 text-center text-slate-400"></i>
+            <span>Reviews</span>
+          </a>
+          <a href="auto-reply.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-solid fa-rotate-left w-4 text-center text-slate-400"></i>
+            <span>Auto-Reply</span>
+          </a>
+          <a href="notifications.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-regular fa-bell w-4 text-center text-slate-400"></i>
+            <span>Notifications</span>
+          </a>
+        </div>
+
+        <!-- Insights Group -->
+        <div class="space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Insights</p>
+          <a href="reports.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <i class="fa-regular fa-file-lines w-4 text-center text-slate-400"></i>
+            <span>Reports</span>
+          </a>
+          <a href="analytics.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-chart-line w-4 text-center text-slate-400"></i>
+              <span>Analytics</span>
+            </div>
+            <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Pro</span>
+          </a>
+        </div>
       </nav>
     </div>
 
-    <!-- Sidebar Footer / Account Details -->
-    <div class="p-6 border-t border-slate-100 space-y-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-          <i class="fa-solid fa-store"></i>
+    <!-- Bottom Support Card -->
+    <div class="p-5 border-t border-slate-100">
+      <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center space-y-3">
+        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-lg shadow-xs">
+          <i class="fa-solid fa-user-tie"></i>
         </div>
-        <div class="overflow-hidden">
-          <p id="business-name" class="text-xs font-bold text-slate-900 truncate">Connected Business</p>
-          <p class="text-[11px] text-slate-400 truncate">Google Profile Active</p>
+        <div class="space-y-1">
+          <p class="font-bold text-slate-900 text-sm">Message Us</p>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Whether you have questions or feature requests we are always happy to support you.
+          </p>
         </div>
+        <a href="mailto:sj.business.solutions.2@gmail.com?subject=SJbs.AI%20Support%20Request" class="btn-blue w-full py-2.5 rounded-xl text-xs font-bold inline-flex items-center justify-center space-x-2 shadow-xs transition">
+          <i class="fa-regular fa-comment-dots"></i>
+          <span>Tell us anything</span>
+        </a>
       </div>
-      <a href="index.html" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold flex items-center justify-center space-x-2 transition">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>Sign Out</span>
-      </a>
     </div>
   </aside>
 
-  <!-- Main Workspace Area -->
-  <div class="flex-1 flex flex-col md:pl-64 min-h-screen">
-    
-    <!-- Top Header Bar -->
-    <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-6 flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <!-- Mobile Sidebar Toggle Button -->
-        <button id="sidebar-toggle" class="md:hidden text-slate-700 focus:outline-none text-xl p-2">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-        <h1 class="text-lg sm:text-xl font-bold text-slate-900">Review Inbox</h1>
-      </div>
+  <!-- Global Header -->
+  <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-30 h-16 flex items-center justify-between px-4 sm:px-6">
+    <div class="flex items-center space-x-3">
+      <button id="hamburger-btn" class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-700 focus:outline-none transition">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
 
-      <div class="flex items-center space-x-3">
-        <span class="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>GBP Connected</span>
-        </span>
-      </div>
-    </header>
+      <a href="inbox.html" class="flex items-center space-x-1.5 text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+        <i class="fa-solid fa-comment-dots text-blue-600 text-lg"></i>
+        <span>SJbs.<span class="text-blue-600">AI</span></span>
+      </a>
+    </div>
 
-    <!-- Page Content -->
-    <main class="flex-1 p-6 sm:p-10 space-y-8 max-w-6xl w-full mx-auto">
-      
-      <!-- Top Action / Status Bar -->
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <div class="space-y-1">
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900">Automated Review Management</h2>
-          <p class="text-xs sm:text-sm text-slate-500">Monitor customer feedback and manage AI response automation.</p>
-        </div>
-        <button id="sync-reviews-btn" class="btn-blue px-5 py-2.5 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs">
-          <i class="fa-solid fa-rotate"></i>
-          <span>Sync Latest Reviews</span>
-        </button>
-      </div>
+    <div class="flex items-center space-x-3">
+      <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
+        <span>Upgrade plan</span>
+      </a>
 
-      <!-- Quick Metrics Summary -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-2">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Rating</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-3xl font-black text-slate-900">4.9</span>
-            <span class="text-amber-500 text-sm">★★★★★</span>
+      <div class="relative">
+        <button id="user-menu-btn" class="flex items-center space-x-1.5 p-1 rounded-full hover:bg-slate-100 transition focus:outline-none">
+          <div id="user-avatar" class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            U
           </div>
-          <p class="text-xs text-emerald-600 font-semibold">Live Google Profile Data</p>
-        </div>
+          <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] pr-1"></i>
+        </button>
 
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-2">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Reviews</p>
-          <span class="text-3xl font-black text-slate-900">--</span>
-          <p class="text-xs text-slate-500">Synced from Google My Business</p>
-        </div>
-
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-2">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Auto-Reply Status</p>
-          <span class="text-xl font-bold text-emerald-600 flex items-center space-x-2">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>Active</span>
-          </span>
-          <p class="text-xs text-slate-500">Powered by Google Gemini AI</p>
+        <div id="user-menu-popup" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 space-y-1">
+          <a href="settings.html" class="flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-gear text-slate-400"></i>
+            <span>Settings</span>
+          </a>
+          <a href="login.html" class="flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Log out</span>
+          </a>
         </div>
       </div>
+    </div>
+  </header>
 
-      <!-- Review Feed Container -->
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-          <h3 class="font-bold text-slate-900 text-base">Google Reviews Feed</h3>
-          <span class="text-xs text-slate-400">Auto-refreshing</span>
-        </div>
+  <!-- Inbox Main View -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div class="space-y-1">
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Inbox</h1>
+      <p class="text-xs sm:text-sm text-slate-500">Your most important tasks for today</p>
+    </div>
 
-        <!-- Dynamic Review List Container -->
-        <div id="reviews-list" class="space-y-4">
-          <div class="text-center py-8 text-slate-400 text-sm">
-            <i class="fa-solid fa-spinner fa-spin text-xl mb-2 text-blue-600"></i>
-            <p>Connecting to backend and fetching reviews...</p>
-          </div>
-        </div>
+    <div id="inbox-feed-container" class="space-y-6">
+      <div id="loading-state" class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
+        <p class="text-xs font-semibold text-slate-500">Fetching unreplied reviews for selected business...</p>
       </div>
+    </div>
+  </main>
 
-    </main>
-  </div>
-
-  <!-- Mobile Sidebar Script -->
-  <script>
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const appSidebar = document.getElementById('app-sidebar');
-
-    sidebarToggle.addEventListener('click', () => {
-      appSidebar.classList.toggle('-translate-x-full');
-    });
-  </script>
+  <!-- Modular Scripts Integration -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/page-inbox.js"></script>
 </body>
 </html>
