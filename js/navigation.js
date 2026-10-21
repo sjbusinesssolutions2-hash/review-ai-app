@@ -50,6 +50,58 @@ const Navigation = {
     } else {
       sidebar.classList.remove('sidebar-closed');
       sidebar.classList.add('sidebar-open');
+// js/navigation.js
+const Navigation = {
+  businesses: [],
+  activeBusinessId: null,
+
+  init() {
+    this.bindEvents();
+    this.loadBusinesses();
+  },
+
+  bindEvents() {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const businessDropdownBtn = document.getElementById('business-dropdown-btn');
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const locationsMenu = document.getElementById('locations-menu');
+    const userMenuPopup = document.getElementById('user-menu-popup');
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => this.toggleSidebar());
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => this.toggleSidebar());
+
+    if (businessDropdownBtn && locationsMenu) {
+      businessDropdownBtn.addEventListener('click', () => locationsMenu.classList.toggle('hidden'));
+    }
+    if (userMenuBtn && userMenuPopup) {
+      userMenuBtn.addEventListener('click', () => userMenuPopup.classList.toggle('hidden'));
+    }
+
+    document.addEventListener('click', (e) => {
+      if (businessDropdownBtn && locationsMenu && !businessDropdownBtn.contains(e.target) && !locationsMenu.contains(e.target)) {
+        locationsMenu.classList.add('hidden');
+      }
+      if (userMenuBtn && userMenuPopup && !userMenuBtn.contains(e.target) && !userMenuPopup.contains(e.target)) {
+        userMenuPopup.classList.add('hidden');
+      }
+    });
+  },
+
+  toggleSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (!sidebar || !overlay) return;
+
+    const isOpen = sidebar.classList.contains('sidebar-open');
+    if (isOpen) {
+      sidebar.classList.remove('sidebar-open');
+      sidebar.classList.add('sidebar-closed');
+      overlay.classList.remove('overlay-visible');
+      overlay.classList.add('overlay-hidden');
+    } else {
+      sidebar.classList.remove('sidebar-closed');
+      sidebar.classList.add('sidebar-open');
       overlay.classList.remove('overlay-hidden');
       overlay.classList.add('overlay-visible');
     }
@@ -66,46 +118,37 @@ const Navigation = {
         }
       }
     } catch (err) {
-      console.warn('Backend business fetch pending, using local locations.');
+      console.warn('Backend business fetch error:', err);
     }
 
     if (!this.businesses || this.businesses.length === 0) {
-      this.businesses = [
-        {
-          id: 'loc_1',
-          name: 'India Bat Service',
-          rating: '5.0',
-          reviewCount: 29,
-          hasActivePlan: true,
-          address: '36-Sargam society, near...'
-        },
-        {
-          id: 'loc_2',
-          name: 'SJ Business Solutions',
-          rating: '0.0',
-          reviewCount: 0,
-          hasActivePlan: false,
-          address: 'Main Office'
-        }
-      ];
+      // Empty state if user has no locations yet
+      this.businesses = [];
     }
 
     const savedBusinessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
-    const initialBusiness = this.businesses.find(b => b.id === savedBusinessId) || this.businesses[0];
+    const initialBusiness = this.businesses.find(b => b.id === savedBusinessId) || (this.businesses[0] || null);
     
     this.renderLocationsList();
-    this.selectBusiness(initialBusiness.id);
+    if (initialBusiness) {
+      this.selectBusiness(initialBusiness.id);
+    }
   },
 
   renderLocationsList() {
     const locationsList = document.getElementById('locations-list');
     if (!locationsList) return;
 
+    if (this.businesses.length === 0) {
+      locationsList.innerHTML = `<p class="text-xs text-slate-400 p-2">No connected locations</p>`;
+      return;
+    }
+
     locationsList.innerHTML = this.businesses.map(loc => `
       <button onclick="Navigation.selectBusiness('${loc.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between transition">
         <div>
           <p class="text-xs font-bold text-slate-800">${loc.name}</p>
-          <p class="text-[10px] text-slate-400">★ ${loc.rating} (${loc.reviewCount}) ${loc.hasActivePlan ? '• Active Plan' : '• Free'}</p>
+          <p class="text-[10px] text-slate-400">★ ${loc.rating || '0.0'} (${loc.reviewCount || 0}) ${loc.hasActivePlan ? '• Active Plan' : '• Free'}</p>
         </div>
         ${loc.id === this.activeBusinessId ? '<i class="fa-solid fa-check text-blue-600 text-xs"></i>' : ''}
       </button>
@@ -119,15 +162,15 @@ const Navigation = {
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
 
-    // Update Sidebar Business Display
+    // Update Sidebar Header
     const nameElem = document.getElementById('selected-business-name');
     const ratingElem = document.getElementById('selected-business-rating');
     const reviewsElem = document.getElementById('selected-business-reviews');
     const planElem = document.getElementById('selected-business-plan');
 
     if (nameElem) nameElem.textContent = business.name;
-    if (ratingElem) ratingElem.textContent = `★ ${business.rating}`;
-    if (reviewsElem) reviewsElem.textContent = `(${business.reviewCount})`;
+    if (ratingElem) ratingElem.textContent = `★ ${business.rating || '0.0'}`;
+    if (reviewsElem) reviewsElem.textContent = `(${business.reviewCount || 0})`;
     
     if (planElem) {
       planElem.textContent = business.hasActivePlan ? 'Active' : 'Free';
@@ -136,7 +179,7 @@ const Navigation = {
         : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
     }
 
-    // Update Header Plan Button State based on Active Location Plan
+    // Dynamic Top Right Header Action Button
     const headerPlanContainer = document.getElementById('header-plan-action');
     if (headerPlanContainer) {
       if (business.hasActivePlan) {
