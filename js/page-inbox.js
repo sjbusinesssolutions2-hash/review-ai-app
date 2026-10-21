@@ -19,7 +19,7 @@ const InboxPage = {
           <i class="fa-solid fa-store"></i>
         </div>
         <h2 class="text-lg font-bold text-slate-900">${message || 'No location selected'}</h2>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto">Connect your Google Business Profile to view real unreplied reviews.</p>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">Connect your Google Business Profile to receive real unreplied customer reviews.</p>
       </div>
     `;
   },
@@ -37,7 +37,7 @@ const InboxPage = {
     feedContainer.innerHTML = `
       <div id="loading-state" class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
         <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Fetching unreplied Google reviews for ${business.name}...</p>
+        <p class="text-xs font-semibold text-slate-500">Syncing live unreplied Google reviews for ${business.name}...</p>
       </div>
     `;
 
@@ -59,7 +59,7 @@ const InboxPage = {
             <i class="fa-solid fa-circle-exclamation"></i>
           </div>
           <p class="text-sm font-bold text-slate-900">Unable to load Google reviews</p>
-          <p class="text-xs text-slate-500">Please verify your Google Business Profile connection and try again.</p>
+          <p class="text-xs text-slate-500">Please verify your Google Business Profile sync and try again.</p>
         </div>
       `;
       if (badgeCount) badgeCount.textContent = '0';
@@ -239,7 +239,7 @@ const InboxPage = {
       });
 
       if (response.ok) {
-        alert('Response saved and published to Google!');
+        alert('Response published to Google!');
         this.dismissCard(id);
       } else {
         alert('Failed to post reply to Google.');
@@ -288,4 +288,3 @@ const InboxPage = {
 };
 
 window.InboxPage = InboxPage;
-      
