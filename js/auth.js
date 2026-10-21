@@ -10,6 +10,11 @@ const Auth = {
     if (userName) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_NAME, decodeURIComponent(userName));
     if (userEmail) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_EMAIL, decodeURIComponent(userEmail));
 
+    if (userId || userName) {
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    }
+
     this.renderUserProfile();
   },
 
@@ -24,7 +29,7 @@ const Auth = {
     const storedName = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME);
 
     if (!storedName) {
-      avatarElem.textContent = '--';
+      avatarElem.textContent = '?';
       return;
     }
 
@@ -36,7 +41,7 @@ const Auth = {
     } else if (nameParts.length === 1 && nameParts[0].length > 0) {
       initials = nameParts[0].substring(0, 2).toUpperCase();
     } else {
-      initials = 'G';
+      initials = '?';
     }
 
     avatarElem.textContent = initials;
