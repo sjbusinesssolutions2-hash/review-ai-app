@@ -102,7 +102,6 @@ const InboxPage = {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
 
-    // Automatically hide the global app header / logo / upgrade plan on completion screen to match ProsperQR exactly
     const globalHeader = document.querySelector('header') || document.getElementById('app-header');
     if (globalHeader) {
       globalHeader.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
@@ -110,29 +109,8 @@ const InboxPage = {
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
-        <style>
-          @keyframes ufoFloat {
-            0% { transform: translateX(-40px) translateY(0px); }
-            50% { transform: translateX(40px) translateY(-6px); }
-            100% { transform: translateX(-40px) translateY(0px); }
-          }
-          @keyframes prosperPop {
-            0% { transform: scale(0.3); opacity: 0; }
-            65% { transform: scale(1.12); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          @keyframes prosperFade {
-            0% { opacity: 0; transform: translateY(12px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
-          .ufo-anim { animation: ufoFloat 10s ease-in-out infinite; }
-          .prosper-check { animation: prosperPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-          .prosper-content { animation: prosperFade 0.7s ease-out 0.15s forwards; opacity: 0; }
-        </style>
-
         <div class="fixed inset-0 z-[99999] overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh; width: 100vw; top: 0; left: 0;">
           
-          <!-- Exact ProsperQR Header: Hamburger Left, Profile Initial Right -->
           <div class="flex items-center justify-between px-5 py-4 w-full z-30">
             <button onclick="if(window.toggleMobileSidebar) window.toggleMobileSidebar(); else { const sb = document.getElementById('sidebar'); if(sb) sb.classList.toggle('-translate-x-full'); }" class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md text-white flex items-center justify-center border border-white/25 active:scale-95 transition shadow-xs">
               <i class="fa-solid fa-bars text-sm"></i>
@@ -142,8 +120,7 @@ const InboxPage = {
             </div>
           </div>
 
-          <!-- Floating UFO in Sky -->
-          <div class="absolute top-24 left-1/2 -translate-x-1/2 ufo-anim opacity-85 pointer-events-none z-20">
+          <div class="absolute top-24 left-1/2 -translate-x-1/2 opacity-85 pointer-events-none z-20">
             <svg width="68" height="30" viewBox="0 0 64 28" fill="none">
               <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
               <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
@@ -153,9 +130,8 @@ const InboxPage = {
             </svg>
           </div>
 
-          <!-- Center Content with Smooth Pop Animation -->
-          <div class="text-center px-6 space-y-5 my-auto z-30 prosper-content">
-            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20 prosper-check">
+          <div class="text-center px-6 space-y-5 my-auto z-30">
+            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
               <i class="fa-solid fa-check text-4xl"></i>
             </div>
 
@@ -172,7 +148,6 @@ const InboxPage = {
             </div>
           </div>
 
-          <!-- Bottom Sun & Mountain Horizon -->
           <div class="relative w-full h-44 overflow-hidden pointer-events-none z-20">
             <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 240" preserveAspectRatio="none">
               <defs>
