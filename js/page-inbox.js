@@ -82,23 +82,6 @@ const InboxPage = {
     return 'U';
   },
 
-  getFormattedDateTime() {
-    const now = new Date();
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    const dayName = days[now.getDay()];
-    const monthName = months[now.getMonth()];
-    const dayNum = now.getDate();
-    
-    let hours = now.getHours();
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-
-    return `${dayName}, ${monthName} ${dayNum} · ${hours}:${minutes} ${ampm}`;
-  },
-
   renderTasks() {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
@@ -106,58 +89,19 @@ const InboxPage = {
     const logo = document.getElementById('header-logo') || document.querySelector('.app-logo');
     const upgradeBtn = document.getElementById('upgrade-plan-btn') || document.querySelector('.upgrade-btn');
     
-    if (logo) logo.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
-    if (upgradeBtn) upgradeBtn.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
+    if (logo) logo.style.display = '';
+    if (upgradeBtn) upgradeBtn.style.display = '';
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
-        <div class="fixed inset-0 z-[40] overflow-hidden flex flex-col justify-between select-none pt-16" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh; width: 100vw; top: 0; left: 0;">
-          
-          <div class="absolute top-24 left-1/2 -translate-x-1/2 opacity-85 pointer-events-none z-10">
-            <svg width="68" height="30" viewBox="0 0 64 28" fill="none">
-              <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
-              <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
-              <circle cx="24" cy="18" r="2" fill="#38BDF8"/>
-              <circle cx="32" cy="18" r="2" fill="#38BDF8"/>
-              <circle cx="40" cy="18" r="2" fill="#38BDF8"/>
-            </svg>
+        <div class="bg-white border border-slate-200/90 rounded-3xl p-10 sm:p-14 text-center space-y-4 shadow-xs">
+          <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs">
+            <i class="fa-solid fa-check text-2xl"></i>
           </div>
-
-          <div class="text-center px-6 space-y-5 my-auto z-20">
-            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
-              <i class="fa-solid fa-check text-4xl"></i>
-            </div>
-
-            <div class="space-y-2">
-              <p class="text-xs sm:text-sm font-semibold text-blue-100 tracking-wide opacity-90">
-                ${this.getFormattedDateTime()}
-              </p>
-              <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                You're done for today.
-              </h1>
-              <p class="text-sm sm:text-base font-medium text-blue-100/90">
-                Check back tomorrow for more tasks
-              </p>
-            </div>
+          <div class="space-y-1.5">
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">You're done for today.</h2>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Check back tomorrow for more tasks</p>
           </div>
-
-          <div class="relative w-full h-44 overflow-hidden pointer-events-none z-10">
-            <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 240" preserveAspectRatio="none">
-              <defs>
-                <radialGradient id="sunGlow" cx="50%" cy="80%" r="50%">
-                  <stop offset="0%" stop-color="#fef08a" stop-opacity="1"/>
-                  <stop offset="40%" stop-color="#fde047" stop-opacity="0.8"/>
-                  <stop offset="70%" stop-color="#f59e0b" stop-opacity="0.3"/>
-                  <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
-                </radialGradient>
-              </defs>
-              <circle cx="720" cy="210" r="140" fill="url(#sunGlow)"/>
-              <circle cx="720" cy="210" r="45" fill="#fef08a"/>
-              <path fill="#3b2875" fill-opacity="0.6" d="M0,128L120,138.7C240,149,480,171,720,170.7C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
-              <path fill="#261852" d="M0,160L120,165.3C240,171,480,181,720,176C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
-            </svg>
-          </div>
-
         </div>
       `;
       return;
