@@ -45,7 +45,7 @@ const InboxPage = {
     container.innerHTML = `
       <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
         <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Loading inbox tasks...</p>
+        <p class="text-xs font-semibold text-slate-500">Syncing live review tasks...</p>
       </div>
     `;
 
@@ -56,7 +56,7 @@ const InboxPage = {
       const data = await res.json();
       const all = data.reviews || [];
 
-      // Only show reviews that have an AI draft ready
+      // Filter unreplied reviews that have an AI draft ready
       this.unrepliedReviews = all.filter(r => !r.reply && r.aiDraftReply && r.aiDraftReply.length > 0);
 
       this.renderTasks();
@@ -88,18 +88,27 @@ const InboxPage = {
     return 'G';
   },
 
+  formatCurrentDate() {
+    const now = new Date();
+    const options = { weekday: 'long', month: 'long', day: 'numeric' };
+    return now.toLocaleDateString('en-US', options);
+  },
+
   renderTasks() {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-          <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-lg">
-            <i class="fa-solid fa-circle-check"></i>
+        <div class="bg-gradient-to-b from-blue-500 to-indigo-600 rounded-3xl p-10 text-center text-white space-y-4 shadow-xl">
+          <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center mx-auto text-xl border border-white/30 shadow-inner">
+            <i class="fa-solid fa-check text-2xl"></i>
           </div>
-          <p class="text-base font-bold text-slate-900">All caught up for today!</p>
-          <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">No pending AI draft tasks available right now.</p>
+          <div class="space-y-1">
+            <p class="text-xs font-semibold text-blue-100 uppercase tracking-widest">${this.formatCurrentDate()}</p>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight">You're done for today.</h2>
+            <p class="text-xs sm:text-sm text-blue-100 font-medium">Check back tomorrow for more tasks</p>
+          </div>
         </div>
       `;
       return;
