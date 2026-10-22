@@ -18,6 +18,15 @@
     #app-sidebar { transition: transform 0.25s ease-in-out; }
     #app-sidebar.sidebar-closed { transform: translateX(-100%); }
     #app-sidebar.sidebar-open { transform: translateX(0); }
+
+    /* Drawer Transition */
+    #drawer-overlay { transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out; }
+    #drawer-overlay.drawer-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #drawer-overlay.drawer-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+
+    #review-drawer { transition: transform 0.25s ease-in-out; }
+    #review-drawer.drawer-closed { transform: translateX(100%); }
+    #review-drawer.drawer-open { transform: translateX(0); }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-500 selection:text-white">
@@ -28,7 +37,6 @@
   <!-- Slide-out Sidebar -->
   <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-200 flex flex-col justify-between sidebar-closed overflow-y-auto">
     <div class="p-5 space-y-6">
-      <!-- Business Selector Dropdown -->
       <div class="relative">
         <button id="business-dropdown-btn" class="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-2xl p-3.5 flex items-center justify-between text-left transition">
           <div class="overflow-hidden space-y-0.5">
@@ -48,7 +56,6 @@
         </div>
       </div>
 
-      <!-- Navigation Links -->
       <nav class="space-y-6">
         <div class="space-y-1">
           <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Overview</p>
@@ -101,7 +108,6 @@
       </nav>
     </div>
 
-    <!-- Support Card -->
     <div class="p-5 border-t border-slate-100">
       <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center space-y-3">
         <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-lg shadow-xs">
@@ -159,37 +165,41 @@
 
   <!-- Main Content -->
   <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
-    <!-- Header Title & Subtitle -->
     <div class="space-y-1">
       <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Inbox</h1>
       <p id="reviews-subheader-count" class="text-xs sm:text-sm text-slate-500">0 need reply</p>
     </div>
 
-    <!-- ProsperQR Style Filter Pill Bar -->
-    <!-- ProsperQR Style Filter Pill Bar (Screen-wide & Centered) -->
-<div class="w-full bg-slate-100/90 p-1.5 rounded-2xl grid grid-cols-3 gap-1 shadow-xs text-center" id="filter-tabs">
-  <button data-filter="needsYou" class="py-2.5 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs border border-slate-200/80 transition">
-    Needs you · <span id="count-needsyou">0</span>
-  </button>
-  <button data-filter="all" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
-    All · <span id="count-all">0</span>
-  </button>
-  <button data-filter="replied" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
-    Replied · <span id="count-replied">0</span>
-  </button>
-</div>
-
+    <!-- Screen-Wide Filter Pill Bar -->
+    <div class="w-full bg-slate-100/90 p-1.5 rounded-2xl grid grid-cols-3 gap-1 shadow-xs text-center" id="filter-tabs">
+      <button data-filter="needsYou" class="py-2.5 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs border border-slate-200/80 transition">
+        Needs you · <span id="count-needsyou">0</span>
+      </button>
+      <button data-filter="all" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+        All · <span id="count-all">0</span>
+      </button>
+      <button data-filter="replied" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+        Replied · <span id="count-replied">0</span>
+      </button>
+    </div>
 
     <!-- Feed Container -->
     <div id="reviews-feed-container" class="space-y-4"></div>
   </main>
+
+  <!-- Right-to-Left Slide Drawer Overlay -->
+  <div id="drawer-overlay" class="fixed inset-0 bg-slate-900/40 z-50 drawer-hidden"></div>
+
+  <!-- Slide-Over Drawer Container -->
+  <div id="review-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white border-l border-slate-200 shadow-2xl drawer-closed flex flex-col justify-between overflow-y-auto">
+    <div id="drawer-content" class="p-6 space-y-6"></div>
+  </div>
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/navigation.js"></script>
   <script src="js/page-reviews.js"></script>
 
-  <!-- Sidebar & Menu Handlers -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const hBtn = document.getElementById('hamburger-btn');
