@@ -9,7 +9,6 @@ const Navigation = {
 
   async loadBusinesses() {
     const userId = Auth.getUserId();
-    const locationsList = document.getElementById('locations-list');
 
     if (!userId) {
       this.renderNoBusinessState("Please sign in with Google to access your locations.");
@@ -33,7 +32,9 @@ const Navigation = {
       return;
     }
 
-    const savedBusinessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
+    // Check storage for saved active business
+    const savedKey = CONFIG.STORAGE_KEYS ? CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID : 'sjbs_selected_business_id';
+    const savedBusinessId = localStorage.getItem(savedKey) || localStorage.getItem('sjbs_selected_business_id');
     const initialBusiness = this.businesses.find(b => b.id === savedBusinessId) || this.businesses[0];
 
     this.renderLocationsList();
@@ -83,7 +84,12 @@ const Navigation = {
 
   selectBusiness(businessId) {
     this.activeBusinessId = businessId;
-    localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, businessId);
+
+    // Save to BOTH keys so all script files receive the active ID consistently
+    if (CONFIG.STORAGE_KEYS && CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID) {
+      localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, businessId);
+    }
+    localStorage.setItem('sjbs_selected_business_id', businessId);
 
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
@@ -126,6 +132,9 @@ const Navigation = {
     if (locationsMenu) locationsMenu.classList.add('hidden');
 
     this.renderLocationsList();
+
+    // Trigger page-level updates
+    window.dispatchEvent(new Event('businessChanged'));
 
     if (window.InboxPage && typeof window.InboxPage.onBusinessChange === 'function') {
       window.InboxPage.onBusinessChange(business);
