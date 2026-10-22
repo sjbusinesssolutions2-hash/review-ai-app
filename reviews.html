@@ -166,17 +166,19 @@
     </div>
 
     <!-- ProsperQR Style Filter Pill Bar -->
-    <div class="bg-slate-100/80 p-1.5 rounded-2xl flex items-center space-x-1 w-fit" id="filter-tabs">
-      <button data-filter="needsYou" class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs border border-slate-200 transition">
-        Needs you · <span id="count-needsyou">0</span>
-      </button>
-      <button data-filter="all" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
-        All · <span id="count-all">0</span>
-      </button>
-      <button data-filter="replied" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
-        Replied · <span id="count-replied">0</span>
-      </button>
-    </div>
+    <!-- ProsperQR Style Filter Pill Bar (Screen-wide & Centered) -->
+<div class="w-full bg-slate-100/90 p-1.5 rounded-2xl grid grid-cols-3 gap-1 shadow-xs text-center" id="filter-tabs">
+  <button data-filter="needsYou" class="py-2.5 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs border border-slate-200/80 transition">
+    Needs you · <span id="count-needsyou">0</span>
+  </button>
+  <button data-filter="all" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+    All · <span id="count-all">0</span>
+  </button>
+  <button data-filter="replied" class="py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+    Replied · <span id="count-replied">0</span>
+  </button>
+</div>
+
 
     <!-- Feed Container -->
     <div id="reviews-feed-container" class="space-y-4"></div>
