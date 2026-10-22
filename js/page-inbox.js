@@ -75,10 +75,11 @@ const InboxPage = {
   },
 
   getInitials(name) {
+    if (!name) return 'U';
     const parts = name.trim().split(' ').filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return 'G';
+    return 'U';
   },
 
   getFormattedDateTime() {
@@ -102,25 +103,17 @@ const InboxPage = {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
 
-    const globalHeader = document.querySelector('header') || document.getElementById('app-header');
-    if (globalHeader) {
-      globalHeader.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
-    }
+    const logo = document.getElementById('header-logo') || document.querySelector('.app-logo');
+    const upgradeBtn = document.getElementById('upgrade-plan-btn') || document.querySelector('.upgrade-btn');
+    
+    if (logo) logo.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
+    if (upgradeBtn) upgradeBtn.style.display = this.unrepliedReviews.length === 0 ? 'none' : '';
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
-        <div class="fixed inset-0 z-[99999] overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh; width: 100vw; top: 0; left: 0;">
+        <div class="fixed inset-0 z-[40] overflow-hidden flex flex-col justify-between select-none pt-16" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh; width: 100vw; top: 0; left: 0;">
           
-          <div class="flex items-center justify-between px-5 py-4 w-full z-30">
-            <button onclick="if(window.toggleMobileSidebar) window.toggleMobileSidebar(); else { const sb = document.getElementById('sidebar'); if(sb) sb.classList.toggle('-translate-x-full'); }" class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md text-white flex items-center justify-center border border-white/25 active:scale-95 transition shadow-xs">
-              <i class="fa-solid fa-bars text-sm"></i>
-            </button>
-            <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center border border-white/30 shadow-xs">
-              JD
-            </div>
-          </div>
-
-          <div class="absolute top-24 left-1/2 -translate-x-1/2 opacity-85 pointer-events-none z-20">
+          <div class="absolute top-24 left-1/2 -translate-x-1/2 opacity-85 pointer-events-none z-10">
             <svg width="68" height="30" viewBox="0 0 64 28" fill="none">
               <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
               <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
@@ -130,7 +123,7 @@ const InboxPage = {
             </svg>
           </div>
 
-          <div class="text-center px-6 space-y-5 my-auto z-30">
+          <div class="text-center px-6 space-y-5 my-auto z-20">
             <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
               <i class="fa-solid fa-check text-4xl"></i>
             </div>
@@ -148,7 +141,7 @@ const InboxPage = {
             </div>
           </div>
 
-          <div class="relative w-full h-44 overflow-hidden pointer-events-none z-20">
+          <div class="relative w-full h-44 overflow-hidden pointer-events-none z-10">
             <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 240" preserveAspectRatio="none">
               <defs>
                 <radialGradient id="sunGlow" cx="50%" cy="80%" r="50%">
