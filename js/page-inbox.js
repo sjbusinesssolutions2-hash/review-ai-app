@@ -39,10 +39,11 @@ const InboxPage = {
       return;
     }
 
+    // Sleek matching dark/blue gradient loader to prevent white jarring flashes
     container.innerHTML = `
-      <div class="py-20 text-center space-y-3">
-        <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i>
-        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Checking AI tasks...</p>
+      <div class="fixed inset-0 z-10 flex flex-col items-center justify-center space-y-4" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
+        <div class="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-blue-100 tracking-widest uppercase animate-pulse">Checking AI tasks...</p>
       </div>
     `;
 
@@ -53,13 +54,11 @@ const InboxPage = {
       const data = await res.json();
       const all = data.reviews || [];
 
-      // Filter unreplied reviews that have an AI draft
       this.unrepliedReviews = all.filter(r => !r.reply && r.aiDraftReply && r.aiDraftReply.length > 0);
 
       this.renderTasks();
     } catch (err) {
       console.error('Error loading inbox tasks:', err);
-      // Fallback: If network drops, safely default to empty tasks so completion screen renders cleanly
       this.unrepliedReviews = [];
       this.renderTasks();
     }
@@ -101,7 +100,7 @@ const InboxPage = {
     if (!container) return;
 
     if (this.unrepliedReviews.length === 0) {
-      // 100% ProsperQR Immersive Completion Screen
+      // Butter-smooth ProsperQR Entrance Transition
       container.innerHTML = `
         <style>
           @keyframes ufoFloat {
@@ -109,19 +108,19 @@ const InboxPage = {
             50% { transform: translateX(60px) translateY(-10px); }
             100% { transform: translateX(-60px) translateY(0px); }
           }
-          @keyframes checkPop {
-            0% { transform: scale(0.6); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+          @keyframes smoothFadeIn {
+            0% { opacity: 0; transform: translateY(12px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
           }
           .ufo-anim {
             animation: ufoFloat 8s ease-in-out infinite;
           }
-          .check-pop {
-            animation: checkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          .smooth-fade {
+            animation: smoothFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
         </style>
 
-        <div class="fixed inset-0 z-10 overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
+        <div class="fixed inset-0 z-10 overflow-hidden flex flex-col justify-between select-none smooth-fade" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
           
           <!-- Animated UFO / Clouds in Sky -->
           <div class="absolute top-16 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none">
@@ -134,11 +133,10 @@ const InboxPage = {
             </svg>
           </div>
 
-          <!-- Top Space Spacer -->
           <div></div>
 
           <!-- Central Content Card -->
-          <div class="text-center px-6 space-y-6 check-pop">
+          <div class="text-center px-6 space-y-6">
             <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
               <i class="fa-solid fa-check text-4xl"></i>
             </div>
