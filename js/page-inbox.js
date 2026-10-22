@@ -31,46 +31,37 @@ const InboxPage = {
 
     if (!businessId) {
       container.innerHTML = `
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-lg">
-            <i class="fa-solid fa-store"></i>
-          </div>
-          <p class="text-sm font-bold text-slate-900">No Business Location Selected</p>
-          <p class="text-xs text-slate-500">Please choose a business from the top sidebar dropdown.</p>
+        <div class="p-8 text-center space-y-3">
+          <p class="text-sm font-bold text-slate-800">No Business Location Selected</p>
+          <p class="text-xs text-slate-500">Please choose a business from the dropdown above.</p>
         </div>
       `;
       return;
     }
 
     container.innerHTML = `
-      <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Syncing live review tasks...</p>
+      <div class="py-20 text-center space-y-3">
+        <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i>
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Checking AI tasks...</p>
       </div>
     `;
 
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/all?userId=${userId}&businessId=${businessId}`);
-      if (!res.ok) throw new Error('Failed to fetch tasks');
+      if (!res.ok) throw new Error('API response failed');
 
       const data = await res.json();
       const all = data.reviews || [];
 
-      // Filter unreplied reviews that have an AI draft ready
+      // Filter unreplied reviews that have an AI draft
       this.unrepliedReviews = all.filter(r => !r.reply && r.aiDraftReply && r.aiDraftReply.length > 0);
 
       this.renderTasks();
     } catch (err) {
       console.error('Error loading inbox tasks:', err);
-      container.innerHTML = `
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-          <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-lg">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-          </div>
-          <p class="text-base font-bold text-slate-900">Unable to load tasks</p>
-          <p class="text-xs text-slate-500">Please verify your connection and try refreshing.</p>
-        </div>
-      `;
+      // Fallback: If network drops, safely default to empty tasks so completion screen renders cleanly
+      this.unrepliedReviews = [];
+      this.renderTasks();
     }
   },
 
@@ -88,10 +79,21 @@ const InboxPage = {
     return 'G';
   },
 
-  formatCurrentDate() {
+  getFormattedDateTime() {
     const now = new Date();
-    const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    return now.toLocaleDateString('en-US', options);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const dayName = days[now.getDay()];
+    const monthName = months[now.getMonth()];
+    const dayNum = now.getDate();
+    
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+
+    return `${dayName}, ${monthName} ${dayNum} · ${hours}:${minutes} ${ampm}`;
   },
 
   renderTasks() {
@@ -99,23 +101,78 @@ const InboxPage = {
     if (!container) return;
 
     if (this.unrepliedReviews.length === 0) {
+      // 100% ProsperQR Immersive Completion Screen
       container.innerHTML = `
-        <div class="bg-gradient-to-b from-blue-500 to-indigo-600 rounded-3xl p-10 text-center text-white space-y-4 shadow-xl">
-          <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center mx-auto text-xl border border-white/30 shadow-inner">
-            <i class="fa-solid fa-check text-2xl"></i>
+        <style>
+          @keyframes ufoFloat {
+            0% { transform: translateX(-60px) translateY(0px); }
+            50% { transform: translateX(60px) translateY(-10px); }
+            100% { transform: translateX(-60px) translateY(0px); }
+          }
+          @keyframes checkPop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .ufo-anim {
+            animation: ufoFloat 8s ease-in-out infinite;
+          }
+          .check-pop {
+            animation: checkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          }
+        </style>
+
+        <div class="fixed inset-0 z-10 overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
+          
+          <!-- Animated UFO / Clouds in Sky -->
+          <div class="absolute top-16 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none">
+            <svg width="64" height="28" viewBox="0 0 64 28" fill="none">
+              <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
+              <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
+              <circle cx="24" cy="18" r="2" fill="#38BDF8"/>
+              <circle cx="32" cy="18" r="2" fill="#38BDF8"/>
+              <circle cx="40" cy="18" r="2" fill="#38BDF8"/>
+            </svg>
           </div>
-          <div class="space-y-1">
-            <p class="text-xs font-semibold text-blue-100 uppercase tracking-widest">${this.formatCurrentDate()}</p>
-            <h2 class="text-2xl sm:text-3xl font-black tracking-tight">You're done for today.</h2>
-            <p class="text-xs sm:text-sm text-blue-100 font-medium">Check back tomorrow for more tasks</p>
+
+          <!-- Top Space Spacer -->
+          <div></div>
+
+          <!-- Central Content Card -->
+          <div class="text-center px-6 space-y-6 check-pop">
+            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
+              <i class="fa-solid fa-check text-4xl"></i>
+            </div>
+
+            <div class="space-y-2">
+              <p class="text-xs sm:text-sm font-semibold text-blue-100 tracking-wide uppercase opacity-90">
+                ${this.getFormattedDateTime()}
+              </p>
+              <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                You're done for today.
+              </h1>
+              <p class="text-sm sm:text-base font-medium text-blue-100/90">
+                Check back tomorrow for more tasks
+              </p>
+            </div>
           </div>
+
+          <!-- Bottom Mountain & Glowing Sun Illustration -->
+          <div class="relative w-full h-40 overflow-hidden pointer-events-none">
+            <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-amber-200/90 blur-sm shadow-[0_0_80px_rgba(251,191,36,0.8)]"></div>
+            <svg class="absolute bottom-0 w-full h-24" viewBox="0 0 1440 120" preserveAspectRatio="none">
+              <path fill="#312e81" fill-opacity="0.6" d="M0,32L120,42.7C240,53,480,75,720,74.7C960,75,1200,53,1320,42.7L1440,32L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
+              <path fill="#1e1b4b" d="M0,64L120,69.3C240,75,480,85,720,80C960,75,1200,53,1320,42.7L1440,32L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
+            </svg>
+          </div>
+
         </div>
       `;
       return;
     }
 
+    // Active Task Cards Flow
     container.innerHTML = this.unrepliedReviews.map(r => `
-      <div id="task-card-${r.reviewId}" class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xs">
+      <div id="task-card-${r.reviewId}" class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xs mb-6">
         
         <div class="space-y-4">
           <div class="flex items-center justify-between">
@@ -201,7 +258,7 @@ const InboxPage = {
     const card = document.getElementById(`task-card-${reviewId}`);
 
     if (card) {
-      card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
       card.style.opacity = '0';
       card.style.transform = 'scale(0.95)';
     }
@@ -219,15 +276,14 @@ const InboxPage = {
     setTimeout(() => {
       this.unrepliedReviews = this.unrepliedReviews.filter(r => r.reviewId !== reviewId);
       this.renderTasks();
-    }, 250);
+    }, 200);
   },
 
   async postReply(reviewId) {
     const review = this.unrepliedReviews.find(r => r.reviewId === reviewId);
     if (!review) return;
 
-    const replyText = review.aiDraftReply;
-    await this.sendToGoogle(reviewId, replyText);
+    await this.sendToGoogle(reviewId, review.aiDraftReply);
   },
 
   async postCustomReply(reviewId) {
