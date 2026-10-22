@@ -45,7 +45,7 @@ const InboxPage = {
     container.innerHTML = `
       <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
         <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Generating AI task cards for unreplied reviews...</p>
+        <p class="text-xs font-semibold text-slate-500">Loading inbox tasks...</p>
       </div>
     `;
 
@@ -56,8 +56,8 @@ const InboxPage = {
       const data = await res.json();
       const all = data.reviews || [];
 
-      // Filter ONLY unreplied reviews for Inbox task cards
-      this.unrepliedReviews = all.filter(r => !r.reply);
+      // Only show reviews that have an AI draft ready
+      this.unrepliedReviews = all.filter(r => !r.reply && r.aiDraftReply && r.aiDraftReply.length > 0);
 
       this.renderTasks();
     } catch (err) {
@@ -99,7 +99,7 @@ const InboxPage = {
             <i class="fa-solid fa-circle-check"></i>
           </div>
           <p class="text-base font-bold text-slate-900">All caught up for today!</p>
-          <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">There are no pending review replies for this location right now.</p>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">No pending AI draft tasks available right now.</p>
         </div>
       `;
       return;
@@ -108,7 +108,6 @@ const InboxPage = {
     container.innerHTML = this.unrepliedReviews.map(r => `
       <div id="task-card-${r.reviewId}" class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xs">
         
-        <!-- Header & Customer Meta -->
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-black text-slate-900 tracking-tight">Post this review reply</h2>
@@ -129,23 +128,20 @@ const InboxPage = {
             </div>
           </div>
 
-          <!-- Customer Comment with Amber Border -->
           <div class="border-l-2 border-amber-400 pl-3 py-0.5">
             <p class="text-xs sm:text-sm italic text-slate-700 leading-relaxed">${r.comment || 'No comment provided.'}</p>
           </div>
         </div>
 
-        <!-- AI Draft Section Container -->
         <div id="ai-reply-area-${r.reviewId}" class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 space-y-2">
           <div class="flex items-center space-x-1.5 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Auto-Reply Draft</span>
           </div>
           <p class="text-xs font-bold text-slate-900">Response from owner</p>
-          <p id="draft-text-${r.reviewId}" class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.aiDraftReply || 'Thank you for taking the time to share your review!'}</p>
+          <p id="draft-text-${r.reviewId}" class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.aiDraftReply}</p>
         </div>
 
-        <!-- Actions -->
         <div id="action-buttons-${r.reviewId}" class="flex items-center space-x-3 pt-1">
           <button id="post-btn-${r.reviewId}" onclick="InboxPage.postReply('${r.reviewId}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl inline-flex items-center space-x-2 transition shadow-xs">
             <i class="fa-solid fa-paper-plane text-xs"></i>
@@ -191,17 +187,30 @@ const InboxPage = {
     this.renderTasks();
   },
 
-  dismissTask(reviewId) {
+  async dismissTask(reviewId) {
+    const userId = Auth.getUserId();
     const card = document.getElementById(`task-card-${reviewId}`);
+
     if (card) {
       card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
       card.style.opacity = '0';
       card.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        this.unrepliedReviews = this.unrepliedReviews.filter(r => r.reviewId !== reviewId);
-        this.renderTasks();
-      }, 250);
     }
+
+    try {
+      await fetch(`${CONFIG.API_BASE_URL}/api/reviews/dismiss`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, reviewId })
+      });
+    } catch (e) {
+      console.warn('Dismiss notice:', e);
+    }
+
+    setTimeout(() => {
+      this.unrepliedReviews = this.unrepliedReviews.filter(r => r.reviewId !== reviewId);
+      this.renderTasks();
+    }, 250);
   },
 
   async postReply(reviewId) {
@@ -243,7 +252,8 @@ const InboxPage = {
       });
 
       if (res.ok) {
-        this.dismissTask(reviewId);
+        this.unrepliedReviews = this.unrepliedReviews.filter(r => r.reviewId !== reviewId);
+        this.renderTasks();
       } else {
         const errorData = await res.json();
         alert(`Failed to post reply: ${errorData.error || 'Please try again.'}`);
