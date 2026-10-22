@@ -1,290 +1,265 @@
 // js/page-inbox.js
 const InboxPage = {
-  currentBusiness: null,
+  unrepliedReviews: [],
 
-  onBusinessChange(business) {
-    this.currentBusiness = business;
-    this.loadInboxFeed(business);
-  },
-
-  renderEmptyState(message) {
-    const feedContainer = document.getElementById('inbox-feed-container');
-    const badgeCount = document.getElementById('inbox-badge-count');
-    if (badgeCount) badgeCount.textContent = '0';
-    if (!feedContainer) return;
-
-    feedContainer.innerHTML = `
-      <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-        <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-          <i class="fa-solid fa-store"></i>
-        </div>
-        <h2 class="text-lg font-bold text-slate-900">${message || 'No location selected'}</h2>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto">Connect your Google Business Profile to receive real unreplied customer reviews.</p>
-      </div>
-    `;
-  },
-
-  async loadInboxFeed(business) {
-    const feedContainer = document.getElementById('inbox-feed-container');
-    const badgeCount = document.getElementById('inbox-badge-count');
-    if (!feedContainer) return;
-
-    if (!business || !business.id) {
-      this.renderEmptyState("No Google Business Profile selected.");
-      return;
-    }
-
-    feedContainer.innerHTML = `
-      <div id="loading-state" class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
-        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Syncing live unreplied Google reviews for ${business.name}...</p>
-      </div>
-    `;
-
+  async init() {
     const userId = Auth.getUserId();
-    let unrepliedReviews = [];
-
-    try {
-      const response = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/unreplied?userId=${userId}&businessId=${business.id}`);
-      if (response.ok) {
-        unrepliedReviews = await response.json();
-      } else {
-        throw new Error('Failed to fetch reviews');
-      }
-    } catch (err) {
-      console.error('API Error:', err);
-      feedContainer.innerHTML = `
-        <div class="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-          <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-xl">
-            <i class="fa-solid fa-circle-exclamation"></i>
-          </div>
-          <p class="text-sm font-bold text-slate-900">Unable to load Google reviews</p>
-          <p class="text-xs text-slate-500">Please verify your Google Business Profile sync and try again.</p>
-        </div>
-      `;
-      if (badgeCount) badgeCount.textContent = '0';
+    if (!userId) {
+      window.location.href = 'login.html';
       return;
     }
 
-    if (badgeCount) badgeCount.textContent = unrepliedReviews.length;
+    this.bindEvents();
 
-    if (unrepliedReviews.length === 0) {
-      feedContainer.innerHTML = `
-        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
-          <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-xs">
-            <i class="fa-solid fa-check"></i>
-          </div>
-          <h2 class="text-xl font-black text-slate-900">You are all caught up!</h2>
-          <p class="text-xs text-slate-500 max-w-sm mx-auto">There are no pending unreplied Google reviews for ${business.name}.</p>
-        </div>
-      `;
-      return;
-    }
+    setTimeout(async () => {
+      await this.loadInboxTasks();
+    }, 300);
+  },
 
-    feedContainer.innerHTML = '';
-    unrepliedReviews.forEach(item => {
-      const authorName = item.reviewerName || 'Google User';
-      const nameParts = authorName.trim().split(' ').filter(Boolean);
-      let initials = 'G';
-      if (nameParts.length >= 2) {
-        initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-      } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-        initials = nameParts[0].substring(0, 2).toUpperCase();
-      }
-
-      const starRating = parseInt(item.starRating) || 5;
-      const starsHtml = '★'.repeat(starRating) + '☆'.repeat(5 - starRating);
-
-      const card = document.createElement('div');
-      card.className = 'bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 relative';
-      card.id = `card-${item.reviewId}`;
-      card.setAttribute('data-draft', item.aiDraftReply || '');
-
-      card.innerHTML = `
-        <button onclick="InboxPage.dismissCard('${item.reviewId}')" class="absolute top-6 right-6 text-slate-300 hover:text-slate-500 text-sm transition">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Post this review reply</h3>
-
-        <div class="space-y-3">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-              ${initials}
-            </div>
-            <div>
-              <p class="font-bold text-sm text-slate-900">${authorName}</p>
-              <div class="text-amber-400 text-xs">${starsHtml}</div>
-            </div>
-          </div>
-
-          <p class="text-xs text-slate-600 italic border-l-2 border-amber-400 pl-3 py-0.5">
-            "${item.comment || 'No comment provided.'}"
-          </p>
-        </div>
-
-        <div id="reply-container-${item.reviewId}">
-          ${this.getReplyDraftViewMarkup(item.reviewId, item.aiDraftReply || '')}
-        </div>
-
-        <div id="actions-container-${item.reviewId}" class="flex items-center space-x-4 pt-1">
-          ${this.getStandardActionButtonsMarkup(item.reviewId)}
-        </div>
-      `;
-      feedContainer.appendChild(card);
+  bindEvents() {
+    window.addEventListener('businessChanged', () => {
+      this.loadInboxTasks();
     });
   },
 
-  getReplyDraftViewMarkup(id, replyText) {
-    return `
-      <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 space-y-2">
-        <div class="flex items-center space-x-1.5 text-blue-600 text-[11px] font-bold uppercase tracking-wider">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span>Auto-Reply Draft</span>
+  async loadInboxTasks() {
+    const userId = Auth.getUserId();
+    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const container = document.getElementById('inbox-tasks-container');
+
+    if (!container) return;
+
+    if (!businessId) {
+      container.innerHTML = `
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-lg">
+            <i class="fa-solid fa-store"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-900">No Business Location Selected</p>
+          <p class="text-xs text-slate-500">Please choose a business from the top sidebar dropdown.</p>
         </div>
-        <p class="font-bold text-xs text-slate-900">Response from owner</p>
-        <p id="reply-text-${id}" class="text-xs text-slate-700 leading-relaxed">${replyText}</p>
-      </div>
-    `;
-  },
-
-  getReplyEditViewMarkup(id, currentText) {
-    return `
-      <div class="space-y-2">
-        <div class="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">
-          <i class="fa-regular fa-pen-to-square text-[10px]"></i>
-          <span>Editing Reply</span>
-        </div>
-        <p class="font-bold text-xs text-slate-900">Response from owner</p>
-        <textarea id="edit-textarea-${id}" class="w-full bg-white border-2 border-blue-500 rounded-2xl p-3.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 leading-relaxed transition min-h-[90px]">${currentText}</textarea>
-      </div>
-    `;
-  },
-
-  getStandardActionButtonsMarkup(id) {
-    return `
-      <button onclick="InboxPage.postReply('${id}')" class="btn-blue px-6 py-3 rounded-xl text-xs font-bold inline-flex items-center justify-center space-x-2 shadow-xs">
-        <i class="fa-solid fa-paper-plane text-xs"></i>
-        <span>Post this reply</span>
-      </button>
-      <button onclick="InboxPage.enableEditMode('${id}')" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-6 py-3 rounded-xl text-xs font-bold inline-flex items-center justify-center space-x-2 transition shadow-xs">
-        <i class="fa-regular fa-pen-to-square text-xs"></i>
-        <span>Edit reply</span>
-      </button>
-    `;
-  },
-
-  getEditingActionButtonsMarkup(id) {
-    return `
-      <button onclick="InboxPage.saveAndPostReply('${id}')" class="btn-blue px-6 py-3 rounded-xl text-xs font-bold inline-flex items-center justify-center space-x-2 shadow-xs">
-        <span>Save & post</span>
-      </button>
-      <button onclick="InboxPage.cancelEditMode('${id}')" class="text-slate-500 hover:text-slate-800 text-xs font-bold px-2 py-3 transition">
-        <span>Cancel</span>
-      </button>
-    `;
-  },
-
-  enableEditMode(id) {
-    const textElem = document.getElementById(`reply-text-${id}`);
-    const currentText = textElem ? textElem.textContent : '';
-
-    const replyContainer = document.getElementById(`reply-container-${id}`);
-    const actionsContainer = document.getElementById(`actions-container-${id}`);
-
-    if (replyContainer && actionsContainer) {
-      replyContainer.innerHTML = this.getReplyEditViewMarkup(id, currentText);
-      actionsContainer.innerHTML = this.getEditingActionButtonsMarkup(id);
-
-      const textarea = document.getElementById(`edit-textarea-${id}`);
-      if (textarea) {
-        textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-      }
-    }
-  },
-
-  cancelEditMode(id) {
-    const card = document.getElementById(`card-${id}`);
-    const draftText = card ? card.getAttribute('data-draft') : '';
-
-    const replyContainer = document.getElementById(`reply-container-${id}`);
-    const actionsContainer = document.getElementById(`actions-container-${id}`);
-
-    if (replyContainer && actionsContainer) {
-      replyContainer.innerHTML = this.getReplyDraftViewMarkup(id, draftText);
-      actionsContainer.innerHTML = this.getStandardActionButtonsMarkup(id);
-    }
-  },
-
-  async saveAndPostReply(id) {
-    const textarea = document.getElementById(`edit-textarea-${id}`);
-    const finalReplyText = textarea ? textarea.value.trim() : '';
-
-    if (!finalReplyText) {
-      alert('Response cannot be empty.');
+      `;
       return;
     }
 
-    try {
-      const response = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/reply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: Auth.getUserId(),
-          businessId: this.currentBusiness.id,
-          reviewId: id,
-          replyText: finalReplyText
-        })
-      });
+    container.innerHTML = `
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
+        <p class="text-xs font-semibold text-slate-500">Generating AI task cards for unreplied reviews...</p>
+      </div>
+    `;
 
-      if (response.ok) {
-        alert('Response published to Google!');
-        this.dismissCard(id);
-      } else {
-        alert('Failed to post reply to Google.');
-      }
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/all?userId=${userId}&businessId=${businessId}`);
+      if (!res.ok) throw new Error('Failed to fetch tasks');
+
+      const data = await res.json();
+      const all = data.reviews || [];
+
+      // Filter ONLY unreplied reviews for Inbox task cards
+      this.unrepliedReviews = all.filter(r => !r.reply);
+
+      this.renderTasks();
     } catch (err) {
-      alert('Network error while posting reply.');
+      console.error('Error loading inbox tasks:', err);
+      container.innerHTML = `
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+          <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-lg">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <p class="text-base font-bold text-slate-900">Unable to load tasks</p>
+          <p class="text-xs text-slate-500">Please verify your connection and try refreshing.</p>
+        </div>
+      `;
     }
   },
 
-  async postReply(id) {
-    const textElem = document.getElementById(`reply-text-${id}`);
-    const draftText = textElem ? textElem.textContent : '';
+  getAvatarColor(name) {
+    const colors = ['bg-indigo-500', 'bg-purple-500', 'bg-blue-500', 'bg-amber-500', 'bg-rose-500', 'bg-teal-500'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+    return colors[hash % colors.length];
+  },
 
-    try {
-      const response = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/reply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: Auth.getUserId(),
-          businessId: this.currentBusiness.id,
-          reviewId: id,
-          replyText: draftText
-        })
-      });
+  getInitials(name) {
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return 'G';
+  },
 
-      if (response.ok) {
-        alert('Response published to Google!');
-        this.dismissCard(id);
-      } else {
-        alert('Failed to post reply to Google.');
-      }
-    } catch (err) {
-      alert('Network error while posting reply.');
+  renderTasks() {
+    const container = document.getElementById('inbox-tasks-container');
+    if (!container) return;
+
+    if (this.unrepliedReviews.length === 0) {
+      container.innerHTML = `
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+          <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-lg">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <p class="text-base font-bold text-slate-900">All caught up for today!</p>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">There are no pending review replies for this location right now.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.unrepliedReviews.map(r => `
+      <div id="task-card-${r.reviewId}" class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xs">
+        
+        <!-- Header & Customer Meta -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-black text-slate-900 tracking-tight">Post this review reply</h2>
+            <button onclick="InboxPage.dismissTask('${r.reviewId}')" class="text-slate-400 hover:text-slate-600 p-1 transition">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full ${this.getAvatarColor(r.reviewerName)} text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              ${this.getInitials(r.reviewerName)}
+            </div>
+            <div>
+              <p class="font-bold text-slate-900 text-sm">${r.reviewerName}</p>
+              <div class="flex items-center space-x-0.5 text-amber-400 text-xs mt-0.5">
+                ${Array.from({length: 5}, (_, i) => `<i class="fa-${i < r.starRating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Comment with Amber Border -->
+          <div class="border-l-2 border-amber-400 pl-3 py-0.5">
+            <p class="text-xs sm:text-sm italic text-slate-700 leading-relaxed">${r.comment || 'No comment provided.'}</p>
+          </div>
+        </div>
+
+        <!-- AI Draft Section Container -->
+        <div id="ai-reply-area-${r.reviewId}" class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center space-x-1.5 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Auto-Reply Draft</span>
+          </div>
+          <p class="text-xs font-bold text-slate-900">Response from owner</p>
+          <p id="draft-text-${r.reviewId}" class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.aiDraftReply || 'Thank you for taking the time to share your review!'}</p>
+        </div>
+
+        <!-- Actions -->
+        <div id="action-buttons-${r.reviewId}" class="flex items-center space-x-3 pt-1">
+          <button id="post-btn-${r.reviewId}" onclick="InboxPage.postReply('${r.reviewId}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl inline-flex items-center space-x-2 transition shadow-xs">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+            <span>Post this reply</span>
+          </button>
+          
+          <button onclick="InboxPage.enableEdit('${r.reviewId}')" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl inline-flex items-center space-x-2 transition shadow-xs">
+            <i class="fa-regular fa-pen-to-square text-xs text-slate-400"></i>
+            <span>Edit reply</span>
+          </button>
+        </div>
+
+      </div>
+    `).join('');
+  },
+
+  enableEdit(reviewId) {
+    const review = this.unrepliedReviews.find(r => r.reviewId === reviewId);
+    if (!review) return;
+
+    const currentText = document.getElementById(`draft-text-${reviewId}`)?.textContent || review.aiDraftReply;
+    const area = document.getElementById(`ai-reply-area-${reviewId}`);
+    const actions = document.getElementById(`action-buttons-${reviewId}`);
+
+    if (area && actions) {
+      area.className = "bg-white border border-slate-200 rounded-2xl p-3 shadow-xs";
+      area.innerHTML = `
+        <textarea id="edit-input-${reviewId}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="4">${currentText}</textarea>
+      `;
+
+      actions.innerHTML = `
+        <div class="flex items-center justify-end space-x-3 w-full">
+          <button onclick="InboxPage.cancelEdit('${reviewId}')" class="text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition">Cancel</button>
+          <button id="post-btn-${reviewId}" onclick="InboxPage.postCustomReply('${reviewId}')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-xs inline-flex items-center space-x-2">
+            <span>Send reply</span>
+          </button>
+        </div>
+      `;
     }
   },
 
-  dismissCard(id) {
-    const card = document.getElementById(`card-${id}`);
-    if (card) card.remove();
+  cancelEdit(reviewId) {
+    this.renderTasks();
+  },
 
-    const feedContainer = document.getElementById('inbox-feed-container');
-    if (feedContainer && feedContainer.children.length === 0) {
-      this.loadInboxFeed(this.currentBusiness);
+  dismissTask(reviewId) {
+    const card = document.getElementById(`task-card-${reviewId}`);
+    if (card) {
+      card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.unrepliedReviews = this.unrepliedReviews.filter(r => r.reviewId !== reviewId);
+        this.renderTasks();
+      }, 250);
+    }
+  },
+
+  async postReply(reviewId) {
+    const review = this.unrepliedReviews.find(r => r.reviewId === reviewId);
+    if (!review) return;
+
+    const replyText = review.aiDraftReply;
+    await this.sendToGoogle(reviewId, replyText);
+  },
+
+  async postCustomReply(reviewId) {
+    const input = document.getElementById(`edit-input-${reviewId}`);
+    if (!input) return;
+
+    const replyText = input.value.trim();
+    if (!replyText) {
+      alert('Reply text cannot be empty');
+      return;
+    }
+
+    await this.sendToGoogle(reviewId, replyText);
+  },
+
+  async sendToGoogle(reviewId, replyText) {
+    const userId = Auth.getUserId();
+    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const postBtn = document.getElementById(`post-btn-${reviewId}`);
+
+    if (postBtn) {
+      postBtn.disabled = true;
+      postBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Posting to Google...</span>`;
+    }
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/reviews/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, businessId, reviewId, replyText })
+      });
+
+      if (res.ok) {
+        this.dismissTask(reviewId);
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to post reply: ${errorData.error || 'Please try again.'}`);
+        if (postBtn) {
+          postBtn.disabled = false;
+          postBtn.innerHTML = `<span>Post this reply</span>`;
+        }
+      }
+    } catch (e) {
+      alert('Network error posting reply.');
+      if (postBtn) {
+        postBtn.disabled = false;
+        postBtn.innerHTML = `<span>Post this reply</span>`;
+      }
     }
   }
 };
 
-window.InboxPage = InboxPage;
+document.addEventListener('DOMContentLoaded', () => InboxPage.init());
