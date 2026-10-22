@@ -2,8 +2,9 @@
 const ReviewsPage = {
   allReviews: [],
   activeFilter: 'needsYou',
+  currentEditingReviewId: null,
 
-    async init() {
+  async init() {
     const userId = Auth.getUserId();
     if (!userId) {
       window.location.href = 'login.html';
@@ -12,20 +13,12 @@ const ReviewsPage = {
 
     this.bindEvents();
 
-    // Give the navigation.js script a moment to load locations, 
-    // or select the first one if localStorage is empty.
     setTimeout(async () => {
-      let businessId = localStorage.getItem('sjbs_selected_business_id');
-      if (!businessId && window.Navigation && Navigation.locations && Navigation.locations.length > 0) {
-        businessId = Navigation.locations[0].locationId;
-        localStorage.setItem('sjbs_selected_business_id', businessId);
-      }
       await this.loadReviews();
-    }, 400);
+    }, 300);
   },
 
   bindEvents() {
-    // Listen for tab switching
     const tabContainer = document.getElementById('filter-tabs');
     if (tabContainer) {
       tabContainer.addEventListener('click', (e) => {
@@ -37,24 +30,30 @@ const ReviewsPage = {
       });
     }
 
-    // Listen for global business dropdown selection change
     window.addEventListener('businessChanged', () => {
       this.loadReviews();
     });
+
+    const overlay = document.getElementById('drawer-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', () => this.closeDrawer());
+    }
   },
 
   async loadReviews() {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id');
+    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
     const container = document.getElementById('reviews-feed-container');
 
     if (!container) return;
 
     if (!businessId) {
       container.innerHTML = `
-        <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
-          <i class="fa-solid fa-store text-3xl text-slate-400"></i>
-          <p class="text-sm font-bold text-slate-800">No Business Location Selected</p>
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-lg">
+            <i class="fa-solid fa-store"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-900">No Business Location Selected</p>
           <p class="text-xs text-slate-500">Please choose a business from the top sidebar dropdown.</p>
         </div>
       `;
@@ -62,7 +61,7 @@ const ReviewsPage = {
     }
 
     container.innerHTML = `
-      <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
         <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
         <p class="text-xs font-semibold text-slate-500">Loading reviews from Google Business Profile...</p>
       </div>
@@ -75,11 +74,10 @@ const ReviewsPage = {
       const data = await res.json();
       this.allReviews = data.reviews || [];
 
-      // Update badge counts in tab bar
       document.getElementById('count-needsyou').textContent = data.counts.needsYou;
       document.getElementById('count-all').textContent = data.counts.all;
       document.getElementById('count-replied').textContent = data.counts.replied;
-      
+
       const subheader = document.getElementById('reviews-subheader-count');
       if (subheader) subheader.textContent = `${data.counts.needsYou} need reply`;
 
@@ -88,18 +86,18 @@ const ReviewsPage = {
     } catch (err) {
       console.error('Error loading reviews:', err);
       container.innerHTML = `
-        <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
           <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-lg">
             <i class="fa-solid fa-triangle-exclamation"></i>
           </div>
           <p class="text-base font-bold text-slate-900">Unable to load Google reviews</p>
-          <p class="text-xs text-slate-500">Please verify your Google Business Profile connection and try again.</p>
+          <p class="text-xs text-slate-500">Please verify your connection and try refreshing.</p>
         </div>
       `;
     }
   },
 
-    updateTabStyles() {
+  updateTabStyles() {
     const tabs = document.querySelectorAll('[data-filter]');
     tabs.forEach(tab => {
       const filter = tab.dataset.filter;
@@ -126,7 +124,7 @@ const ReviewsPage = {
   },
 
   formatTimestamp(dateStr) {
-    if (!dateStr) return '6d';
+    if (!dateStr) return '';
     const date = new Date(dateStr);
     const diffDays = Math.floor((new Date() - date) / (1000 * 60 * 60 * 24));
     if (diffDays <= 0) return 'Today';
@@ -147,19 +145,40 @@ const ReviewsPage = {
     }
 
     if (filtered.length === 0) {
-      container.innerHTML = `
-        <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-2 shadow-xs">
-          <p class="text-base font-bold text-slate-900">No reviews found in this tab</p>
-          <p class="text-xs text-slate-500">Select another tab or switch location to view reviews.</p>
-        </div>
-      `;
+      if (this.activeFilter === 'needsYou') {
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+            <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-lg">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <p class="text-base font-bold text-slate-900">You're all caught up!</p>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">Every review for this location has been responded to.</p>
+          </div>
+        `;
+      } else if (this.activeFilter === 'replied') {
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+            <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-lg">
+              <i class="fa-solid fa-reply"></i>
+            </div>
+            <p class="text-base font-bold text-slate-900">No replied reviews yet</p>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">Select "Needs you" to write and post your first reply.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+            <p class="text-base font-bold text-slate-900">No Google reviews found</p>
+          </div>
+        `;
+      }
       return;
     }
 
     container.innerHTML = `
-      <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 shadow-xs overflow-hidden">
+      <div class="bg-white border border-slate-200/80 rounded-3xl divide-y divide-slate-100 shadow-xs overflow-hidden">
         ${filtered.map(r => `
-          <div class="p-4 sm:p-5 hover:bg-slate-50/50 transition space-y-3">
+          <div onclick="ReviewsPage.openDrawer('${r.reviewId}')" class="p-4 sm:p-5 hover:bg-slate-50/60 cursor-pointer transition space-y-2">
             <div class="flex items-start justify-between">
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full ${this.getAvatarColor(r.reviewerName)} text-white flex items-center justify-center font-bold text-xs shadow-xs">
@@ -167,48 +186,149 @@ const ReviewsPage = {
                 </div>
                 <div>
                   <p class="font-bold text-slate-900 text-sm">${r.reviewerName}</p>
-                  <div class="flex items-center space-x-1 text-amber-400 text-xs">
-                    ${Array.from({length: 5}, (_, i) => `<i class="fa-${i < r.starRating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+                  <div class="flex items-center space-x-2 mt-0.5">
+                    <div class="flex items-center space-x-0.5 text-amber-400 text-xs">
+                      ${Array.from({length: 5}, (_, i) => `<i class="fa-${i < r.starRating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+                    </div>
+                    ${r.reply ? `<span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">Replied</span>` : ''}
                   </div>
                 </div>
               </div>
               <span class="text-xs text-slate-400 font-medium">${this.formatTimestamp(r.updateTime)}</span>
             </div>
-
-            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed pl-13">${r.comment || 'No comment provided.'}</p>
-
-            ${r.reply ? `
-              <div class="ml-13 bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-xs text-slate-600 space-y-1">
-                <p class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Your Reply</p>
-                <p>${r.reply}</p>
-              </div>
-            ` : `
-              <div class="ml-13 bg-blue-50/60 border border-blue-100 rounded-xl p-3 space-y-2">
-                <div class="flex items-center justify-between text-[11px] font-bold text-blue-600">
-                  <span class="uppercase tracking-wider flex items-center space-x-1">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>Gemini AI Draft Reply</span>
-                  </span>
-                </div>
-                <textarea id="reply-input-${r.reviewId}" class="w-full bg-white border border-blue-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="2">${r.aiDraftReply || ''}</textarea>
-                <div class="flex justify-end">
-                  <button onclick="ReviewsPage.postReply('${r.reviewId}')" class="btn-blue px-3.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
-                    <span>Post Reply Live</span>
-                    <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                  </button>
-                </div>
-              </div>
-            `}
+            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed pl-13 line-clamp-2">${r.comment || 'No comment provided.'}</p>
           </div>
         `).join('')}
       </div>
     `;
   },
 
-  async postReply(reviewId) {
+  openDrawer(reviewId) {
+    const review = this.allReviews.find(r => r.reviewId === reviewId);
+    if (!review) return;
+
+    this.currentEditingReviewId = reviewId;
+    const content = document.getElementById('drawer-content');
+    const drawer = document.getElementById('review-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+
+    if (!content || !drawer || !overlay) return;
+
+    const isReplied = Boolean(review.reply);
+
+    content.innerHTML = `
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-full ${this.getAvatarColor(review.reviewerName)} text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            ${this.getInitials(review.reviewerName)}
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">${review.reviewerName}</h3>
+            <div class="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
+              <div class="flex items-center space-x-0.5 text-amber-400">
+                ${Array.from({length: 5}, (_, i) => `<i class="fa-${i < review.starRating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+              </div>
+              <span>• ${this.formatTimestamp(review.updateTime)} ago</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          ${isReplied ? 
+            `<span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">Replied</span>` : 
+            `<span class="bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full border border-amber-100">Needs reply</span>`
+          }
+          <button onclick="ReviewsPage.closeDrawer()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 text-sm text-slate-800 leading-relaxed">
+        ${review.comment || 'No comment provided.'}
+      </div>
+
+      <div id="drawer-reply-area">
+        ${isReplied ? this.renderRepliedState(review) : this.renderUnrepliedState(review)}
+      </div>
+    `;
+
+    drawer.classList.remove('drawer-closed');
+    drawer.classList.add('drawer-open');
+    overlay.classList.remove('drawer-hidden');
+    overlay.classList.add('drawer-visible');
+  },
+
+  renderUnrepliedState(review) {
+    return `
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-xs">
+        <textarea id="drawer-reply-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="5" placeholder="Write a reply...">${review.aiDraftReply || ''}</textarea>
+        <div class="flex justify-end">
+          <button onclick="ReviewsPage.submitReply('${review.reviewId}')" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center space-x-2 transition shadow-xs">
+            <span>Send reply</span>
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderRepliedState(review) {
+    return `
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-blue-600">Your reply</span>
+          <button onclick="ReviewsPage.enableEditMode('${review.reviewId}')" class="text-xs font-bold text-slate-500 hover:text-slate-800 transition">Edit</button>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${review.reply}</p>
+      </div>
+    `;
+  },
+
+  enableEditMode(reviewId) {
+    const review = this.allReviews.find(r => r.reviewId === reviewId);
+    if (!review) return;
+
+    const area = document.getElementById('drawer-reply-area');
+    if (!area) return;
+
+    area.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-xs">
+        <textarea id="drawer-reply-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="5">${review.reply}</textarea>
+        <div class="flex items-center justify-end space-x-3">
+          <button onclick="ReviewsPage.cancelEdit('${reviewId}')" class="text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition">Cancel</button>
+          <button onclick="ReviewsPage.submitReply('${reviewId}')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition shadow-xs">
+            <span>Send reply</span>
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  cancelEdit(reviewId) {
+    const review = this.allReviews.find(r => r.reviewId === reviewId);
+    if (!review) return;
+
+    const area = document.getElementById('drawer-reply-area');
+    if (area) {
+      area.innerHTML = this.renderRepliedState(review);
+    }
+  },
+
+  closeDrawer() {
+    const drawer = document.getElementById('review-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    if (drawer && overlay) {
+      drawer.classList.remove('drawer-open');
+      drawer.classList.add('drawer-closed');
+      overlay.classList.remove('drawer-visible');
+      overlay.classList.add('drawer-hidden');
+    }
+  },
+
+  async submitReply(reviewId) {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id');
-    const textarea = document.getElementById(`reply-input-${reviewId}`);
+    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const textarea = document.getElementById('drawer-reply-input');
     if (!textarea) return;
 
     const replyText = textarea.value.trim();
@@ -225,16 +345,15 @@ const ReviewsPage = {
       });
 
       if (res.ok) {
-        alert('Reply posted successfully!');
-        this.loadReviews();
+        this.closeDrawer();
+        await this.loadReviews();
       } else {
         alert('Failed to post reply.');
       }
     } catch (e) {
-      alert('Network error.');
+      alert('Network error posting reply.');
     }
   }
 };
 
 document.addEventListener('DOMContentLoaded', () => ReviewsPage.init());
-                                                                        
