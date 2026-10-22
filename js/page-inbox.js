@@ -39,9 +39,8 @@ const InboxPage = {
       return;
     }
 
-    // Sleek matching dark/blue gradient loader to prevent white jarring flashes
     container.innerHTML = `
-      <div class="fixed inset-0 z-10 flex flex-col items-center justify-center space-y-4" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
+      <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center space-y-4" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh;">
         <div class="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
         <p class="text-xs font-bold text-blue-100 tracking-widest uppercase animate-pulse">Checking AI tasks...</p>
       </div>
@@ -100,31 +99,50 @@ const InboxPage = {
     if (!container) return;
 
     if (this.unrepliedReviews.length === 0) {
-      // Butter-smooth ProsperQR Entrance Transition
+      // Fullscreen Overlay Matching ProsperQR Design
       container.innerHTML = `
         <style>
           @keyframes ufoFloat {
-            0% { transform: translateX(-60px) translateY(0px); }
-            50% { transform: translateX(60px) translateY(-10px); }
-            100% { transform: translateX(-60px) translateY(0px); }
+            0% { transform: translateX(-50px) translateY(0px); }
+            50% { transform: translateX(50px) translateY(-8px); }
+            100% { transform: translateX(-50px) translateY(0px); }
           }
-          @keyframes smoothFadeIn {
-            0% { opacity: 0; transform: translateY(12px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+          @keyframes popIn {
+            0% { transform: scale(0.4); opacity: 0; }
+            70% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
           }
           .ufo-anim {
-            animation: ufoFloat 8s ease-in-out infinite;
+            animation: ufoFloat 9s ease-in-out infinite;
           }
-          .smooth-fade {
-            animation: smoothFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          .pop-check {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          }
+          .fade-text {
+            animation: fadeIn 0.8s ease-out 0.2s forwards;
+            opacity: 0;
           }
         </style>
 
-        <div class="fixed inset-0 z-10 overflow-hidden flex flex-col justify-between select-none smooth-fade" style="background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 45%, #6366f1 80%, #4338ca 100%); min-height: 100vh;">
+        <div class="fixed inset-0 z-[9999] overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh;">
           
-          <!-- Animated UFO / Clouds in Sky -->
-          <div class="absolute top-16 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none">
-            <svg width="64" height="28" viewBox="0 0 64 28" fill="none">
+          <!-- ProsperQR Minimal Header -->
+          <div class="flex items-center justify-between px-5 py-4 z-20">
+            <button onclick="if(window.toggleMobileSidebar) window.toggleMobileSidebar();" class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition">
+              <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+            <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center border border-white/30 shadow-xs">
+              JD
+            </div>
+          </div>
+
+          <!-- Animated UFO floating in sky -->
+          <div class="absolute top-20 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none z-10">
+            <svg width="68" height="30" viewBox="0 0 64 28" fill="none">
               <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
               <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
               <circle cx="24" cy="18" r="2" fill="#38BDF8"/>
@@ -133,16 +151,14 @@ const InboxPage = {
             </svg>
           </div>
 
-          <div></div>
-
-          <!-- Central Content Card -->
-          <div class="text-center px-6 space-y-6">
-            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl border-4 border-white/20">
+          <!-- Central Content Stack -->
+          <div class="text-center px-6 space-y-5 my-auto z-20">
+            <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-xl border-4 border-white/20 pop-check">
               <i class="fa-solid fa-check text-4xl"></i>
             </div>
 
-            <div class="space-y-2">
-              <p class="text-xs sm:text-sm font-semibold text-blue-100 tracking-wide uppercase opacity-90">
+            <div class="space-y-2 fade-text">
+              <p class="text-xs sm:text-sm font-semibold text-blue-100 tracking-wide opacity-90">
                 ${this.getFormattedDateTime()}
               </p>
               <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
@@ -154,12 +170,23 @@ const InboxPage = {
             </div>
           </div>
 
-          <!-- Bottom Mountain & Glowing Sun Illustration -->
-          <div class="relative w-full h-40 overflow-hidden pointer-events-none">
-            <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-amber-200/90 blur-sm shadow-[0_0_80px_rgba(251,191,36,0.8)]"></div>
-            <svg class="absolute bottom-0 w-full h-24" viewBox="0 0 1440 120" preserveAspectRatio="none">
-              <path fill="#312e81" fill-opacity="0.6" d="M0,32L120,42.7C240,53,480,75,720,74.7C960,75,1200,53,1320,42.7L1440,32L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
-              <path fill="#1e1b4b" d="M0,64L120,69.3C240,75,480,85,720,80C960,75,1200,53,1320,42.7L1440,32L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
+          <!-- Bottom Mountain & Smooth Radial Sun Glow -->
+          <div class="relative w-full h-44 overflow-hidden pointer-events-none z-10">
+            <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 240" preserveAspectRatio="none">
+              <defs>
+                <radialGradient id="sunGlow" cx="50%" cy="80%" r="50%">
+                  <stop offset="0%" stop-color="#fef08a" stop-opacity="1"/>
+                  <stop offset="40%" stop-color="#fde047" stop-opacity="0.8"/>
+                  <stop offset="70%" stop-color="#f59e0b" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <!-- Perfect Radial Glow Sun -->
+              <circle cx="720" cy="210" r="140" fill="url(#sunGlow)"/>
+              <circle cx="720" cy="210" r="45" fill="#fef08a"/>
+              <!-- Mountains -->
+              <path fill="#2e1065" fill-opacity="0.5" d="M0,128L120,138.7C240,149,480,171,720,170.7C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
+              <path fill="#1e1b4b" d="M0,160L120,165.3C240,171,480,181,720,176C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
             </svg>
           </div>
 
