@@ -262,7 +262,7 @@ const ReviewsPage = {
   renderUnrepliedState(review) {
     return `
       <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-xs">
-        <textarea id="drawer-reply-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="5" placeholder="Write a reply...">${review.aiDraftReply || ''}</textarea>
+        <textarea id="drawer-reply-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed" rows="5" placeholder="Write a reply..."></textarea>
         <div class="flex justify-end">
           <button id="send-reply-btn" onclick="ReviewsPage.submitReply('${review.reviewId}')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center space-x-2 transition shadow-xs">
             <span>Send reply</span>
