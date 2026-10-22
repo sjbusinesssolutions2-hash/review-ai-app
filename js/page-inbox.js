@@ -94,8 +94,18 @@ const InboxPage = {
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
+        <style>
+          @keyframes checkPop {
+            0% { transform: scale(0.4); opacity: 0; }
+            70% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .animate-check-pop {
+            animation: checkPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          }
+        </style>
         <div class="bg-white border border-slate-200/90 rounded-3xl p-10 sm:p-14 text-center space-y-4 shadow-xs">
-          <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs">
+          <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs animate-check-pop">
             <i class="fa-solid fa-check text-2xl"></i>
           </div>
           <div class="space-y-1.5">
