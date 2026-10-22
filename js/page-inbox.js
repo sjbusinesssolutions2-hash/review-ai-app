@@ -95,17 +95,18 @@ const InboxPage = {
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
         <style>
-          @keyframes checkPop {
+          @keyframes checkPopAndVanish {
             0% { transform: scale(0.4); opacity: 0; }
-            70% { transform: scale(1.12); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+            40% { transform: scale(1.12); opacity: 1; }
+            65% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0; transform: translateY(-10px); }
           }
-          .animate-check-pop {
-            animation: checkPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          .animate-check-vanish {
+            animation: checkPopAndVanish 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
           }
         </style>
         <div class="bg-white border border-slate-200/90 rounded-3xl p-10 sm:p-14 text-center space-y-4 shadow-xs">
-          <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs animate-check-pop">
+          <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100 shadow-xs animate-check-vanish">
             <i class="fa-solid fa-check text-2xl"></i>
           </div>
           <div class="space-y-1.5">
