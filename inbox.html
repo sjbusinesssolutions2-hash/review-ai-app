@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SJbs.AI - Inbox</title>
+  <title>SJbs.AI - Inbox Tasks</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -28,8 +28,6 @@
   <!-- Slide-out Sidebar -->
   <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-200 flex flex-col justify-between sidebar-closed overflow-y-auto">
     <div class="p-5 space-y-6">
-      
-      <!-- Business Selector Dropdown -->
       <div class="relative">
         <button id="business-dropdown-btn" class="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-2xl p-3.5 flex items-center justify-between text-left transition">
           <div class="overflow-hidden space-y-0.5">
@@ -43,14 +41,12 @@
           <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2"></i>
         </button>
 
-        <!-- Locations Switcher Popup -->
         <div id="locations-menu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1">
           <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Locations</div>
           <div id="locations-list" class="space-y-1 max-h-60 overflow-y-auto"></div>
         </div>
       </div>
 
-      <!-- Navigation Links -->
       <nav class="space-y-6">
         <div class="space-y-1">
           <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">Overview</p>
@@ -59,7 +55,6 @@
               <i class="fa-solid fa-inbox w-4 text-center"></i>
               <span>Inbox</span>
             </div>
-            <span id="inbox-badge-count" class="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
           </a>
           <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
             <i class="fa-solid fa-house w-4 text-center text-slate-400"></i>
@@ -104,7 +99,6 @@
       </nav>
     </div>
 
-    <!-- Support Card -->
     <div class="p-5 border-t border-slate-100">
       <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center space-y-3">
         <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-lg shadow-xs">
@@ -160,19 +154,15 @@
     </div>
   </header>
 
-  <!-- Inbox Main Content -->
-  <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
     <div class="space-y-1">
       <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Inbox</h1>
       <p class="text-xs sm:text-sm text-slate-500">Your most important tasks for today</p>
     </div>
 
-    <div id="inbox-feed-container" class="space-y-6">
-      <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-3 shadow-xs">
-        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
-        <p class="text-xs font-semibold text-slate-500">Loading your profile and reviews...</p>
-      </div>
-    </div>
+    <!-- Dynamic Tasks Feed Container -->
+    <div id="inbox-tasks-container" class="space-y-5"></div>
   </main>
 
   <script src="js/config.js"></script>
@@ -180,7 +170,6 @@
   <script src="js/navigation.js"></script>
   <script src="js/page-inbox.js"></script>
 
-  <!-- Instant Menu Execution Handlers -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const hBtn = document.getElementById('hamburger-btn');
