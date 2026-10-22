@@ -31,7 +31,7 @@ const InboxPage = {
 
     if (!businessId) {
       container.innerHTML = `
-        <div class="p-8 text-center space-y-3">
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
           <p class="text-sm font-bold text-slate-800">No Business Location Selected</p>
           <p class="text-xs text-slate-500">Please choose a business from the dropdown above.</p>
         </div>
@@ -39,10 +39,11 @@ const InboxPage = {
       return;
     }
 
+    // Clean loading state without mentioning AI
     container.innerHTML = `
-      <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center space-y-4" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh;">
-        <div class="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-        <p class="text-xs font-bold text-blue-100 tracking-widest uppercase animate-pulse">Checking AI tasks...</p>
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+        <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-600"></i>
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading today's tasks...</p>
       </div>
     `;
 
@@ -58,8 +59,12 @@ const InboxPage = {
       this.renderTasks();
     } catch (err) {
       console.error('Error loading inbox tasks:', err);
-      this.unrepliedReviews = [];
-      this.renderTasks();
+      container.innerHTML = `
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+          <p class="text-sm font-bold text-slate-900">Unable to load tasks</p>
+          <p class="text-xs text-slate-500">Please check your connection and refresh.</p>
+        </div>
+      `;
     }
   },
 
@@ -99,7 +104,6 @@ const InboxPage = {
     if (!container) return;
 
     if (this.unrepliedReviews.length === 0) {
-      // Fullscreen Overlay Matching ProsperQR Design
       container.innerHTML = `
         <style>
           @keyframes ufoFloat {
@@ -116,32 +120,16 @@ const InboxPage = {
             0% { opacity: 0; transform: translateY(10px); }
             100% { opacity: 1; transform: translateY(0); }
           }
-          .ufo-anim {
-            animation: ufoFloat 9s ease-in-out infinite;
-          }
-          .pop-check {
-            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-          }
-          .fade-text {
-            animation: fadeIn 0.8s ease-out 0.2s forwards;
-            opacity: 0;
-          }
+          .ufo-anim { animation: ufoFloat 9s ease-in-out infinite; }
+          .pop-check { animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+          .fade-text { animation: fadeIn 0.8s ease-out 0.2s forwards; opacity: 0; }
         </style>
 
-        <div class="fixed inset-0 z-[9999] overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh;">
+        <div class="fixed inset-0 z-[99] overflow-hidden flex flex-col justify-between select-none" style="background: linear-gradient(180deg, #5ba4fc 0%, #3a82f6 45%, #5d61f1 80%, #3d35c8 100%); min-height: 100vh;">
           
-          <!-- ProsperQR Minimal Header -->
-          <div class="flex items-center justify-between px-5 py-4 z-20">
-            <button onclick="if(window.toggleMobileSidebar) window.toggleMobileSidebar();" class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition">
-              <i class="fa-solid fa-bars text-sm"></i>
-            </button>
-            <div class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center border border-white/30 shadow-xs">
-              JD
-            </div>
-          </div>
+          <div class="h-16"></div>
 
-          <!-- Animated UFO floating in sky -->
-          <div class="absolute top-20 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none z-10">
+          <div class="absolute top-24 left-1/2 -translate-x-1/2 ufo-anim opacity-80 pointer-events-none z-10">
             <svg width="68" height="30" viewBox="0 0 64 28" fill="none">
               <ellipse cx="32" cy="18" rx="28" ry="8" fill="#E0F2FE" fill-opacity="0.9"/>
               <path d="M20 16C20 10 25 6 32 6C39 6 44 10 44 16H20Z" fill="#BAE6FD"/>
@@ -151,7 +139,6 @@ const InboxPage = {
             </svg>
           </div>
 
-          <!-- Central Content Stack -->
           <div class="text-center px-6 space-y-5 my-auto z-20">
             <div class="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-xl border-4 border-white/20 pop-check">
               <i class="fa-solid fa-check text-4xl"></i>
@@ -170,7 +157,6 @@ const InboxPage = {
             </div>
           </div>
 
-          <!-- Bottom Mountain & Smooth Radial Sun Glow -->
           <div class="relative w-full h-44 overflow-hidden pointer-events-none z-10">
             <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 240" preserveAspectRatio="none">
               <defs>
@@ -181,10 +167,8 @@ const InboxPage = {
                   <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
                 </radialGradient>
               </defs>
-              <!-- Perfect Radial Glow Sun -->
               <circle cx="720" cy="210" r="140" fill="url(#sunGlow)"/>
               <circle cx="720" cy="210" r="45" fill="#fef08a"/>
-              <!-- Mountains -->
               <path fill="#2e1065" fill-opacity="0.5" d="M0,128L120,138.7C240,149,480,171,720,170.7C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
               <path fill="#1e1b4b" d="M0,160L120,165.3C240,171,480,181,720,176C960,171,1200,149,1320,138.7L1440,128L1440,240L1320,240C1200,240,960,240,720,240C480,240,240,240,120,240L0,240Z"></path>
             </svg>
@@ -195,7 +179,6 @@ const InboxPage = {
       return;
     }
 
-    // Active Task Cards Flow
     container.innerHTML = this.unrepliedReviews.map(r => `
       <div id="task-card-${r.reviewId}" class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-5 shadow-xs mb-6">
         
