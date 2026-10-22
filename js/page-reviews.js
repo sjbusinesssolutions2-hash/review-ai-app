@@ -3,7 +3,7 @@ const ReviewsPage = {
   allReviews: [],
   activeFilter: 'needsYou',
 
-  async init() {
+    async init() {
     const userId = Auth.getUserId();
     if (!userId) {
       window.location.href = 'login.html';
@@ -11,7 +11,17 @@ const ReviewsPage = {
     }
 
     this.bindEvents();
-    await this.loadReviews();
+
+    // Give the navigation.js script a moment to load locations, 
+    // or select the first one if localStorage is empty.
+    setTimeout(async () => {
+      let businessId = localStorage.getItem('sjbs_selected_business_id');
+      if (!businessId && window.Navigation && Navigation.locations && Navigation.locations.length > 0) {
+        businessId = Navigation.locations[0].locationId;
+        localStorage.setItem('sjbs_selected_business_id', businessId);
+      }
+      await this.loadReviews();
+    }, 400);
   },
 
   bindEvents() {
