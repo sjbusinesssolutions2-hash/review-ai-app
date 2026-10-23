@@ -82,7 +82,7 @@ const InboxPage = {
     return 'U';
   },
 
-  renderTasks() {
+    renderTasks() {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
 
@@ -152,7 +152,7 @@ const InboxPage = {
             <span>Auto-Reply Draft</span>
           </div>
           <p class="text-xs font-bold text-slate-900">Response from owner</p>
-          <p id="draft-text-${r.reviewId}" class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.aiDraftReply}</p>
+          <p id="draft-text-${r.reviewId}" class="text-xs sm:text-sm text-slate-700 leading-relaxed">${r.aiDraftReply || 'Generating AI draft... Refresh in a moment.'}</p>
         </div>
 
         <div id="action-buttons-${r.reviewId}" class="flex items-center space-x-3 pt-1">
