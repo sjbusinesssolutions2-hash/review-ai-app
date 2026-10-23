@@ -53,7 +53,7 @@ const InboxPage = {
       const data = await res.json();
       const all = data.reviews || [];
 
-      this.unrepliedReviews = all.filter(r => !r.reply && r.aiDraftReply && r.aiDraftReply.length > 0);
+      this.unrepliedReviews = all.filter(r => !r.reply);
 
       this.renderTasks();
     } catch (err) {
