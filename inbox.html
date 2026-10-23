@@ -60,7 +60,7 @@
             <i class="fa-solid fa-house w-4 text-center text-slate-400"></i>
             <span>Dashboard</span>
           </a>
-          <!-- QR Codes: Disabled with Upcoming badge & Lock icon -->
+          <!-- QR Codes: Disabled / Upcoming -->
           <div class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 opacity-60 cursor-not-allowed select-none font-medium text-sm">
             <div class="flex items-center space-x-3">
               <i class="fa-solid fa-qrcode w-4 text-center text-slate-300"></i>
@@ -83,8 +83,8 @@
             <i class="fa-solid fa-rotate-left w-4 text-center text-slate-400"></i>
             <span>Auto-Reply</span>
           </a>
-          <!-- Auto-Posts: Added with Pro badge -->
-          <a href="auto-posts.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+          <!-- Auto-Posts: Intercepted via pro-link class -->
+          <a href="auto-posts.html" class="pro-link flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
             <div class="flex items-center space-x-3">
               <i class="fa-solid fa-paper-plane w-4 text-center text-slate-400"></i>
               <span>Auto-Posts</span>
@@ -103,7 +103,8 @@
             <i class="fa-regular fa-file-lines w-4 text-center text-slate-400"></i>
             <span>Reports</span>
           </a>
-          <a href="analytics.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+          <!-- Analytics: Intercepted via pro-link class -->
+          <a href="analytics.html" class="pro-link flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
             <div class="flex items-center space-x-3">
               <i class="fa-solid fa-chart-line w-4 text-center text-slate-400"></i>
               <span>Analytics</span>
@@ -180,6 +181,51 @@
     <div id="inbox-tasks-container" class="space-y-5"></div>
   </main>
 
+  <!-- Pro Feature Lock Modal -->
+  <div id="pro-lock-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-5 shadow-2xl relative">
+      
+      <!-- Close Button -->
+      <button id="close-pro-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <!-- Icon Badge -->
+      <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+        <i class="fa-solid fa-crown"></i>
+      </div>
+
+      <!-- Title & Description -->
+      <div class="space-y-2">
+        <h3 class="text-xl font-black text-slate-900">Unlock SJbs.AI Pro</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Automate your Google Business Profile with hands-free AI posts, automated review replies, and advanced growth analytics.
+        </p>
+      </div>
+
+      <!-- Feature Checklist -->
+      <div class="bg-slate-50 rounded-2xl p-3.5 space-y-2 text-left text-xs font-semibold text-slate-700 border border-slate-100">
+        <div class="flex items-center space-x-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-500"></i>
+          <span>Automated Weekly/Daily Google Posts</span>
+        </div>
+        <div class="flex items-center space-x-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-500"></i>
+          <span>AI-Generated Post Images</span>
+        </div>
+        <div class="flex items-center space-x-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-500"></i>
+          <span>Hands-Free Auto-Review Replies</span>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <a href="mailto:sj.business.solutions.2@gmail.com?subject=SJbs.AI%20Pro%20Upgrade%20Request" target="_blank" class="btn-blue w-full py-3 rounded-xl text-sm font-bold block shadow-md hover:shadow-lg transition">
+        Upgrade to Pro Now
+      </a>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/navigation.js"></script>
@@ -240,51 +286,28 @@
           window.location.href = 'login.html';
         });
       }
+
+      // Pro Lock Modal Handlers
+      const proModal = document.getElementById('pro-lock-modal');
+      const closeProModalBtn = document.getElementById('close-pro-modal');
+
+      document.querySelectorAll('.pro-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          // Check if current active business/user plan is free
+          const currentPlan = localStorage.getItem('sjbs_selected_plan') || 'free';
+          if (currentPlan !== 'pro') {
+            e.preventDefault();
+            if (proModal) proModal.classList.remove('hidden');
+          }
+        });
+      });
+
+      if (closeProModalBtn && proModal) {
+        closeProModalBtn.addEventListener('click', () => {
+          proModal.classList.add('hidden');
+        });
+      }
     });
   </script>
-  <!-- Pro Feature Lock Modal -->
-<div id="pro-lock-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-5 shadow-2xl relative">
-    
-    <!-- Close Button -->
-    <button id="close-pro-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
-      <i class="fa-solid fa-xmark text-lg"></i>
-    </button>
-
-    <!-- Icon Badge -->
-    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
-      <i class="fa-solid fa-crown"></i>
-    </div>
-
-    <!-- Title & Description -->
-    <div class="space-y-2">
-      <h3 class="text-xl font-black text-slate-900">Unlock SJbs.AI Pro</h3>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        Automate your Google Business Profile with hands-free AI posts, automated review replies, and advanced growth analytics.
-      </p>
-    </div>
-
-    <!-- Feature Checklist -->
-    <div class="bg-slate-50 rounded-2xl p-3.5 space-y-2 text-left text-xs font-semibold text-slate-700 border border-slate-100">
-      <div class="flex items-center space-x-2.5">
-        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-        <span>Automated Weekly/Daily Google Posts</span>
-      </div>
-      <div class="flex items-center space-x-2.5">
-        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-        <span>AI-Generated Post Images</span>
-      </div>
-      <div class="flex items-center space-x-2.5">
-        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-        <span>Hands-Free Auto-Review Replies</span>
-      </div>
-    </div>
-
-    <!-- Action Button -->
-    <a href="https://wa.me/919000000000?text=Hi,%20I%20want%20to%20upgrade%20my%20SJbs.AI%20account%20to%20Pro!" target="_blank" class="btn-blue w-full py-3 rounded-xl text-sm font-bold block shadow-md hover:shadow-lg transition">
-      Upgrade to Pro Now
-    </a>
-  </div>
-</div>
 </body>
 </html>
