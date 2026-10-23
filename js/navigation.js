@@ -1,3 +1,4 @@
+
 // js/navigation.js
 const Navigation = {
   businesses: [],
@@ -137,7 +138,7 @@ const Navigation = {
         `;
       } else {
         headerPlanContainer.innerHTML = `
-          <a href="upgrade.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
+          <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
             <span>Upgrade plan</span>
           </a>
         `;
