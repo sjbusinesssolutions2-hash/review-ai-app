@@ -58,6 +58,10 @@ const Navigation = {
       planElem.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
     }
 
+    // Reset plan status in storage when no business is connected
+    localStorage.setItem('sjbs_business_plan', 'free');
+    localStorage.setItem('sjbs_selected_plan', 'free');
+
     if (locationsList) {
       locationsList.innerHTML = `<p class="text-xs text-slate-400 p-3 text-center">${message}</p>`;
     }
@@ -71,21 +75,24 @@ const Navigation = {
     const locationsList = document.getElementById('locations-list');
     if (!locationsList) return;
 
-    locationsList.innerHTML = this.businesses.map(loc => `
-      <button onclick="Navigation.selectBusiness('${loc.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between transition">
-        <div>
-          <p class="text-xs font-bold text-slate-800">${loc.name}</p>
-          <p class="text-[10px] text-slate-400">★ ${loc.rating || '0.0'} (${loc.reviewCount || 0}) ${loc.hasActivePlan ? '• Active Plan' : '• Free'}</p>
-        </div>
-        ${loc.id === this.activeBusinessId ? '<i class="fa-solid fa-check text-blue-600 text-xs"></i>' : ''}
-      </button>
-    `).join('');
+    locationsList.innerHTML = this.businesses.map(loc => {
+      const isPro = (loc.subscriptionStatus === 'pro') || loc.hasActivePlan;
+      return `
+        <button onclick="Navigation.selectBusiness('${loc.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between transition">
+          <div>
+            <p class="text-xs font-bold text-slate-800">${loc.name}</p>
+            <p class="text-[10px] text-slate-400">★ ${loc.rating || '0.0'} (${loc.reviewCount || 0}) ${isPro ? '• Active Plan' : '• Free'}</p>
+          </div>
+          ${loc.id === this.activeBusinessId ? '<i class="fa-solid fa-check text-blue-600 text-xs"></i>' : ''}
+        </button>
+      `;
+    }).join('');
   },
 
   selectBusiness(businessId) {
     this.activeBusinessId = businessId;
 
-    // Save to BOTH keys so all script files receive the active ID consistently
+    // Save active business ID
     if (CONFIG.STORAGE_KEYS && CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID) {
       localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, businessId);
     }
@@ -93,6 +100,13 @@ const Navigation = {
 
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
+
+    // Direct plan determination from MongoDB values ('pro' or 'free')
+    const planStatus = (business.subscriptionStatus || (business.hasActivePlan ? 'pro' : 'free')).toLowerCase();
+
+    // Save plan status cleanly to storage for Pro gate check in components.js
+    localStorage.setItem('sjbs_business_plan', planStatus);
+    localStorage.setItem('sjbs_selected_plan', planStatus);
 
     const nameElem = document.getElementById('selected-business-name');
     const ratingElem = document.getElementById('selected-business-rating');
@@ -103,16 +117,18 @@ const Navigation = {
     if (ratingElem) ratingElem.textContent = business.rating ? `★ ${business.rating}` : '';
     if (reviewsElem) reviewsElem.textContent = business.reviewCount !== undefined ? `(${business.reviewCount})` : '';
 
+    const isPro = planStatus === 'pro' || planStatus === 'active';
+
     if (planElem) {
-      planElem.textContent = business.hasActivePlan ? 'Active' : 'Free';
-      planElem.className = business.hasActivePlan 
+      planElem.textContent = isPro ? 'Active' : 'Free';
+      planElem.className = isPro 
         ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700'
         : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
     }
 
     const headerPlanContainer = document.getElementById('header-plan-action');
     if (headerPlanContainer) {
-      if (business.hasActivePlan) {
+      if (isPro) {
         headerPlanContainer.innerHTML = `
           <a href="settings.html" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs transition">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -121,7 +137,7 @@ const Navigation = {
         `;
       } else {
         headerPlanContainer.innerHTML = `
-          <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
+          <a href="upgrade.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
             <span>Upgrade plan</span>
           </a>
         `;
