@@ -72,10 +72,10 @@ function initHeaderEvents() {
 function initProModalAndActiveLinks() {
   const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'inbox';
 
-  // Highlight Active Nav Item
+  // Highlight Active Nav Item without stretching or pushing text to the right
   document.querySelectorAll('.nav-item').forEach(item => {
     if (item.getAttribute('data-nav') === currentPage) {
-      item.className = 'flex items-center justify-between px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm';
+      item.className = 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm';
     }
   });
 
@@ -85,7 +85,7 @@ function initProModalAndActiveLinks() {
 
   document.querySelectorAll('.pro-link').forEach(link => {
     link.addEventListener('click', (e) => {
-      const storedPlan = (localStorage.getItem('sjbs_selected_plan') || 'free').toLowerCase();
+      const storedPlan = (localStorage.getItem('sjbs_business_plan') || localStorage.getItem('sjbs_selected_plan') || 'free').toLowerCase();
       const isPaidUser = storedPlan === 'pro' || storedPlan === 'active';
 
       if (!isPaidUser) {
