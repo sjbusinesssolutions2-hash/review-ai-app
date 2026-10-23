@@ -60,10 +60,17 @@
             <i class="fa-solid fa-house w-4 text-center text-slate-400"></i>
             <span>Dashboard</span>
           </a>
-          <a href="get-more-reviews.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
-            <i class="fa-solid fa-qrcode w-4 text-center text-slate-400"></i>
-            <span>QR Codes</span>
-          </a>
+          <!-- QR Codes: Disabled with Upcoming badge & Lock icon -->
+          <div class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 opacity-60 cursor-not-allowed select-none font-medium text-sm">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-qrcode w-4 text-center text-slate-300"></i>
+              <span>QR Codes</span>
+            </div>
+            <span class="bg-slate-100 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase flex items-center space-x-1">
+              <i class="fa-solid fa-lock text-[8px]"></i>
+              <span>Upcoming</span>
+            </span>
+          </div>
         </div>
 
         <div class="space-y-1">
@@ -75,6 +82,14 @@
           <a href="auto-reply.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
             <i class="fa-solid fa-rotate-left w-4 text-center text-slate-400"></i>
             <span>Auto-Reply</span>
+          </a>
+          <!-- Auto-Posts: Added with Pro badge -->
+          <a href="auto-posts.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-paper-plane w-4 text-center text-slate-400"></i>
+              <span>Auto-Posts</span>
+            </div>
+            <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Pro</span>
           </a>
           <a href="notifications.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition">
             <i class="fa-regular fa-bell w-4 text-center text-slate-400"></i>
