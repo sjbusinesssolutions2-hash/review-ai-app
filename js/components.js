@@ -1,3 +1,5 @@
+// js/components.js
+
 async function loadComponent(targetId, filePath) {
   const container = document.getElementById(targetId);
   if (!container) return;
@@ -103,6 +105,11 @@ function initProModalAndActiveLinks() {
 document.addEventListener('DOMContentLoaded', async () => {
   await loadComponent('header-container', 'components/header.html');
   await loadComponent('sidebar-container', 'components/sidebar.html');
+  
+  // Render user profile initials now that header markup is injected
+  if (typeof Auth !== 'undefined' && Auth.renderUserProfile) {
+    Auth.renderUserProfile();
+  }
   
   initHeaderEvents();
   initProModalAndActiveLinks();
