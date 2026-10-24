@@ -3,95 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Master Control — ReviewAI</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>SJBS.AI - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-6">
 
-  <!-- Admin Header -->
-  <header class="app-bar">
-    <a href="index.html" class="app-bar-brand">
-      <span class="brand-logo">🛡️</span>
-      <span class="brand-name">Review<strong>AI</strong> Admin</span>
-    </a>
-    <div class="user-menu">
-      <span style="font-size: 13px; color: var(--accent-green); font-weight: 700; display: flex; align-items: center; gap: 6px;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">verified_user</span> System Online
-      </span>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="app-container">
-    
-    <!-- Admin Metrics Dashboard -->
-    <section class="saas-section" style="padding-top: 10px;">
-      <h2 style="text-align: left;">Platform Performance Overview</h2>
-      <p class="section-sub" style="text-align: left;">Real-time metrics on user acquisition, connected Google locations, and revenue.</p>
+  <div class="max-w-7xl mx-auto">
+    <!-- Header & Controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-800 pb-4">
+      <h1 class="text-2xl font-bold text-indigo-400">
+        <i class="fa-solid fa-shield-halved mr-2"></i> SJBS.AI Admin Portal
+      </h1>
       
-      <div class="analytics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-        <div class="stat-card">
-          <span class="stat-value" id="adminTotalUsers">0</span>
-          <span class="stat-label">Total Registered Users</span>
+      <div class="flex items-center space-x-3 w-full md:w-auto">
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-80">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="Search users by name or email..." 
+                 class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
         </div>
-        <div class="stat-card">
-          <span class="stat-value" id="adminTotalLocations">0</span>
-          <span class="stat-label">Connected Google Locations</span>
-        </div>
-        <div class="stat-card highlight">
-          <span class="stat-value" id="adminActiveSubs">0</span>
-          <span class="stat-label">Active Pro Subscriptions</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="adminMRR">₹0</span>
-          <span class="stat-label">Estimated Monthly Revenue</span>
-        </div>
+
+        <button onclick="loadAdminData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition flex items-center whitespace-nowrap">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
+        </button>
       </div>
-    </section>
-
-    <!-- User & Location Subscription Table -->
-    <section class="saas-section" style="text-align: left; padding-top: 0;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-        <div>
-          <h3 style="margin: 0; font-size: 18px;">User & Location Database</h3>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-secondary);">Manage active location plans, monitor cron status, and grant pro overrides.</p>
-        </div>
-        <input type="text" id="adminSearchInput" class="tool-input" style="max-width: 280px;" placeholder="Filter by email or location name..." oninput="filterAdminTable()">
-      </div>
-
-      <div style="overflow-x: auto; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; box-shadow: var(--shadow-sm);">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
-          <thead>
-            <tr style="border-bottom: 1px solid var(--surface-border); background: #f8fafc; color: var(--text-secondary);">
-              <th style="padding: 14px;">User Email</th>
-              <th style="padding: 14px;">Location Title / ID</th>
-              <th style="padding: 14px;">Plan Status</th>
-              <th style="padding: 14px; text-align: right;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="adminTableBody">
-            <tr>
-              <td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary);">
-                Loading platform performance data...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- App Footer -->
-  <footer class="app-footer">
-    <p>&copy; 2026 ReviewAI Inc. Private Master Admin Console.</p>
-    <div class="footer-links">
-      <a href="dashboard.html">Client Dashboard</a>
     </div>
-  </footer>
 
-  <script src="app.js"></script>
+    <!-- Users Table -->
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-xl">
+      <table class="w-full text-left text-sm text-gray-300">
+        <thead class="bg-gray-900 text-gray-400 uppercase text-xs">
+          <tr>
+            <th class="p-4">User Account</th>
+            <th class="p-4">Email</th>
+            <th class="p-4">Free Usage Status</th>
+            <th class="p-4">Business Locations & Subscriptions</th>
+            <th class="p-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adminUserList" class="divide-y divide-gray-700">
+          <tr>
+            <td colspan="5" class="p-6 text-center text-gray-400">Loading user records...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
+    let allUsersData = [];
+
+    async function loadAdminData() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/admin/users`);
+        allUsersData = await res.json();
+        renderTable(allUsersData);
+      } catch (err) {
+        console.error('Error loading admin users:', err);
+      }
+    }
+
+    function renderTable(users) {
+      const container = document.getElementById('adminUserList');
+      if (!users || users.length === 0) {
+        container.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">No registered users found.</td></tr>';
+        return;
+      }
+
+      container.innerHTML = users.map(user => `
+        <tr class="hover:bg-gray-700/50 transition">
+          <td class="p-4 font-semibold text-white flex items-center space-x-3">
+            <img src="${user.avatar || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full border border-gray-600">
+            <span>${user.displayName || 'Unknown'}</span>
+          </td>
+          <td class="p-4 text-gray-400">${user.email || 'N/A'}</td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 rounded-full text-xs ${user.freeRepliesUsed >= 2 ? 'bg-red-900/60 text-red-300 border border-red-700' : 'bg-green-900/60 text-green-300 border border-green-700'}">
+              ${user.freeRepliesUsed || 0} / 2 Used
+            </span>
+          </td>
+          <td class="p-4 space-y-2">
+            ${(user.locations && user.locations.length > 0) ? user.locations.map(loc => `
+              <div class="flex items-center justify-between bg-gray-900/80 p-2.5 rounded-lg border border-gray-700 gap-3">
+                <div class="truncate">
+                  <p class="text-xs font-medium text-gray-200 truncate" title="${loc.locationName}">${loc.locationName}</p>
+                  <p class="text-[10px] text-gray-400">${loc.address || 'No address specified'}</p>
+                </div>
+                <select onchange="toggleSubscription('${user._id}', '${loc.locationId}', this.value)" 
+                        class="bg-gray-800 border border-gray-600 rounded text-xs px-2 py-1 focus:outline-none ${loc.subscriptionStatus === 'pro' ? 'text-amber-400 font-bold border-amber-500/50' : 'text-gray-400'}">
+                  <option value="free" ${loc.subscriptionStatus === 'free' ? 'selected' : ''}>FREE</option>
+                  <option value="pro" ${loc.subscriptionStatus === 'pro' ? 'selected' : ''}>PRO ⭐</option>
+                </select>
+              </div>
+            `).join('') : '<span class="text-xs text-gray-500 italic">No locations linked yet</span>'}
+          </td>
+          <td class="p-4">
+            <button onclick="resetFreeLimit('${user._id}')" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition border border-gray-600 whitespace-nowrap">
+              Reset Free Limit
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsers() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allUsersData.filter(user => {
+        const name = (user.displayName || '').toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        return name.includes(query) || email.includes(query);
+      });
+      renderTable(filtered);
+    }
+
+    async function toggleSubscription(userId, locationId, status) {
+      await fetch(`${BACKEND_URL}/api/admin/update-subscription`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, locationId, subscriptionStatus: status })
+      });
+      // Silent background fetch refresh
+      const res = await fetch(`${BACKEND_URL}/api/admin/users`);
+      allUsersData = await res.json();
+    }
+
+    async function resetFreeLimit(userId) {
+      if (confirm('Reset free review usage count for this user?')) {
+        await fetch(`${BACKEND_URL}/api/admin/reset-free-limit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+        loadAdminData();
+      }
+    }
+
+    window.onload = loadAdminData;
+  </script>
 </body>
 </html>
- 
