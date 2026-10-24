@@ -7,58 +7,45 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-6">
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-6">
 
   <div class="max-w-7xl mx-auto">
-    <!-- Header & Controls -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-800 pb-4">
-      <h1 class="text-2xl font-bold text-indigo-400">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-800 pb-4">
+      <h1 class="text-xl md:text-2xl font-bold text-indigo-400 flex items-center">
         <i class="fa-solid fa-shield-halved mr-2"></i> SJBS.AI Admin Portal
       </h1>
-      
-      <div class="flex items-center space-x-3 w-full md:w-auto">
-        <!-- Search Bar -->
-        <div class="relative w-full md:w-80">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
-          <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="Search users by name or email..." 
-                 class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
-        </div>
+      <button onclick="loadAdminData()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition flex items-center justify-center">
+        <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh Data
+      </button>
+    </div>
 
-        <button onclick="loadAdminData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition flex items-center whitespace-nowrap">
-          <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
-        </button>
+    <!-- Search Bar -->
+    <div class="mb-6">
+      <div class="relative w-full">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+        <input type="text" id="searchInput" oninput="filterUsers()" placeholder="Search user name or email..." 
+               class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
       </div>
     </div>
 
-    <!-- Users Table -->
-    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-xl">
-      <table class="w-full text-left text-sm text-gray-300">
-        <thead class="bg-gray-900 text-gray-400 uppercase text-xs">
-          <tr>
-            <th class="p-4">User Account</th>
-            <th class="p-4">Email</th>
-            <th class="p-4">Free Usage Status</th>
-            <th class="p-4">Business Locations & Subscriptions</th>
-            <th class="p-4">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="adminUserList" class="divide-y divide-gray-700">
-          <tr>
-            <td colspan="5" class="p-6 text-center text-gray-400">Loading user records...</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- User Cards Container (Mobile & Desktop Friendly) -->
+    <div id="adminUserList" class="space-y-4">
+      <div class="p-6 text-center text-gray-400 bg-gray-800 rounded-xl border border-gray-700">Loading user records...</div>
     </div>
   </div>
 
   <script>
-    // Add this simple security check at the very top of your script in admin.html
-const adminEmail = prompt("Enter Admin Email:");
-if (adminEmail !== "jafardiwan135@gmail.com") {
+
+    // Simple password/email prompt check
+const allowedAdminEmail = "jafardiwan135@gmail.com"; // Replace with your exact email
+const userEmailInput = prompt("Enter Admin Email to access:");
+
+if (userEmailInput !== allowedAdminEmail) {
   alert("Unauthorized access!");
-  window.location.href = "login.html";
+  window.location.href = "inbox.html"; // Redirect unauthorized visitors
 }
     
     
@@ -69,63 +56,72 @@ if (adminEmail !== "jafardiwan135@gmail.com") {
       try {
         const res = await fetch(`${BACKEND_URL}/api/admin/users`);
         allUsersData = await res.json();
-        renderTable(allUsersData);
+        renderCards(allUsersData);
       } catch (err) {
         console.error('Error loading admin users:', err);
       }
     }
 
-    function renderTable(users) {
+    function renderCards(users) {
       const container = document.getElementById('adminUserList');
       if (!users || users.length === 0) {
-        container.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">No registered users found.</td></tr>';
+        container.innerHTML = '<div class="p-6 text-center text-gray-400 bg-gray-800 rounded-xl border border-gray-700">No users found.</div>';
         return;
       }
 
       container.innerHTML = users.map(user => `
-        <tr class="hover:bg-gray-700/50 transition">
-          <td class="p-4 font-semibold text-white flex items-center space-x-3">
-            <img src="${user.avatar || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full border border-gray-600">
-            <span>${user.displayName || 'Unknown'}</span>
-          </td>
-          <td class="p-4 text-gray-400">${user.email || 'N/A'}</td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-full text-xs ${user.freeRepliesUsed >= 2 ? 'bg-red-900/60 text-red-300 border border-red-700' : 'bg-green-900/60 text-green-300 border border-green-700'}">
-              ${user.freeRepliesUsed || 0} / 2 Used
-            </span>
-          </td>
-          <td class="p-4 space-y-2">
-            ${(user.locations && user.locations.length > 0) ? user.locations.map(loc => `
-              <div class="flex items-center justify-between bg-gray-900/80 p-2.5 rounded-lg border border-gray-700 gap-3">
-                <div class="truncate">
-                  <p class="text-xs font-medium text-gray-200 truncate" title="${loc.locationName}">${loc.locationName}</p>
-                  <p class="text-[10px] text-gray-400">${loc.address || 'No address specified'}</p>
-                </div>
-                <select onchange="toggleSubscription('${user._id}', '${loc.locationId}', this.value)" 
-                        class="bg-gray-800 border border-gray-600 rounded text-xs px-2 py-1 focus:outline-none ${loc.subscriptionStatus === 'pro' ? 'text-amber-400 font-bold border-amber-500/50' : 'text-gray-400'}">
-                  <option value="free" ${loc.subscriptionStatus === 'free' ? 'selected' : ''}>FREE</option>
-                  <option value="pro" ${loc.subscriptionStatus === 'pro' ? 'selected' : ''}>PRO ⭐</option>
-                </select>
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-5 shadow-lg space-y-4">
+          <!-- User Info Row -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-700 pb-3">
+            <div class="flex items-center space-x-3">
+              <img src="${user.avatar || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full border border-gray-600">
+              <div>
+                <h3 class="font-bold text-white text-base">${user.displayName || 'Unknown'}</h3>
+                <p class="text-xs text-gray-400">${user.email || 'N/A'}</p>
               </div>
-            `).join('') : '<span class="text-xs text-gray-500 italic">No locations linked yet</span>'}
-          </td>
-          <td class="p-4">
-            <button onclick="resetFreeLimit('${user._id}')" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition border border-gray-600 whitespace-nowrap">
-              Reset Free Limit
-            </button>
-          </td>
-        </tr>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end space-x-3">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold ${user.freeRepliesUsed >= 2 ? 'bg-red-900/60 text-red-300 border border-red-700' : 'bg-green-900/60 text-green-300 border border-green-700'}">
+                ${user.freeRepliesUsed || 0} / 2 Free Used
+              </span>
+              <button onclick="resetFreeLimit('${user._id}')" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition border border-gray-600">
+                Reset Limit
+              </button>
+            </div>
+          </div>
+
+          <!-- Business Locations Section -->
+          <div>
+            <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Connected Business Locations & Subscriptions</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${(user.locations && user.locations.length > 0) ? user.locations.map(loc => `
+                <div class="flex items-center justify-between bg-gray-900/80 p-3 rounded-lg border border-gray-700">
+                  <div class="pr-2 min-w-0">
+                    <p class="text-xs font-semibold text-gray-200 truncate" title="${loc.locationName}">${loc.locationName}</p>
+                    <p class="text-[10px] text-gray-400 truncate">${loc.address || 'No address specified'}</p>
+                  </div>
+                  <select onchange="toggleSubscription('${user._id}', '${loc.locationId}', this.value)" 
+                          class="bg-gray-800 border border-gray-600 rounded text-xs px-2.5 py-1.5 focus:outline-none ${loc.subscriptionStatus === 'pro' ? 'text-amber-400 font-bold border-amber-500' : 'text-gray-400'}">
+                    <option value="free" ${loc.subscriptionStatus === 'free' ? 'selected' : ''}>FREE</option>
+                    <option value="pro" ${loc.subscriptionStatus === 'pro' ? 'selected' : ''}>PRO ⭐</option>
+                  </select>
+                </div>
+              `).join('') : '<p class="text-xs text-gray-500 italic">No business locations found for this user.</p>'}
+            </div>
+          </div>
+        </div>
       `).join('');
     }
 
     function filterUsers() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const filtered = allUsersData.filter(user => {
         const name = (user.displayName || '').toLowerCase();
         const email = (user.email || '').toLowerCase();
         return name.includes(query) || email.includes(query);
       });
-      renderTable(filtered);
+      renderCards(filtered);
     }
 
     async function toggleSubscription(userId, locationId, status) {
@@ -134,13 +130,12 @@ if (adminEmail !== "jafardiwan135@gmail.com") {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, locationId, subscriptionStatus: status })
       });
-      // Silent background fetch refresh
       const res = await fetch(`${BACKEND_URL}/api/admin/users`);
       allUsersData = await res.json();
     }
 
     async function resetFreeLimit(userId) {
-      if (confirm('Reset free review usage count for this user?')) {
+      if (confirm('Reset free usage limit for this user?')) {
         await fetch(`${BACKEND_URL}/api/admin/reset-free-limit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
