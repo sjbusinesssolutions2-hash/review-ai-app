@@ -78,12 +78,15 @@ const Navigation = {
     if (!locationsList) return;
 
     locationsList.innerHTML = this.businesses.map(loc => {
-      const isPro = (loc.subscriptionStatus === 'pro') || loc.hasActivePlan || loc.plan === 'pro';
+      // Check pro status cleanly for each location item in the dropdown
+      const status = String(loc.subscriptionStatus || loc.plan || 'free').toLowerCase();
+      const isPro = status === 'pro' || status === 'active' || loc.hasActivePlan;
+
       return `
         <button onclick="Navigation.selectBusiness('${loc.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between transition">
           <div>
             <p class="text-xs font-bold text-slate-800">${loc.name}</p>
-            <p class="text-[10px] text-slate-400">★ ${loc.rating || '0.0'} (${loc.reviewCount || 0}) ${isPro ? '• Active Plan' : '• Free'}</p>
+            <p class="text-[10px] text-slate-400">★ ${loc.rating || '0.0'} (${loc.reviewCount || 0}) • <span class="${isPro ? 'text-emerald-600 font-semibold' : ''}">${isPro ? 'Active Plan' : 'Free'}</span></p>
           </div>
           ${loc.id === this.activeBusinessId ? '<i class="fa-solid fa-check text-blue-600 text-xs"></i>' : ''}
         </button>
@@ -102,7 +105,6 @@ const Navigation = {
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
 
-    // Direct plan determination
     const rawStatus = business.subscriptionStatus || business.plan || (business.hasActivePlan ? 'pro' : 'free');
     const planStatus = String(rawStatus).toLowerCase();
 
@@ -127,27 +129,28 @@ const Navigation = {
         : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
     }
 
-    // Direct update to header container or upgrade-plan link fallback
-    const headerPlanContainer = document.getElementById('header-plan-action');
-    const upgradeBtnElem = document.querySelector('a[href="upgrade-plan.html"], a[href="settings.html"]');
+    // Robust Header Updating with Retry (Handles async header.html loading)
+    const updateHeaderButton = () => {
+      const headerPlanContainer = document.getElementById('header-plan-action');
+      if (!headerPlanContainer) return false;
 
-    const proHTML = `
-      <a href="settings.html" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs transition">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Active Plan</span>
-      </a>
-    `;
+      headerPlanContainer.innerHTML = isPro ? `
+        <a href="settings.html" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs transition">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Active Plan</span>
+        </a>
+      ` : `
+        <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
+          <span>Upgrade plan</span>
+        </a>
+      `;
+      return true;
+    };
 
-    const freeHTML = `
-      <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
-        <span>Upgrade plan</span>
-      </a>
-    `;
-
-    if (headerPlanContainer) {
-      headerPlanContainer.innerHTML = isPro ? proHTML : freeHTML;
-    } else if (upgradeBtnElem && upgradeBtnElem.parentElement) {
-      upgradeBtnElem.parentElement.innerHTML = isPro ? proHTML : freeHTML;
+    // Try immediately, and retry a couple times if header component is still injecting
+    if (!updateHeaderButton()) {
+      setTimeout(updateHeaderButton, 200);
+      setTimeout(updateHeaderButton, 600);
     }
 
     const locationsMenu = document.getElementById('locations-menu');
