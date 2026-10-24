@@ -79,45 +79,49 @@
 
   <script src="js/config.js"></script>
   <script>
-    async function runSandboxGeneration() {
-      const btn = document.getElementById('generateBtn');
-      const outputCard = document.getElementById('outputCard');
-      const outputText = document.getElementById('outputText');
-      const timestamp = document.getElementById('outputTimestamp');
+  // Fallback if js/config.js is not loaded
+  const BACKEND_URL = window.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
 
-      const locationName = document.getElementById('testBusinessName').value;
-      const category = document.getElementById('testCategory').value;
-      const topics = document.getElementById('testTopics').value;
-      const enableFestivals = document.getElementById('testFestivals').checked;
-      const enableReviewSpotlights = document.getElementById('testReviews').checked;
+  async function runSandboxGeneration() {
+    const btn = document.getElementById('generateBtn');
+    const outputCard = document.getElementById('outputCard');
+    const outputText = document.getElementById('outputText');
+    const timestamp = document.getElementById('outputTimestamp');
 
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Generating via Gemini...</span>`;
+    const locationName = document.getElementById('testBusinessName').value;
+    const category = document.getElementById('testCategory').value;
+    const topics = document.getElementById('testTopics').value;
+    const enableFestivals = document.getElementById('testFestivals').checked;
+    const enableReviewSpotlights = document.getElementById('testReviews').checked;
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locationName, category, topics, enableFestivals, enableReviewSpotlights })
-        });
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Generating via Gemini...</span>`;
 
-        const data = await res.json();
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locationName, category, topics, enableFestivals, enableReviewSpotlights })
+      });
 
-        if (data.success) {
-          outputCard.classList.remove('hidden');
-          outputText.innerText = data.postText;
-          timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
-        } else {
-          alert('Generation failed.');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Network or server error.');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test</span>`;
+      const data = await res.json();
+
+      if (data.success) {
+        outputCard.classList.remove('hidden');
+        outputText.innerText = data.postText;
+        timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
+      } else {
+        alert('Server Error: ' + (data.error || 'Generation failed. Check Render logs.'));
       }
+    } catch (err) {
+      console.error('Fetch error:', err);
+      alert('Network or server error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test</span>`;
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
