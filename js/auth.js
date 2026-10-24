@@ -1,6 +1,6 @@
 // js/auth.js
 const Auth = {
-  init() {
+  async init() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     const userName = urlParams.get('userName');
@@ -21,11 +21,32 @@ const Auth = {
       window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
     }
 
+    // Fetch fresh user and plan status from MongoDB on load
+    await this.fetchCurrentUser();
+
     this.renderUserProfile();
   },
 
   getUserId() {
     return localStorage.getItem(CONFIG.STORAGE_KEYS.USER_ID);
+  },
+
+  async fetchCurrentUser() {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+      }
+    } catch (err) {
+      console.warn('Could not refresh user status:', err);
+    }
   },
 
   renderUserProfile() {
@@ -62,20 +83,5 @@ const Auth = {
     window.location.href = 'login.html';
   }
 };
-
-// Add cache-busting timestamp when fetching user details
-async function fetchCurrentUser() {
-  const res = await fetch(`/api/user/me?t=${Date.now()}`, {
-    headers: {
-      'Cache-Control': 'no-cache'
-    }
-  });
-  const data = await res.json();
-  if (data.success) {
-    // Update local state with fresh plan data
-    localStorage.setItem('user', JSON.stringify(data.user));
-  }
-}
-
 
 document.addEventListener('DOMContentLoaded', () => Auth.init());
