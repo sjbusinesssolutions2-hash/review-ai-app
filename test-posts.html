@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SJBS.AI - Auto-Posts Sandbox Test Bench</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+  <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-6 font-sans">
 
@@ -17,7 +17,7 @@
         <h1 class="text-xl font-bold text-white flex items-center">
           <i class="fa-solid fa-vial-circle-check text-indigo-400 mr-2.5"></i> Auto-Posts Test Bench
         </h1>
-        <p class="text-xs text-slate-400 mt-0.5">Isolated testing sandbox for AI post generation and frequency simulation.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Isolated testing sandbox for AI post generation and contextual image matching.</p>
       </div>
       <a href="inbox.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition">
         &larr; Back to App
@@ -62,15 +62,22 @@
     </div>
 
     <!-- Output Box -->
-    <div id="outputCard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
+    <div id="outputCard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <span class="text-xs font-bold text-indigo-400 flex items-center">
-          <i class="fa-solid fa-robot mr-1.5"></i> Generated Post Output
+          <i class="fa-solid fa-robot mr-1.5"></i> Generated Post Preview
         </span>
         <span id="outputTimestamp" class="text-[10px] text-slate-500"></span>
       </div>
 
-      <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-4 space-y-2">
+      <!-- Post Card -->
+      <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden space-y-3 p-4">
+        <!-- Post Image -->
+        <div class="rounded-lg overflow-hidden border border-slate-800 aspect-[4/3] bg-slate-900">
+          <img id="outputImage" src="" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Post Text -->
         <p id="outputText" class="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
       </div>
     </div>
@@ -79,7 +86,7 @@
 
   <script src="js/config.js"></script>
   <script>
-    const BACKEND_URL = window.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
+    const BACKEND_URL = window.BACKEND_URL || '[https://review-ai-backend-03sb.onrender.com](https://review-ai-backend-03sb.onrender.com)';
 
     async function runSandboxGeneration() {
       const btn = document.getElementById('generateBtn');
@@ -95,7 +102,7 @@
       const enableReviewSpotlights = document.getElementById('testReviews').checked;
 
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Matching Content & Image...</span>`;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Generating Post & Banner...</span>`;
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
@@ -109,20 +116,19 @@
         if (data.success) {
           outputCard.classList.remove('hidden');
           outputText.innerText = data.postText;
-          outputImage.src = data.imageUrl || 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=500';
+          outputImage.src = data.imageUrl;
           timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
         } else {
-          alert('Generation failed: ' + (data.error || 'Unknown error'));
+          alert('Generation error: ' + (data.error || 'Server error'));
         }
       } catch (err) {
         console.error(err);
-        alert('Network or server error.');
+        alert('Network error connecting to backend.');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test (Contextual Media Match)</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test</span>`;
       }
     }
   </script>
-
 </body>
 </html>
