@@ -63,4 +63,19 @@ const Auth = {
   }
 };
 
+// Add cache-busting timestamp when fetching user details
+async function fetchCurrentUser() {
+  const res = await fetch(`/api/user/me?t=${Date.now()}`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  });
+  const data = await res.json();
+  if (data.success) {
+    // Update local state with fresh plan data
+    localStorage.setItem('user', JSON.stringify(data.user));
+  }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => Auth.init());
