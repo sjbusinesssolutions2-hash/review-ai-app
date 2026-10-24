@@ -79,49 +79,50 @@
 
   <script src="js/config.js"></script>
   <script>
-  // Fallback if js/config.js is not loaded
-  const BACKEND_URL = window.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
+    const BACKEND_URL = window.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
 
-  async function runSandboxGeneration() {
-    const btn = document.getElementById('generateBtn');
-    const outputCard = document.getElementById('outputCard');
-    const outputText = document.getElementById('outputText');
-    const timestamp = document.getElementById('outputTimestamp');
+    async function runSandboxGeneration() {
+      const btn = document.getElementById('generateBtn');
+      const outputCard = document.getElementById('outputCard');
+      const outputText = document.getElementById('outputText');
+      const outputImage = document.getElementById('outputImage');
+      const timestamp = document.getElementById('outputTimestamp');
 
-    const locationName = document.getElementById('testBusinessName').value;
-    const category = document.getElementById('testCategory').value;
-    const topics = document.getElementById('testTopics').value;
-    const enableFestivals = document.getElementById('testFestivals').checked;
-    const enableReviewSpotlights = document.getElementById('testReviews').checked;
+      const locationName = document.getElementById('testBusinessName').value;
+      const category = document.getElementById('testCategory').value;
+      const topics = document.getElementById('testTopics').value;
+      const enableFestivals = document.getElementById('testFestivals').checked;
+      const enableReviewSpotlights = document.getElementById('testReviews').checked;
 
-    btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Generating via Gemini...</span>`;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Matching Content & Image...</span>`;
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locationName, category, topics, enableFestivals, enableReviewSpotlights })
-      });
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locationName, category, topics, enableFestivals, enableReviewSpotlights })
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.success) {
-        outputCard.classList.remove('hidden');
-        outputText.innerText = data.postText;
-        timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
-      } else {
-        alert('Server Error: ' + (data.error || 'Generation failed. Check Render logs.'));
+        if (data.success) {
+          outputCard.classList.remove('hidden');
+          outputText.innerText = data.postText;
+          outputImage.src = data.imageUrl || 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=500';
+          timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
+        } else {
+          alert('Generation failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network or server error.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test (Contextual Media Match)</span>`;
       }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      alert('Network or server error: ' + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test</span>`;
     }
-  }
-</script>
+  </script>
 
 </body>
 </html>
