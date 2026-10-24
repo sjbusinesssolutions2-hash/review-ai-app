@@ -31,30 +31,27 @@
       </div>
     </div>
 
-    <!-- User Cards Container (Mobile & Desktop Friendly) -->
+    <!-- User Cards Container -->
     <div id="adminUserList" class="space-y-4">
       <div class="p-6 text-center text-gray-400 bg-gray-800 rounded-xl border border-gray-700">Loading user records...</div>
     </div>
   </div>
 
   <script>
+    const allowedAdminEmail = "jafardiwan135@gmail.com";
+    const userEmailInput = prompt("Enter Admin Email to access:");
 
-    // Simple password/email prompt check
-const allowedAdminEmail = "jafardiwan135@gmail.com"; // Replace with your exact email
-const userEmailInput = prompt("Enter Admin Email to access:");
-
-if (userEmailInput !== allowedAdminEmail) {
-  alert("Unauthorized access!");
-  window.location.href = "inbox.html"; // Redirect unauthorized visitors
-}
-    
+    if (userEmailInput !== allowedAdminEmail) {
+      alert("Unauthorized access!");
+      window.location.href = "inbox.html";
+    }
     
     const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
     let allUsersData = [];
 
     async function loadAdminData() {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/admin/users`);
+        const res = await fetch(`${BACKEND_URL}/api/admin/users?t=${Date.now()}`);
         allUsersData = await res.json();
         renderCards(allUsersData);
       } catch (err) {
@@ -101,7 +98,7 @@ if (userEmailInput !== allowedAdminEmail) {
                     <p class="text-xs font-semibold text-gray-200 truncate" title="${loc.locationName}">${loc.locationName}</p>
                     <p class="text-[10px] text-gray-400 truncate">${loc.address || 'No address specified'}</p>
                   </div>
-                  <select onchange="toggleSubscription('${user._id}', '${loc.locationId}', this.value)" 
+                  <select onchange="toggleSubscription('${user._id}', '${encodeURIComponent(loc.locationId)}', this.value, this)" 
                           class="bg-gray-800 border border-gray-600 rounded text-xs px-2.5 py-1.5 focus:outline-none ${loc.subscriptionStatus === 'pro' ? 'text-amber-400 font-bold border-amber-500' : 'text-gray-400'}">
                     <option value="free" ${loc.subscriptionStatus === 'free' ? 'selected' : ''}>FREE</option>
                     <option value="pro" ${loc.subscriptionStatus === 'pro' ? 'selected' : ''}>PRO ⭐</option>
@@ -124,14 +121,34 @@ if (userEmailInput !== allowedAdminEmail) {
       renderCards(filtered);
     }
 
-    async function toggleSubscription(userId, locationId, status) {
-      await fetch(`${BACKEND_URL}/api/admin/update-subscription`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, locationId, subscriptionStatus: status })
-      });
-      const res = await fetch(`${BACKEND_URL}/api/admin/users`);
-      allUsersData = await res.json();
+    async function toggleSubscription(userId, locationId, status, selectElem) {
+      const decodedLocationId = decodeURIComponent(locationId);
+      
+      // Update styling immediately for fast feedback
+      if (status === 'pro') {
+        selectElem.className = 'bg-gray-800 border border-amber-500 rounded text-xs px-2.5 py-1.5 focus:outline-none text-amber-400 font-bold';
+      } else {
+        selectElem.className = 'bg-gray-800 border border-gray-600 rounded text-xs px-2.5 py-1.5 focus:outline-none text-gray-400';
+      }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/admin/update-subscription`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, locationId: decodedLocationId, subscriptionStatus: status })
+        });
+        
+        const data = await res.json();
+        if (data.success || res.ok) {
+          // Sync state and reload
+          await loadAdminData();
+        } else {
+          alert('Failed to update subscription: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Network error updating subscription');
+        console.error(err);
+      }
     }
 
     async function resetFreeLimit(userId) {
