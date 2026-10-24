@@ -54,6 +54,14 @@
   </div>
 
   <script>
+    // Add this simple security check at the very top of your script in admin.html
+const adminEmail = prompt("Enter Admin Email:");
+if (adminEmail !== "jafardiwan135@gmail.com") {
+  alert("Unauthorized access!");
+  window.location.href = "login.html";
+}
+    
+    
     const BACKEND_URL = 'https://review-ai-backend-03sb.onrender.com';
     let allUsersData = [];
 
