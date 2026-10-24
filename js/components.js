@@ -4,7 +4,7 @@ async function loadComponent(targetId, filePath) {
   const container = document.getElementById(targetId);
   if (!container) return;
   try {
-    const res = await fetch(filePath);
+    const res = await fetch(`${filePath}?t=${Date.now()}`);
     if (res.ok) {
       container.innerHTML = await res.text();
     }
@@ -72,7 +72,7 @@ function initHeaderEvents() {
 function initProModalAndActiveLinks() {
   const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'inbox';
 
-  // Highlight Active Nav Item without stretching or pushing text to the right
+  // Highlight Active Nav Item
   document.querySelectorAll('.nav-item').forEach(item => {
     if (item.getAttribute('data-nav') === currentPage) {
       item.className = 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm';
@@ -113,4 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   initHeaderEvents();
   initProModalAndActiveLinks();
+
+  // Notify Navigation system that HTML components are ready in the DOM
+  window.dispatchEvent(new Event('componentsLoaded'));
 });
