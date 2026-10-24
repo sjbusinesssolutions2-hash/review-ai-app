@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SJBS.AI - Auto-Posts Sandbox Test Bench</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6 font-sans">
+
+  <div class="max-w-3xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-xl font-bold text-white flex items-center">
+          <i class="fa-solid fa-vial-circle-check text-indigo-400 mr-2.5"></i> Auto-Posts Test Bench
+        </h1>
+        <p class="text-xs text-slate-400 mt-0.5">Isolated testing sandbox for AI post generation and frequency simulation.</p>
+      </div>
+      <a href="inbox.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition">
+        &larr; Back to App
+      </a>
+    </div>
+
+    <!-- Configuration Control Panel -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Sandbox Parameters</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-1 block">Business Name</label>
+          <input type="text" id="testBusinessName" value="SJBS Gourmet Bakery" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300 mb-1 block">Business Category</label>
+          <input type="text" id="testCategory" value="Bakery & Café" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-slate-300 mb-1 block">Key Topics / Keywords</label>
+        <textarea id="testTopics" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">Fresh weekend croissants, custom birthday cakes, morning coffee combos</textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 pt-1">
+        <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+          <input type="checkbox" id="testFestivals" checked class="rounded bg-slate-950 border-slate-700 text-indigo-600 focus:ring-0">
+          <span>Enable Festival Themes</span>
+        </label>
+        <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+          <input type="checkbox" id="testReviews" checked class="rounded bg-slate-950 border-slate-700 text-indigo-600 focus:ring-0">
+          <span>Enable Review Spotlights</span>
+        </label>
+      </div>
+
+      <button onclick="runSandboxGeneration()" id="generateBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+        <span>Run AI Generation Test</span>
+      </button>
+    </div>
+
+    <!-- Output Box -->
+    <div id="outputCard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <span class="text-xs font-bold text-indigo-400 flex items-center">
+          <i class="fa-solid fa-robot mr-1.5"></i> Generated Post Output
+        </span>
+        <span id="outputTimestamp" class="text-[10px] text-slate-500"></span>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-4 space-y-2">
+        <p id="outputText" class="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    async function runSandboxGeneration() {
+      const btn = document.getElementById('generateBtn');
+      const outputCard = document.getElementById('outputCard');
+      const outputText = document.getElementById('outputText');
+      const timestamp = document.getElementById('outputTimestamp');
+
+      const locationName = document.getElementById('testBusinessName').value;
+      const category = document.getElementById('testCategory').value;
+      const topics = document.getElementById('testTopics').value;
+      const enableFestivals = document.getElementById('testFestivals').checked;
+      const enableReviewSpotlights = document.getElementById('testReviews').checked;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-amber-300"></i> <span>Generating via Gemini...</span>`;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locationName, category, topics, enableFestivals, enableReviewSpotlights })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          outputCard.classList.remove('hidden');
+          outputText.innerText = data.postText;
+          timestamp.innerText = new Date(data.generatedAt).toLocaleTimeString();
+        } else {
+          alert('Generation failed.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network or server error.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> <span>Run AI Generation Test</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
