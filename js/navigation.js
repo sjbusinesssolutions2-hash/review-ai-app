@@ -1,11 +1,13 @@
-
 // js/navigation.js
 const Navigation = {
   businesses: [],
   activeBusinessId: null,
 
-  init() {
-    this.loadBusinesses();
+  async init() {
+    // 1. Fetch fresh user context from server first to ensure plan state is up to date
+    await fetchCurrentUser();
+    // 2. Load locations
+    await this.loadBusinesses();
   },
 
   async loadBusinesses() {
@@ -17,7 +19,11 @@ const Navigation = {
     }
 
     try {
-      const response = await fetch(`${CONFIG.API_BASE_URL}/api/businesses?userId=${userId}`);
+      // Added cache-busting timestamp to prevent mobile browser caching
+      const response = await fetch(`${CONFIG.API_BASE_URL}/api/businesses?userId=${userId}&t=${Date.now()}`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+
       if (response.ok) {
         this.businesses = await response.json();
       } else {
@@ -59,7 +65,6 @@ const Navigation = {
       planElem.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
     }
 
-    // Reset plan status in storage when no business is connected
     localStorage.setItem('sjbs_business_plan', 'free');
     localStorage.setItem('sjbs_selected_plan', 'free');
 
@@ -77,7 +82,7 @@ const Navigation = {
     if (!locationsList) return;
 
     locationsList.innerHTML = this.businesses.map(loc => {
-      const isPro = (loc.subscriptionStatus === 'pro') || loc.hasActivePlan;
+      const isPro = (loc.subscriptionStatus === 'pro') || loc.hasActivePlan || loc.plan === 'pro';
       return `
         <button onclick="Navigation.selectBusiness('${loc.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between transition">
           <div>
@@ -93,7 +98,6 @@ const Navigation = {
   selectBusiness(businessId) {
     this.activeBusinessId = businessId;
 
-    // Save active business ID
     if (CONFIG.STORAGE_KEYS && CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID) {
       localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, businessId);
     }
@@ -103,9 +107,9 @@ const Navigation = {
     if (!business) return;
 
     // Direct plan determination from MongoDB values ('pro' or 'free')
-    const planStatus = (business.subscriptionStatus || (business.hasActivePlan ? 'pro' : 'free')).toLowerCase();
+    const rawStatus = business.subscriptionStatus || business.plan || (business.hasActivePlan ? 'pro' : 'free');
+    const planStatus = String(rawStatus).toLowerCase();
 
-    // Save plan status cleanly to storage for Pro gate check in components.js
     localStorage.setItem('sjbs_business_plan', planStatus);
     localStorage.setItem('sjbs_selected_plan', planStatus);
 
@@ -150,7 +154,6 @@ const Navigation = {
 
     this.renderLocationsList();
 
-    // Trigger page-level updates
     window.dispatchEvent(new Event('businessChanged'));
 
     if (window.InboxPage && typeof window.InboxPage.onBusinessChange === 'function') {
@@ -159,18 +162,22 @@ const Navigation = {
   }
 };
 
-// Add cache-busting timestamp when fetching user details
+// Fetch current user & sync local state with MongoDB
 async function fetchCurrentUser() {
-  const res = await fetch(`/api/user/me?t=${Date.now()}`, {
-    headers: {
-      'Cache-Control': 'no-cache'
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
     }
-  });
-  const data = await res.json();
-  if (data.success) {
-    // Update local state with fresh plan data
-    localStorage.setItem('user', JSON.stringify(data.user));
+  } catch (err) {
+    console.warn('Could not refresh user status:', err);
   }
 }
 
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => Navigation.init());
