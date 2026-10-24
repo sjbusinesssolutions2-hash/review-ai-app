@@ -4,9 +4,7 @@ const Navigation = {
   activeBusinessId: null,
 
   async init() {
-    // 1. Fetch fresh user context from server first to ensure plan state is up to date
     await fetchCurrentUser();
-    // 2. Load locations
     await this.loadBusinesses();
   },
 
@@ -19,7 +17,6 @@ const Navigation = {
     }
 
     try {
-      // Added cache-busting timestamp to prevent mobile browser caching
       const response = await fetch(`${CONFIG.API_BASE_URL}/api/businesses?userId=${userId}&t=${Date.now()}`, {
         headers: { 'Cache-Control': 'no-cache' }
       });
@@ -39,7 +36,6 @@ const Navigation = {
       return;
     }
 
-    // Check storage for saved active business
     const savedKey = CONFIG.STORAGE_KEYS ? CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID : 'sjbs_selected_business_id';
     const savedBusinessId = localStorage.getItem(savedKey) || localStorage.getItem('sjbs_selected_business_id');
     const initialBusiness = this.businesses.find(b => b.id === savedBusinessId) || this.businesses[0];
@@ -106,7 +102,7 @@ const Navigation = {
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
 
-    // Direct plan determination from MongoDB values ('pro' or 'free')
+    // Direct plan determination
     const rawStatus = business.subscriptionStatus || business.plan || (business.hasActivePlan ? 'pro' : 'free');
     const planStatus = String(rawStatus).toLowerCase();
 
@@ -131,22 +127,27 @@ const Navigation = {
         : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
     }
 
+    // Direct update to header container or upgrade-plan link fallback
     const headerPlanContainer = document.getElementById('header-plan-action');
+    const upgradeBtnElem = document.querySelector('a[href="upgrade-plan.html"], a[href="settings.html"]');
+
+    const proHTML = `
+      <a href="settings.html" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs transition">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Active Plan</span>
+      </a>
+    `;
+
+    const freeHTML = `
+      <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
+        <span>Upgrade plan</span>
+      </a>
+    `;
+
     if (headerPlanContainer) {
-      if (isPro) {
-        headerPlanContainer.innerHTML = `
-          <a href="settings.html" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-2 shadow-xs transition">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Active Plan</span>
-          </a>
-        `;
-      } else {
-        headerPlanContainer.innerHTML = `
-          <a href="upgrade-plan.html" class="btn-blue px-4 py-2 rounded-full text-xs font-bold inline-flex items-center space-x-1.5 shadow-xs">
-            <span>Upgrade plan</span>
-          </a>
-        `;
-      }
+      headerPlanContainer.innerHTML = isPro ? proHTML : freeHTML;
+    } else if (upgradeBtnElem && upgradeBtnElem.parentElement) {
+      upgradeBtnElem.parentElement.innerHTML = isPro ? proHTML : freeHTML;
     }
 
     const locationsMenu = document.getElementById('locations-menu');
@@ -162,7 +163,6 @@ const Navigation = {
   }
 };
 
-// Fetch current user & sync local state with MongoDB
 async function fetchCurrentUser() {
   try {
     const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?t=${Date.now()}`, {
@@ -179,5 +179,4 @@ async function fetchCurrentUser() {
   }
 }
 
-// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => Navigation.init());
