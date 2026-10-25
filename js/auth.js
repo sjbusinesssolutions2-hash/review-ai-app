@@ -5,13 +5,13 @@ const Auth = {
     const userId = urlParams.get('userId');
     const userName = urlParams.get('userName');
 
-    if (userId) localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
+    if (userId) {
+      localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
+    }
     
     if (userName) {
       const decodedName = decodeURIComponent(userName).trim();
-      const lower = decodedName.toLowerCase();
-      // Block business titles from being saved as user name
-      if (!lower.includes('sj business') && !lower.includes('india bat') && !lower.includes('solutions')) {
+      if (decodedName) {
         localStorage.setItem(CONFIG.STORAGE_KEYS.USER_NAME, decodedName);
       }
     }
@@ -32,8 +32,11 @@ const Auth = {
   },
 
   async fetchCurrentUser() {
+    const userId = this.getUserId();
+    if (!userId) return;
+
     try {
-      const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?t=${Date.now()}`, {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?userId=${encodeURIComponent(userId)}&t=${Date.now()}`, {
         headers: {
           'Cache-Control': 'no-cache'
         }
@@ -41,7 +44,7 @@ const Auth = {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(data.user));
         }
       }
     } catch (err) {
@@ -53,29 +56,17 @@ const Auth = {
     const avatarElem = document.getElementById('user-avatar');
     if (!avatarElem) return;
 
-    let storedName = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME) || '';
-
-    // Purge if business name leaked
-    const lower = storedName.toLowerCase();
-    if (lower.includes('sj business') || lower.includes('india bat') || lower.includes('solutions')) {
-      storedName = '';
-      localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_NAME);
-    }
-
+    const storedName = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_NAME) || 'User';
     let initials = '';
 
-    if (storedName) {
-      const parts = storedName.trim().split(' ').filter(Boolean);
-      if (parts.length >= 2) {
-        // First letter of first name + First letter of last name
-        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-      } else if (parts.length === 1 && parts[0].length > 0) {
-        // First two letters if only one name part exists
-        initials = parts[0].substring(0, 2).toUpperCase();
-      }
+    const parts = storedName.trim().split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    } else if (parts.length === 1 && parts[0].length > 0) {
+      initials = parts[0].substring(0, 2).toUpperCase();
     }
 
-    avatarElem.textContent = initials;
+    avatarElem.textContent = initials || 'U';
   },
 
   logout() {
