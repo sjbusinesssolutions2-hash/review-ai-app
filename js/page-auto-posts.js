@@ -25,11 +25,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewImg = document.getElementById('previewBanner');
   const historyTableBody = document.getElementById('historyTableBody');
 
-  // Load saved config on initialization
+    // Load saved config on initialization with instant local cache fallback
   async function loadSettings() {
     refreshBusinessContext();
-    if (!BUSINESS_ID) return;
+    
+    // If business ID isn't set yet, wait a moment and try again
+    if (!BUSINESS_ID) {
+      setTimeout(loadSettings, 300);
+      return;
+    }
 
+    // 1. Instant local display check
+    const cachedConfig = localStorage.getItem(`sjbs_autopost_config_${BUSINESS_ID}`);
+    if (cachedConfig) {
+      try {
+        const parsed = JSON.parse(cachedConfig);
+        autoPostToggle.checked = parsed.enabled || false;
+        frequencyInput.value = parsed.frequency || 'daily';
+        preferredTimeInput.value = parsed.preferredTime || '10:00';
+        topicsInput.value = (parsed.topics || []).join(', ');
+        enableFestivalsToggle.checked = parsed.enableFestivals !== false;
+        enableReviewSpotlightsToggle.checked = parsed.enableReviewSpotlights !== false;
+      } catch (e) { console.warn('Cache parse error:', e); }
+    }
+
+    // 2. Fetch fresh config from backend DB
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
@@ -40,17 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
         topicsInput.value = (data.config.topics || []).join(', ');
         enableFestivalsToggle.checked = data.config.enableFestivals !== false;
         enableReviewSpotlightsToggle.checked = data.config.enableReviewSpotlights !== false;
-        
-        // Arm scheduler automatically if automation is enabled
+
+        // Sync local cache
+        localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(data.config));
+
         if (autoPostToggle.checked && preferredTimeInput.value) {
           armTimer(preferredTimeInput.value);
         }
       }
     } catch (err) {
-      console.warn('Could not load settings:', err);
+      console.warn('Could not load settings from server:', err);
     }
     loadHistory();
   }
+
 
   // Trigger automated generation & publish action
   async function triggerAutomatedPublish() {
@@ -104,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, delayMs);
   }
 
-  // Save config & arm timer
+    // Save config & cache settings locally
   async function saveSettings() {
     refreshBusinessContext();
     if (!BUSINESS_ID) {
@@ -128,8 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      
       if (data.success) {
+        // --- ADD THIS LINE HERE TO CACHE LOCALLY ---
+        localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(payload));
+
         alert('Settings saved successfully!');
+
         if (autoPostToggle.checked) {
           armTimer(preferredTimeInput.value);
         } else if (window._autoPostTimer) {
