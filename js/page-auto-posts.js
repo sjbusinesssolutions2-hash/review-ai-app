@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Grab business ID and name dynamically from localStorage or URL
+  const BACKEND_URL = window.CONFIG?.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
+  
+  // Dynamic fallback for business ID and name
   const urlParams = new URLSearchParams(window.location.search);
   const BUSINESS_ID = urlParams.get('businessId') || localStorage.getItem('sjbs_selected_business_id') || 'default';
   const BUSINESS_NAME = localStorage.getItem('sjbs_business_name') || 'Our Business';
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load saved config on initialization
   async function loadSettings() {
     try {
-      const res = await fetch(`/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
+      const res = await fetch(`${BACKEND_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.config) {
         autoPostToggle.checked = data.config.enabled || false;
@@ -51,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const res = await fetch(`/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`, {
+      const res = await fetch(`${BACKEND_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -69,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     previewWrapper.classList.add('hidden');
 
     try {
-      const res = await fetch('/api/auto-posts/test-generate', {
+      const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load post history
   async function loadHistory() {
     try {
-      const res = await fetch(`/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
+      const res = await fetch(`${BACKEND_URL}/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.posts && data.posts.length > 0) {
         historyTableBody.innerHTML = data.posts.map(post => `
