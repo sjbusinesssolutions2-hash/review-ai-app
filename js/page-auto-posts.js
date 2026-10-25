@@ -77,17 +77,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Generate real-time preview dynamically
+  // Generate real-time preview dynamically with authentic Google Business reviews
   async function generatePreview() {
     refreshBusinessContext();
-    previewText.innerText = "Generating AI copy and vector banner graphic...";
+    previewText.innerText = "Syncing real reviews & generating custom AI vector banner...";
     previewWrapper.classList.add('hidden');
+
+    const userId = Auth.getUserId();
 
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/test-generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: userId,
+          businessId: BUSINESS_ID,
           locationName: BUSINESS_NAME,
           category: localStorage.getItem('sjbs_business_category') || 'Local Enterprise',
           topics: topicsInput.value,
@@ -137,8 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Event Listeners
-    // Event Listeners with visual click loading state
+  // Event Listeners with visual click loading state
   if (saveSettingsBtn) {
     saveSettingsBtn.addEventListener('click', async () => {
       const originalText = saveSettingsBtn.innerHTML;
@@ -152,8 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (generatePreviewBtn) generatePreviewBtn.addEventListener('click', generatePreview);
-  if (generatePreviewBtn) generatePreviewBtn.addEventListener('click', generatePreview);
+  if (generatePreviewBtn) {
+    generatePreviewBtn.addEventListener('click', generatePreview);
+  }
 
   // Listen for real-time header business selector switches
   window.addEventListener('sjbs_business_changed', () => {
