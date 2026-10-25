@@ -1,14 +1,12 @@
+// js/page-auto-posts.js
 document.addEventListener('DOMContentLoaded', () => {
-  const BACKEND_URL = window.CONFIG?.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
-  
   let BUSINESS_ID = '';
   let BUSINESS_NAME = '';
 
-  // Function to capture active business details securely from storage or URL
+  // Function to capture active business details securely from standardized storage
   function refreshBusinessContext() {
-    const urlParams = new URLSearchParams(window.location.search);
-    BUSINESS_ID = urlParams.get('businessId') || localStorage.getItem('sjbs_selected_business_id') || 'default';
-    BUSINESS_NAME = localStorage.getItem('sjbs_business_name') || 'Our Business';
+    BUSINESS_ID = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
+    BUSINESS_NAME = localStorage.getItem(CONFIG.STORAGE_KEYS.BUSINESS_NAME) || 'My Business';
   }
 
   // DOM Elements
@@ -30,8 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load saved config on initialization
   async function loadSettings() {
     refreshBusinessContext();
+    if (!BUSINESS_ID) return;
+
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.config) {
         autoPostToggle.checked = data.config.enabled || false;
@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Save config
   async function saveSettings() {
     refreshBusinessContext();
+    if (!BUSINESS_ID) {
+      alert('Please select a valid business location first.');
+      return;
+    }
+
     const payload = {
       enabled: autoPostToggle.checked,
       frequency: frequencyInput.value,
@@ -60,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`, {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -72,19 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Generate real-time preview
+  // Generate real-time preview dynamically
   async function generatePreview() {
     refreshBusinessContext();
     previewText.innerText = "Generating AI copy and vector banner graphic...";
     previewWrapper.classList.add('hidden');
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auto-posts/test-generate`, {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/test-generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locationName: BUSINESS_NAME,
-          category: "Local Business",
+          category: localStorage.getItem('sjbs_business_category') || 'Local Enterprise',
           topics: topicsInput.value,
           enableFestivals: enableFestivalsToggle.checked,
           enableReviewSpotlights: enableReviewSpotlightsToggle.checked
@@ -107,8 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load post history
   async function loadHistory() {
     refreshBusinessContext();
+    if (!BUSINESS_ID) return;
+
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.posts && data.posts.length > 0) {
         historyTableBody.innerHTML = data.posts.map(post => `
