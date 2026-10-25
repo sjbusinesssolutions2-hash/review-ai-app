@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
         topicsInput.value = (data.config.topics || []).join(', ');
         enableFestivalsToggle.checked = data.config.enableFestivals !== false;
         enableReviewSpotlightsToggle.checked = data.config.enableReviewSpotlights !== false;
+        
+        // Arm scheduler automatically if automation is enabled
+        if (autoPostToggle.checked && preferredTimeInput.value) {
+          armTimer(preferredTimeInput.value);
+        }
       }
     } catch (err) {
       console.warn('Could not load settings:', err);
@@ -47,7 +52,59 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHistory();
   }
 
-  // Save config
+  // Trigger automated generation & publish action
+  async function triggerAutomatedPublish() {
+    refreshBusinessContext();
+    if (!BUSINESS_ID) return;
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/test-generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: Auth.getUserId(),
+          businessId: BUSINESS_ID,
+          locationName: BUSINESS_NAME,
+          category: localStorage.getItem('sjbs_business_category') || 'Local Enterprise',
+          topics: topicsInput.value,
+          enableFestivals: enableFestivalsToggle.checked,
+          enableReviewSpotlights: enableReviewSpotlightsToggle.checked
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        console.log('[Auto-Post] Published scheduled post successfully!');
+        loadHistory();
+      }
+    } catch (err) {
+      console.error('[Auto-Post] Error publishing scheduled post:', err);
+    }
+  }
+
+  // Arm client-side countdown timer for target publishing time
+  function armTimer(timeString) {
+    if (!timeString) return;
+    const [targetHours, targetMinutes] = timeString.split(':').map(Number);
+    const now = new Date();
+    const target = new Date();
+    target.setHours(targetHours, targetMinutes, 0, 0);
+
+    // If target time has already passed today, set timer for tomorrow
+    if (target <= now) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    const delayMs = target - now;
+    console.log(`[Auto-Post Scheduler] Next post scheduled in ${Math.round(delayMs / 1000 / 60)} minutes.`);
+
+    if (window._autoPostTimer) clearTimeout(window._autoPostTimer);
+    window._autoPostTimer = setTimeout(() => {
+      triggerAutomatedPublish();
+    }, delayMs);
+  }
+
+  // Save config & arm timer
   async function saveSettings() {
     refreshBusinessContext();
     if (!BUSINESS_ID) {
@@ -71,7 +128,14 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if (data.success) alert('Settings saved successfully!');
+      if (data.success) {
+        alert('Settings saved successfully!');
+        if (autoPostToggle.checked) {
+          armTimer(preferredTimeInput.value);
+        } else if (window._autoPostTimer) {
+          clearTimeout(window._autoPostTimer);
+        }
+      }
     } catch (err) {
       alert('Failed to save settings: ' + err.message);
     }
