@@ -72,12 +72,13 @@ function initHeaderEvents() {
 function initProModalAndActiveLinks() {
   const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'inbox';
 
-  // Highlight Active Nav Item
+  // Highlight Active Nav Item properly without breaking pro-link restrictions
   document.querySelectorAll('.nav-item').forEach(item => {
-  if (item.getAttribute('data-nav') === currentPage) {
-    item.className = 'pro-link nav-item flex items-center justify-between w-full px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm transition';
-  }
-});
+    if (item.getAttribute('data-nav') === currentPage) {
+      item.classList.add('bg-blue-50', 'text-blue-600', 'font-bold');
+      item.classList.remove('text-slate-600', 'hover:bg-slate-50', 'hover:text-slate-900');
+    }
+  });
 
   // Pro Interceptor
   const proModal = document.getElementById('pro-lock-modal');
@@ -85,7 +86,7 @@ function initProModalAndActiveLinks() {
 
   document.querySelectorAll('.pro-link').forEach(link => {
     link.addEventListener('click', (e) => {
-      const storedPlan = (localStorage.getItem('sjbs_business_plan') || localStorage.getItem('sjbs_selected_plan') || 'free').toLowerCase();
+      const storedPlan = (localStorage.getItem(CONFIG.STORAGE_KEYS.BUSINESS_PLAN) || 'free').toLowerCase();
       const isPaidUser = storedPlan === 'pro' || storedPlan === 'active';
 
       if (!isPaidUser) {
@@ -102,6 +103,90 @@ function initProModalAndActiveLinks() {
   }
 }
 
+// Dynamically populate business profile context and locations dropdown from MongoDB user record
+function initBusinessContext() {
+  try {
+    const rawUser = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_DATA);
+    if (!rawUser) return;
+
+    const user = JSON.parse(rawUser);
+    const locations = user.locations || [];
+
+    const nameElem = document.getElementById('selected-business-name');
+    const ratingElem = document.getElementById('selected-business-rating');
+    const reviewsElem = document.getElementById('selected-business-reviews');
+    const planElem = document.getElementById('selected-business-plan');
+    const listElem = document.getElementById('locations-list');
+
+    if (!locations.length) {
+      if (nameElem) nameElem.textContent = 'No Locations Connected';
+      return;
+    }
+
+    // Get active business ID from storage or default to the first location
+    let activeBizId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
+    let activeBiz = locations.find(l => (l.locationId || l._id) === activeBizId) || locations[0];
+
+    const currentBizId = activeBiz.locationId || activeBiz._id;
+    localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, currentBizId);
+    localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_NAME, activeBiz.locationName || activeBiz.name || 'My Business');
+    localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_PLAN, activeBiz.subscriptionStatus || user.subscriptionStatus || 'free');
+
+    // Update UI Header Card
+    if (nameElem) nameElem.textContent = activeBiz.locationName || activeBiz.name || 'My Business';
+    if (ratingElem) ratingElem.textContent = activeBiz.rating ? `★ ${activeBiz.rating}` : '★ --';
+    if (reviewsElem) reviewsElem.textContent = activeBiz.reviewCount ? `(${activeBiz.reviewCount} reviews)` : '';
+    
+    const plan = (activeBiz.subscriptionStatus || user.subscriptionStatus || 'free').toUpperCase();
+    if (planElem) {
+      planElem.textContent = plan;
+      if (plan === 'PRO' || plan === 'ACTIVE') {
+        planElem.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+      } else {
+        planElem.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500';
+      }
+    }
+
+    // Render Locations Dropdown List
+    if (listElem) {
+      listElem.innerHTML = locations.map(loc => {
+        const locId = loc.locationId || loc._id;
+        const locName = loc.locationName || loc.name || 'Business Location';
+        const isSelected = locId === currentBizId;
+        return `
+          <button type="button" data-business-id="${locId}" data-business-name="${locName}" data-business-plan="${loc.subscriptionStatus || 'free'}" class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${isSelected ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}">
+            <span class="truncate">${locName}</span>
+            ${isSelected ? '<i class="fa-solid fa-check text-blue-600"></i>' : ''}
+          </button>
+        `;
+      }).join('');
+
+      // Add click listeners to switch active business
+      listElem.querySelectorAll('button[data-business-id]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const bId = btn.getAttribute('data-business-id');
+          const bName = btn.getAttribute('data-business-name');
+          const bPlan = btn.getAttribute('data-business-plan');
+
+          localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, bId);
+          localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_NAME, bName);
+          localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_PLAN, bPlan);
+
+          // Close dropdown and dispatch event
+          const bPop = document.getElementById('locations-menu');
+          if (bPop) bPop.classList.add('hidden');
+
+          window.dispatchEvent(new CustomEvent('sjbs_business_changed', { detail: { businessId: bId } }));
+          window.location.reload();
+        });
+      });
+    }
+  } catch (err) {
+    console.warn('Could not initialize business context:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await loadComponent('header-container', 'components/header.html');
   await loadComponent('sidebar-container', 'components/sidebar.html');
@@ -113,7 +198,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   initHeaderEvents();
   initProModalAndActiveLinks();
+  initBusinessContext();
 
-  // Notify Navigation system that HTML components are ready in the DOM
+  // Notify system that HTML components are ready in the DOM
   window.dispatchEvent(new Event('componentsLoaded'));
 });
