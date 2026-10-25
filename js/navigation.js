@@ -61,7 +61,7 @@ const Navigation = {
       planElem.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
     }
 
-    localStorage.setItem('sjbs_business_plan', 'free');
+    localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_PLAN || 'sjbs_business_plan', 'free');
     localStorage.setItem('sjbs_selected_plan', 'free');
 
     if (locationsList) {
@@ -78,7 +78,6 @@ const Navigation = {
     if (!locationsList) return;
 
     locationsList.innerHTML = this.businesses.map(loc => {
-      // Check pro status cleanly for each location item in the dropdown
       const status = String(loc.subscriptionStatus || loc.plan || 'free').toLowerCase();
       const isPro = status === 'pro' || status === 'active' || loc.hasActivePlan;
 
@@ -97,18 +96,19 @@ const Navigation = {
   selectBusiness(businessId) {
     this.activeBusinessId = businessId;
 
-    if (CONFIG.STORAGE_KEYS && CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID) {
-      localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID, businessId);
-    }
+    const activeKey = CONFIG.STORAGE_KEYS ? CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID : 'sjbs_selected_business_id';
+    localStorage.setItem(activeKey, businessId);
     localStorage.setItem('sjbs_selected_business_id', businessId);
 
     const business = this.businesses.find(b => b.id === businessId);
     if (!business) return;
 
+    localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_NAME || 'sjbs_business_name', business.name);
+
     const rawStatus = business.subscriptionStatus || business.plan || (business.hasActivePlan ? 'pro' : 'free');
     const planStatus = String(rawStatus).toLowerCase();
 
-    localStorage.setItem('sjbs_business_plan', planStatus);
+    localStorage.setItem(CONFIG.STORAGE_KEYS.BUSINESS_PLAN || 'sjbs_business_plan', planStatus);
     localStorage.setItem('sjbs_selected_plan', planStatus);
 
     const nameElem = document.getElementById('selected-business-name');
@@ -129,7 +129,6 @@ const Navigation = {
         : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
     }
 
-    // Robust Header Updating with Retry (Handles async header.html loading)
     const updateHeaderButton = () => {
       const headerPlanContainer = document.getElementById('header-plan-action');
       if (!headerPlanContainer) return false;
@@ -147,7 +146,6 @@ const Navigation = {
       return true;
     };
 
-    // Try immediately, and retry a couple times if header component is still injecting
     if (!updateHeaderButton()) {
       setTimeout(updateHeaderButton, 200);
       setTimeout(updateHeaderButton, 600);
@@ -158,6 +156,8 @@ const Navigation = {
 
     this.renderLocationsList();
 
+    // Dispatch unified events for all page listeners
+    window.dispatchEvent(new CustomEvent('sjbs_business_changed', { detail: { businessId } }));
     window.dispatchEvent(new Event('businessChanged'));
 
     if (window.InboxPage && typeof window.InboxPage.onBusinessChange === 'function') {
@@ -167,14 +167,17 @@ const Navigation = {
 };
 
 async function fetchCurrentUser() {
+  const userId = Auth.getUserId();
+  if (!userId) return;
+
   try {
-    const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?t=${Date.now()}`, {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/me?userId=${encodeURIComponent(userId)}&t=${Date.now()}`, {
       headers: { 'Cache-Control': 'no-cache' }
     });
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA || 'user', JSON.stringify(data.user));
       }
     }
   } catch (err) {
