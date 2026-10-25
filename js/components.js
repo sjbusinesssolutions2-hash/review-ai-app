@@ -74,10 +74,10 @@ function initProModalAndActiveLinks() {
 
   // Highlight Active Nav Item
   document.querySelectorAll('.nav-item').forEach(item => {
-    if (item.getAttribute('data-nav') === currentPage) {
-      item.className = 'flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm';
-    }
-  });
+  if (item.getAttribute('data-nav') === currentPage) {
+    item.className = 'pro-link nav-item flex items-center justify-between w-full px-3 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm transition';
+  }
+});
 
   // Pro Interceptor
   const proModal = document.getElementById('pro-lock-modal');
