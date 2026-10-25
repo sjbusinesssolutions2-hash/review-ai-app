@@ -30,7 +30,7 @@ const ReviewsPage = {
       });
     }
 
-    window.addEventListener('businessChanged', () => {
+    window.addEventListener('sjbs_business_changed', () => {
       this.loadReviews();
     });
 
@@ -42,7 +42,7 @@ const ReviewsPage = {
 
   async loadReviews() {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const businessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
     const container = document.getElementById('reviews-feed-container');
 
     if (!container) return;
@@ -54,7 +54,7 @@ const ReviewsPage = {
             <i class="fa-solid fa-store"></i>
           </div>
           <p class="text-sm font-bold text-slate-900">No Business Location Selected</p>
-          <p class="text-xs text-slate-500">Please choose a business from the top sidebar dropdown.</p>
+          <p class="text-xs text-slate-500">Please choose a business from the top dropdown.</p>
         </div>
       `;
       return;
@@ -327,7 +327,7 @@ const ReviewsPage = {
 
   async submitReply(reviewId) {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const businessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
     const textarea = document.getElementById('drawer-reply-input');
     const sendBtn = document.getElementById('send-reply-btn');
 
