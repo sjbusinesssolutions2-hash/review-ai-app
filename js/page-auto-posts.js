@@ -1,10 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   const BACKEND_URL = window.CONFIG?.BACKEND_URL || 'https://review-ai-backend-03sb.onrender.com';
   
-  // Dynamic fallback for business ID and name
-  const urlParams = new URLSearchParams(window.location.search);
-  const BUSINESS_ID = urlParams.get('businessId') || localStorage.getItem('sjbs_selected_business_id') || 'default';
-  const BUSINESS_NAME = localStorage.getItem('sjbs_business_name') || 'Our Business';
+  let BUSINESS_ID = '';
+  let BUSINESS_NAME = '';
+
+  // Function to capture active business details securely from storage or URL
+  function refreshBusinessContext() {
+    const urlParams = new URLSearchParams(window.location.search);
+    BUSINESS_ID = urlParams.get('businessId') || localStorage.getItem('sjbs_selected_business_id') || 'default';
+    BUSINESS_NAME = localStorage.getItem('sjbs_business_name') || 'Our Business';
+  }
 
   // DOM Elements
   const autoPostToggle = document.getElementById('autoPostToggle');
@@ -24,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load saved config on initialization
   async function loadSettings() {
+    refreshBusinessContext();
     try {
       const res = await fetch(`${BACKEND_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
@@ -43,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Save config
   async function saveSettings() {
+    refreshBusinessContext();
     const payload = {
       enabled: autoPostToggle.checked,
       frequency: frequencyInput.value,
@@ -67,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Generate real-time preview
   async function generatePreview() {
+    refreshBusinessContext();
     previewText.innerText = "Generating AI copy and vector banner graphic...";
     previewWrapper.classList.add('hidden');
 
@@ -98,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load post history
   async function loadHistory() {
+    refreshBusinessContext();
     try {
       const res = await fetch(`${BACKEND_URL}/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
@@ -125,6 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
   if (generatePreviewBtn) generatePreviewBtn.addEventListener('click', generatePreview);
 
-  // Initialize
-  loadSettings();
+  // Listen for real-time header business selector switches
+  window.addEventListener('sjbs_business_changed', () => {
+    loadSettings();
+  });
+
+  // Small delay on initialization to ensure components.js populates localStorage first
+  setTimeout(() => {
+    loadSettings();
+  }, 100);
 });
