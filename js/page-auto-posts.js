@@ -138,7 +138,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Event Listeners
-  if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
+    // Event Listeners with visual click loading state
+  if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', async () => {
+      const originalText = saveSettingsBtn.innerHTML;
+      saveSettingsBtn.disabled = true;
+      saveSettingsBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Saving...</span>`;
+      
+      await saveSettings();
+      
+      saveSettingsBtn.disabled = false;
+      saveSettingsBtn.innerHTML = originalText;
+    });
+  }
+
+  if (generatePreviewBtn) generatePreviewBtn.addEventListener('click', generatePreview);
   if (generatePreviewBtn) generatePreviewBtn.addEventListener('click', generatePreview);
 
   // Listen for real-time header business selector switches
