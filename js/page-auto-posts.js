@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const BUSINESS_ID = new URLSearchParams(window.location.search).get('businessId') || 'default';
+  // Grab business ID and name dynamically from localStorage or URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const BUSINESS_ID = urlParams.get('businessId') || localStorage.getItem('sjbs_selected_business_id') || 'default';
+  const BUSINESS_NAME = localStorage.getItem('sjbs_business_name') || 'Our Business';
 
   // DOM Elements
   const autoPostToggle = document.getElementById('autoPostToggle');
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load saved config on initialization
   async function loadSettings() {
     try {
-      const res = await fetch(`/api/auto-posts/config/${BUSINESS_ID}`);
+      const res = await fetch(`/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.config) {
         autoPostToggle.checked = data.config.enabled || false;
@@ -48,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const res = await fetch(`/api/auto-posts/config/${BUSINESS_ID}`, {
+      const res = await fetch(`/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -70,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          locationName: "SJBS Business Solutions",
-          category: "Business Consultancy",
+          locationName: BUSINESS_NAME,
+          category: "Local Business",
           topics: topicsInput.value,
           enableFestivals: enableFestivalsToggle.checked,
           enableReviewSpotlights: enableReviewSpotlightsToggle.checked
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewImg.src = data.imageUrl;
         previewWrapper.classList.remove('hidden');
       } else {
-        previewText.innerText = "Error: " + data.error;
+        previewText.innerText = "Error: " + (data.error || 'Failed to generate preview');
       }
     } catch (err) {
       previewText.innerText = "Generation failed: " + err.message;
@@ -94,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load post history
   async function loadHistory() {
     try {
-      const res = await fetch(`/api/auto-posts/history/${BUSINESS_ID}`);
+      const res = await fetch(`/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.posts && data.posts.length > 0) {
         historyTableBody.innerHTML = data.posts.map(post => `
