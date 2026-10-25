@@ -17,14 +17,14 @@ const InboxPage = {
   },
 
   bindEvents() {
-    window.addEventListener('businessChanged', () => {
+    window.addEventListener('sjbs_business_changed', () => {
       this.loadInboxTasks();
     });
   },
 
   async loadInboxTasks() {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const businessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
     const container = document.getElementById('inbox-tasks-container');
 
     if (!container) return;
@@ -82,15 +82,9 @@ const InboxPage = {
     return 'U';
   },
 
-    renderTasks() {
+  renderTasks() {
     const container = document.getElementById('inbox-tasks-container');
     if (!container) return;
-
-    const logo = document.getElementById('header-logo') || document.querySelector('.app-logo');
-    const upgradeBtn = document.getElementById('upgrade-plan-btn') || document.querySelector('.upgrade-btn');
-    
-    if (logo) logo.style.display = '';
-    if (upgradeBtn) upgradeBtn.style.display = '';
 
     if (this.unrepliedReviews.length === 0) {
       container.innerHTML = `
@@ -248,7 +242,7 @@ const InboxPage = {
 
   async sendToGoogle(reviewId, replyText) {
     const userId = Auth.getUserId();
-    const businessId = localStorage.getItem('sjbs_selected_business_id') || localStorage.getItem('active_business_id');
+    const businessId = localStorage.getItem(CONFIG.STORAGE_KEYS.ACTIVE_BUSINESS_ID);
     const postBtn = document.getElementById(`post-btn-${reviewId}`);
 
     if (postBtn) {
