@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewImg = document.getElementById('previewBanner');
   const historyTableBody = document.getElementById('historyTableBody');
 
-    // Load saved config on initialization with instant local cache fallback
+  // Load saved config on initialization
   async function loadSettings() {
     refreshBusinessContext();
     
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 1. Instant local display check
+    // 1. Instant local display check from cache
     const cachedConfig = localStorage.getItem(`sjbs_autopost_config_${BUSINESS_ID}`);
     if (cachedConfig) {
       try {
@@ -43,21 +43,22 @@ document.addEventListener('DOMContentLoaded', () => {
         autoPostToggle.checked = parsed.enabled || false;
         frequencyInput.value = parsed.frequency || 'daily';
         preferredTimeInput.value = parsed.preferredTime || '10:00';
-        topicsInput.value = (parsed.topics || []).join(', ');
+        topicsInput.value = Array.isArray(parsed.topics) ? parsed.topics.join(', ') : (parsed.topics || '');
         enableFestivalsToggle.checked = parsed.enableFestivals !== false;
         enableReviewSpotlightsToggle.checked = parsed.enableReviewSpotlights !== false;
       } catch (e) { console.warn('Cache parse error:', e); }
     }
 
-    // 2. Fetch fresh config from backend DB
+    // 2. Fetch fresh config from backend DB (passing userId query param)
     try {
-      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}`);
+      const userId = Auth.getUserId();
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/config/${encodeURIComponent(BUSINESS_ID)}?userId=${encodeURIComponent(userId)}`);
       const data = await res.json();
       if (data.success && data.config) {
         autoPostToggle.checked = data.config.enabled || false;
         frequencyInput.value = data.config.frequency || 'daily';
         preferredTimeInput.value = data.config.preferredTime || '10:00';
-        topicsInput.value = (data.config.topics || []).join(', ');
+        topicsInput.value = Array.isArray(data.config.topics) ? data.config.topics.join(', ') : (data.config.topics || '');
         enableFestivalsToggle.checked = data.config.enableFestivals !== false;
         enableReviewSpotlightsToggle.checked = data.config.enableReviewSpotlights !== false;
 
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadHistory();
   }
-
 
   // Trigger automated generation & publish action
   async function triggerAutomatedPublish() {
@@ -97,15 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await res.json();
       if (data.success) {
-        console.log('[Auto-Post] Published scheduled post successfully!');
+        console.log('[Auto-Post] Preview triggered!');
         loadHistory();
       }
     } catch (err) {
-      console.error('[Auto-Post] Error publishing scheduled post:', err);
+      console.error('[Auto-Post] Error in automated publish:', err);
     }
   }
 
-  // Arm client-side countdown timer for target publishing time
+  // Arm client-side timer
   function armTimer(timeString) {
     if (!timeString) return;
     const [targetHours, targetMinutes] = timeString.split(':').map(Number);
@@ -113,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const target = new Date();
     target.setHours(targetHours, targetMinutes, 0, 0);
 
-    // If target time has already passed today, set timer for tomorrow
     if (target <= now) {
       target.setDate(target.getDate() + 1);
     }
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, delayMs);
   }
 
-    // Save config & cache settings locally
+  // Save config & cache settings locally
   async function saveSettings() {
     refreshBusinessContext();
     if (!BUSINESS_ID) {
@@ -136,10 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const payload = {
+      userId: Auth.getUserId(),
       enabled: autoPostToggle.checked,
       frequency: frequencyInput.value,
       preferredTime: preferredTimeInput.value,
-      topics: topicsInput.value.split(',').map(t => t.trim()).filter(Boolean),
+      topics: topicsInput.value,
       enableFestivals: enableFestivalsToggle.checked,
       enableReviewSpotlights: enableReviewSpotlightsToggle.checked
     };
@@ -153,9 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       
       if (data.success) {
-        // --- ADD THIS LINE HERE TO CACHE LOCALLY ---
         localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(payload));
-
         alert('Settings saved successfully!');
 
         if (autoPostToggle.checked) {
@@ -169,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Generate real-time preview dynamically with authentic Google Business reviews
+  // Generate real-time preview dynamically with authentic Google Business reviews & Gemini SVG
   async function generatePreview() {
     refreshBusinessContext();
     previewText.innerText = "Syncing real reviews & generating custom AI vector banner...";
@@ -205,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Load post history
+  // Load post history and populate table with status tags
   async function loadHistory() {
     refreshBusinessContext();
     if (!BUSINESS_ID) return;
@@ -214,19 +212,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch(`${CONFIG.API_BASE_URL}/api/auto-posts/history/${encodeURIComponent(BUSINESS_ID)}`);
       const data = await res.json();
       if (data.success && data.posts && data.posts.length > 0) {
-        historyTableBody.innerHTML = data.posts.map(post => `
-          <tr class="border-b border-slate-100">
-            <td class="py-2.5 px-2 font-medium text-slate-800">${new Date(post.createdAt || post.scheduledFor).toLocaleString()}</td>
-            <td class="py-2.5 px-2 text-slate-600">${post.postText.substring(0, 70)}...</td>
-            <td class="py-2.5 px-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${post.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                ${post.status || 'PUBLISHED'}
-              </span>
-            </td>
-          </tr>
-        `).join('');
+        historyTableBody.innerHTML = data.posts.slice().reverse().map(post => {
+          const postDate = new Date(post.publishedAt || post.createdAt || Date.now()).toLocaleString();
+          const isLive = post.status === 'LIVE' || post.status === 'PUBLISHED';
+          const badgeClass = isLive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+
+          return `
+            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-2 font-medium text-slate-800 text-xs">${postDate}</td>
+              <td class="py-3 px-2 text-slate-600 text-xs">
+                ${(post.postText || '').substring(0, 80)}${(post.postText || '').length > 80 ? '...' : ''}
+              </td>
+              <td class="py-3 px-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
+                  ${post.status || 'LIVE'}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } else {
-        historyTableBody.innerHTML = `<tr><td colspan="3" class="py-4 text-center text-slate-400">No scheduled posts yet.</td></tr>`;
+        historyTableBody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400">No published posts yet. Saved auto-posts will appear here automatically.</td></tr>`;
       }
     } catch (err) {
       historyTableBody.innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-400">Failed to load post history.</td></tr>`;
