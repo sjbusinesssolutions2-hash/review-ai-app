@@ -151,61 +151,75 @@
   <script src="js/page-auto-posts.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Frequency pill switcher
-      const freqButtons = document.querySelectorAll('.freq-btn');
-      const frequencyInput = document.getElementById('frequency');
+  document.addEventListener('DOMContentLoaded', () => {
+    // Frequency pill switcher
+    const freqButtons = document.querySelectorAll('.freq-btn');
+    const frequencyInput = document.getElementById('frequency');
 
-      freqButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          freqButtons.forEach(b => {
-            b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
-            b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
-          });
-          btn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
-          btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
-          frequencyInput.value = btn.getAttribute('data-value');
+    freqButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        freqButtons.forEach(b => {
+          b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+          b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
         });
+        btn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
+        btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+        frequencyInput.value = btn.getAttribute('data-value');
       });
+    });
 
-      // Check if current location has Pro subscription
-      async function checkProAccess() {
-        const userId = new URLSearchParams(window.location.search).get('userId') || localStorage.getItem('userId');
-        const selectedLocationId = localStorage.getItem('selectedLocationId');
+    // Bulletproof Pro Access Verification
+    async function verifyAndEnforceProAccess() {
+      const userId = Auth ? Auth.getUserId() : localStorage.getItem('userId');
+      const selectedLocationId = localStorage.getItem('selectedLocationId') || localStorage.getItem('sjbs_active_business_id');
 
-        if (!userId || !selectedLocationId) return;
-
-        try {
-          const res = await fetch(`${BACKEND_URL}/api/user/location-status?userId=${userId}&locationId=${encodeURIComponent(selectedLocationId)}`);
-          const data = await res.json();
-
-          if (!data.isPro) {
-            // Replace form with Pro Lock Screen
-            document.getElementById('automationContainer').innerHTML = `
-              <div class="p-8 text-center bg-slate-900 text-white rounded-2xl border border-amber-500/40 shadow-xl space-y-4 my-6">
-                <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-2xl">
-                  <i class="fa-solid fa-lock"></i>
-                </div>
-                <h2 class="text-xl font-bold text-amber-400">Pro Feature Locked</h2>
-                <p class="text-slate-300 text-sm max-w-md mx-auto">
-                  Auto-Posting and AI Banner Generation are exclusive to <strong>Pro</strong> locations. Upgrade this business location to unlock full automation.
-                </p>
-                <div class="pt-2">
-                  <a href="inbox.html" class="inline-block bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 rounded-lg text-sm transition">
-                    Back to Dashboard
-                  </a>
-                </div>
-              </div>
-            `;
-          }
-        } catch (err) {
-          console.error('Error verifying Pro status:', err);
-        }
+      if (!userId || !selectedLocationId) {
+        // Retry shortly if local storage hasn't synced yet
+        setTimeout(verifyAndEnforceProAccess, 300);
+        return;
       }
 
-      // Execute check immediately on load
-      checkProAccess();
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/user/location-status?userId=${userId}&locationId=${encodeURIComponent(selectedLocationId)}`);
+        const data = await res.json();
+
+        // If NOT pro, instantly replace automationContainer with the Upgrade Paywall
+        if (!data.isPro) {
+          document.getElementById('automationContainer').innerHTML = `
+            <div class="p-8 text-center bg-slate-900 text-white rounded-2xl border border-amber-500/50 shadow-2xl space-y-5 my-8">
+              <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-3xl animate-pulse">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <div class="space-y-2">
+                <h2 class="text-2xl font-black text-amber-400">Pro Subscription Required</h2>
+                <p class="text-slate-300 text-sm max-w-md mx-auto">
+                  Auto-Posts, scheduling, and AI banner generation are exclusive Pro features for this business location. Upgrade to unlock full automation.
+                </p>
+              </div>
+              <div class="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+                <a href="inbox.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-5 py-2.5 rounded-xl text-sm transition border border-slate-700">
+                  Back to Dashboard
+                </a>
+                <button onclick="alert('Please contact admin or upgrade plan via your billing panel.')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-lg shadow-amber-500/20">
+                  Upgrade Plan 🚀
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Error verifying subscription status:', err);
+      }
+    }
+
+    // Run check on load
+    verifyAndEnforceProAccess();
+
+    // Re-run check whenever the user switches businesses from the header dropdown
+    window.addEventListener('sjbs_business_changed', () => {
+      setTimeout(verifyAndEnforceProAccess, 400);
     });
-  </script>
+  });
+</script>
 </body>
 </html>
