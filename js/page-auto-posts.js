@@ -150,7 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      
       const data = await res.json();
+      
+      if (!res.ok || !data.success) {
+        alert('Access Denied: ' + (data.error || 'Pro subscription required.'));
+        return;
+      }
       
       if (data.success) {
         localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(payload));
@@ -166,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Failed to save settings: ' + err.message);
     }
   }
+
 
   // Generate real-time preview dynamically with authentic Google Business reviews & Gemini SVG
   async function generatePreview() {
