@@ -166,6 +166,27 @@
         });
       });
 
+      // Check if the current selected location is Pro
+async function checkProAccess() {
+  const selectedLocationId = localStorage.getItem('selectedLocationId'); // or however you store current location state
+  const res = await fetch(`${BACKEND_URL}/api/user/location-status?locationId=${selectedLocationId}`);
+  const data = await res.json();
+
+  if (!data.isPro) {
+    // Hide form content and show upgrade paywall banner
+    document.getElementById('automationContainer').innerHTML = `
+      <div class="p-8 text-center bg-gray-800 rounded-xl border border-amber-500/50 space-y-4">
+        <h2 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-lock mr-2"></i> Pro Feature Locked</h2>
+        <p class="text-gray-300 text-sm">Auto-Posts and AI Banner Generation are exclusive to Pro locations.</p>
+        <button onclick="window.location.href='upgrade.html'" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-6 py-2.5 rounded-lg transition">
+          Upgrade to Pro 🚀
+        </button>
+      </div>
+    `;
+  }
+}
+      
+
       // Hook into initial settings loader to update button UI when config loads
       const originalLoadSettings = window.loadSettings || function() {};
     });
