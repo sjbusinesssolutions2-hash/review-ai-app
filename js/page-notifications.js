@@ -1,33 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Notification page loaded');
-
-  const urlParams = new URLSearchParams(window.location.search);
-  let userId = urlParams.get('userId');
-
-  if (userId) {
-    localStorage.setItem('userId', userId);
-  } else {
-    userId = localStorage.getItem('userId');
-  }
-
+  const userId = Auth.getUserId();
   if (!userId) {
-    alert('User session not found. Please log in again.');
     window.location.href = 'login.html';
     return;
   }
 
-  // Automatically append userId to all internal sidebar/menu links so session isn't lost
-  document.querySelectorAll('a').forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && href.endsWith('.html') && !href.includes('userId=')) {
-      link.setAttribute('href', `${href}?userId=${userId}`);
-    }
-  });
-
-  // Load existing settings from MongoDB
   loadSettings(userId);
 
-  // Save settings button handler
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
