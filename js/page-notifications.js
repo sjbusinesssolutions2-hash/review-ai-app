@@ -1,8 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  // Get userId from URL or LocalStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const userId = urlParams.get('userId') || localStorage.getItem('userId');
+
+  if (!userId) {
+    console.error('No userId found.');
+    return;
+  }
+
+  // Load existing settings
   try {
-    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings?userId=${userId}`);
     if (res.ok) {
       const data = await res.json();
       if (data.supportEmail) document.getElementById('supportEmail').value = data.supportEmail;
@@ -15,10 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Failed to load notification settings:', err);
   }
 
+  // Save settings on button click
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       const payload = {
+        userId: userId, // Pass userId explicitly to match backend expectations
         supportEmail: document.getElementById('supportEmail').value,
         supportPhone: document.getElementById('supportPhone').value,
         weeklyReport: { email: document.getElementById('weeklyEmail').checked },
@@ -30,8 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(payload)
         });
