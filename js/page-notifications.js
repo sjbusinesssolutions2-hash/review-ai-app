@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', async () => {
+async function initNotificationPage() {
+  console.log('Notification page script running...');
+  
   // Grab userId from URL parameters or localStorage
   const urlParams = new URLSearchParams(window.location.search);
   const userId = urlParams.get('userId') || localStorage.getItem('userId');
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
+      console.log('Save Settings button clicked');
       const payload = {
         userId: userId,
         supportEmail: document.getElementById('supportEmail').value,
@@ -59,5 +62,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Error connecting to backend server.');
       }
     });
+  } else {
+    console.warn('saveSettingsBtn element not found in DOM.');
   }
-});
+}
+
+// Ensure execution whether DOMContentLoaded already fired or not
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNotificationPage);
+} else {
+  initNotificationPage();
+}
