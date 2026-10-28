@@ -1,16 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('Please log in again.');
+  console.log('Notification page loaded');
+
+  // Grab userId from URL query params or fallback to cached localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  let userId = urlParams.get('userId');
+
+  if (userId) {
+    localStorage.setItem('userId', userId);
+  } else {
+    userId = localStorage.getItem('userId');
+  }
+
+  if (!userId) {
+    alert('User session not found. Please log in again.');
+    window.location.href = 'login.html';
     return;
   }
 
-  loadSettings(token);
+  // Load existing settings from MongoDB
+  loadSettings(userId);
 
+  // Save settings button handler
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       const payload = {
+        userId: userId,
         supportEmail: document.getElementById('supportEmail').value,
         supportPhone: document.getElementById('supportPhone').value,
         weeklyReport: { email: document.getElementById('weeklyEmail').checked },
@@ -21,31 +36,28 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
         const result = await response.json();
+
         if (response.ok && result.success) {
           alert('Notification settings saved successfully!');
         } else {
           alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
         }
       } catch (err) {
+        console.error('Network error saving settings:', err);
         alert('Error connecting to backend server.');
       }
     });
   }
 });
 
-async function loadSettings(token) {
+async function loadSettings(userId) {
   try {
-    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings?userId=${userId}`);
     if (res.ok) {
       const data = await res.json();
       if (data.supportEmail) document.getElementById('supportEmail').value = data.supportEmail;
@@ -55,6 +67,6 @@ async function loadSettings(token) {
       if (data.productUpdates?.email !== undefined) document.getElementById('updatesEmail').checked = data.productUpdates.email;
     }
   } catch (err) {
-    console.error('Failed to load settings');
+    console.error('Failed to load notification settings:', err);
   }
 }
