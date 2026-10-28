@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  // Get userId from URL or LocalStorage
+  // Grab userId from URL parameters or localStorage
   const urlParams = new URLSearchParams(window.location.search);
   const userId = urlParams.get('userId') || localStorage.getItem('userId');
 
   if (!userId) {
-    console.error('No userId found.');
+    console.error('No userId found in URL or localStorage.');
+    alert('User session not found. Please log in again.');
     return;
   }
 
@@ -23,12 +24,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Failed to load notification settings:', err);
   }
 
-  // Save settings on button click
+  // Save settings handler
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       const payload = {
-        userId: userId, // Pass userId explicitly to match backend expectations
+        userId: userId,
         supportEmail: document.getElementById('supportEmail').value,
         supportPhone: document.getElementById('supportPhone').value,
         weeklyReport: { email: document.getElementById('weeklyEmail').checked },
@@ -45,14 +46,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
+        const result = await response.json();
+
+        if (response.ok && result.success) {
           alert('Notification settings saved successfully!');
         } else {
-          alert('Failed to save settings.');
+          alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
         }
       } catch (err) {
-        console.error(err);
-        alert('Error connecting to backend.');
+        console.error('Network error saving settings:', err);
+        alert('Error connecting to backend server.');
       }
     });
   }
