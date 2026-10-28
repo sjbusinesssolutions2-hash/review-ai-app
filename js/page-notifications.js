@@ -1,23 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Notification page loaded');
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Please log in again.');
+    return;
+  }
 
-  // Load existing settings on page open
-  loadSettings();
+  loadSettings(token);
 
-  // Save button click handler (always attached)
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('userId') || localStorage.getItem('userId');
-
-      if (!userId) {
-        alert('User session not found. Please log in again.');
-        return;
-      }
-
       const payload = {
-        userId: userId,
         supportEmail: document.getElementById('supportEmail').value,
         supportPhone: document.getElementById('supportPhone').value,
         weeklyReport: { email: document.getElementById('weeklyEmail').checked },
@@ -28,32 +21,31 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(payload)
         });
 
         const result = await response.json();
-
         if (response.ok && result.success) {
           alert('Notification settings saved successfully!');
         } else {
           alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
         }
       } catch (err) {
-        console.error('Network error saving settings:', err);
         alert('Error connecting to backend server.');
       }
     });
   }
 });
 
-async function loadSettings() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const userId = urlParams.get('userId') || localStorage.getItem('userId');
-  if (!userId) return;
-
+async function loadSettings(token) {
   try {
-    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings?userId=${userId}`);
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     if (res.ok) {
       const data = await res.json();
       if (data.supportEmail) document.getElementById('supportEmail').value = data.supportEmail;
@@ -63,6 +55,6 @@ async function loadSettings() {
       if (data.productUpdates?.email !== undefined) document.getElementById('updatesEmail').checked = data.productUpdates.email;
     }
   } catch (err) {
-    console.error('Failed to load notification settings:', err);
+    console.error('Failed to load settings');
   }
 }
