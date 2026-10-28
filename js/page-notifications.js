@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Notification page loaded');
 
-  // Grab userId from URL query params or fallback to cached localStorage
   const urlParams = new URLSearchParams(window.location.search);
   let userId = urlParams.get('userId');
 
@@ -16,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'login.html';
     return;
   }
+
+  // Automatically append userId to all internal sidebar/menu links so session isn't lost
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href.endsWith('.html') && !href.includes('userId=')) {
+      link.setAttribute('href', `${href}?userId=${userId}`);
+    }
+  });
 
   // Load existing settings from MongoDB
   loadSettings(userId);
