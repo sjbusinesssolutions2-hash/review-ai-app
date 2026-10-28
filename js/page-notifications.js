@@ -48,13 +48,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const result = await response.json();
 
-        const result = await response.json();
-
-if (response.ok && result.success) {
-  alert('Notification settings saved successfully!');
-} else {
-  alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
-}
+        if (response.ok && result.success) {
+          alert('Notification settings saved successfully!');
+        } else {
+          alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
+        }
 
       } catch (err) {
         console.error('Network error saving settings:', err);
