@@ -1,17 +1,57 @@
-async function initNotificationPage() {
-  console.log('Notification page script running...');
-  
-  // Grab userId from URL parameters or localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Notification page loaded');
+
+  // Load existing settings on page open
+  loadSettings();
+
+  // Save button click handler (always attached)
+  const saveBtn = document.getElementById('saveSettingsBtn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('userId') || localStorage.getItem('userId');
+
+      if (!userId) {
+        alert('User session not found. Please log in again.');
+        return;
+      }
+
+      const payload = {
+        userId: userId,
+        supportEmail: document.getElementById('supportEmail').value,
+        supportPhone: document.getElementById('supportPhone').value,
+        weeklyReport: { email: document.getElementById('weeklyEmail').checked },
+        criticalAlerts: { email: document.getElementById('criticalEmail').checked },
+        productUpdates: { email: document.getElementById('updatesEmail').checked }
+      };
+
+      try {
+        const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          alert('Notification settings saved successfully!');
+        } else {
+          alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
+        }
+      } catch (err) {
+        console.error('Network error saving settings:', err);
+        alert('Error connecting to backend server.');
+      }
+    });
+  }
+});
+
+async function loadSettings() {
   const urlParams = new URLSearchParams(window.location.search);
   const userId = urlParams.get('userId') || localStorage.getItem('userId');
+  if (!userId) return;
 
-  if (!userId) {
-    console.error('No userId found in URL or localStorage.');
-    alert('User session not found. Please log in again.');
-    return;
-  }
-
-  // Load existing settings
   try {
     const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings?userId=${userId}`);
     if (res.ok) {
@@ -25,51 +65,4 @@ async function initNotificationPage() {
   } catch (err) {
     console.error('Failed to load notification settings:', err);
   }
-
-  // Save settings handler
-  const saveBtn = document.getElementById('saveSettingsBtn');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', async () => {
-      console.log('Save Settings button clicked');
-      const payload = {
-        userId: userId,
-        supportEmail: document.getElementById('supportEmail').value,
-        supportPhone: document.getElementById('supportPhone').value,
-        weeklyReport: { email: document.getElementById('weeklyEmail').checked },
-        criticalAlerts: { email: document.getElementById('criticalEmail').checked },
-        productUpdates: { email: document.getElementById('updatesEmail').checked }
-      };
-
-      try {
-        const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          alert('Notification settings saved successfully!');
-        } else {
-          alert(`Failed to save settings: ${result.error || 'Unknown error'}`);
-        }
-
-      } catch (err) {
-        console.error('Network error saving settings:', err);
-        alert('Error connecting to backend server.');
-      }
-    });
-  } else {
-    console.warn('saveSettingsBtn element not found in DOM.');
-  }
-}
-
-// Ensure execution whether DOMContentLoaded already fired or not
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initNotificationPage);
-} else {
-  initNotificationPage();
 }
