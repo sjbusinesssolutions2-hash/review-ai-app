@@ -36,11 +36,11 @@
 
     <!-- Contact Details Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
-      <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between">
-        <span class="text-xs sm:text-sm text-slate-600 font-medium">Add mobile number to receive SMS</span>
-        <button type="button" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
+      <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between opacity-70">
+        <span class="text-xs sm:text-sm text-slate-500 font-medium">Add mobile number to receive SMS</span>
+        <span class="text-xs font-bold text-slate-400 flex items-center gap-1 cursor-not-allowed">
           <i class="fa-solid fa-phone text-[10px]"></i> Add
-        </button>
+        </span>
       </div>
 
       <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-600">
@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <!-- Critical Review Support Routing Card (NEW FEATURE) -->
+    <!-- Critical Review Support Routing Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-5">
       <div class="space-y-1">
         <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <!-- Notification Preferences List -->
+    <!-- Notification Preferences List (Email Only Active) -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
       
       <!-- Weekly Report Option -->
@@ -87,8 +87,8 @@
           <span class="text-xs sm:text-sm font-bold text-slate-800">Weekly Performance Report</span>
         </div>
         <div class="flex items-center space-x-4 text-xs">
-          <label class="flex items-center space-x-1.5 cursor-pointer text-slate-400">
-            <input type="checkbox" id="weeklySms" class="rounded border-slate-300 text-blue-600">
+          <label class="flex items-center space-x-1.5 text-slate-300 cursor-not-allowed">
+            <input type="checkbox" disabled class="rounded border-slate-200 bg-slate-100">
             <span>SMS</span>
           </label>
           <label class="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-bold">
@@ -107,8 +107,8 @@
           <span class="text-xs sm:text-sm font-bold text-slate-800">Instant Critical Review Alerts</span>
         </div>
         <div class="flex items-center space-x-4 text-xs">
-          <label class="flex items-center space-x-1.5 cursor-pointer text-slate-400">
-            <input type="checkbox" id="criticalSms" class="rounded border-slate-300 text-blue-600">
+          <label class="flex items-center space-x-1.5 text-slate-300 cursor-not-allowed">
+            <input type="checkbox" disabled class="rounded border-slate-200 bg-slate-100">
             <span>SMS</span>
           </label>
           <label class="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-bold">
@@ -127,8 +127,8 @@
           <span class="text-xs sm:text-sm font-bold text-slate-800">Product Updates & Offers</span>
         </div>
         <div class="flex items-center space-x-4 text-xs">
-          <label class="flex items-center space-x-1.5 cursor-pointer text-slate-400">
-            <input type="checkbox" id="updatesSms" class="rounded border-slate-300 text-blue-600">
+          <label class="flex items-center space-x-1.5 text-slate-300 cursor-not-allowed">
+            <input type="checkbox" disabled class="rounded border-slate-200 bg-slate-100">
             <span>SMS</span>
           </label>
           <label class="flex items-center space-x-1.5 cursor-pointer text-slate-700 font-bold">
@@ -163,4 +163,3 @@
   <script src="js/page-notifications.js"></script>
 </body>
 </html>
-
