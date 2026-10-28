@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  // Load existing settings on page load if needed
   try {
     const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -8,31 +7,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await res.json();
       if (data.supportEmail) document.getElementById('supportEmail').value = data.supportEmail;
       if (data.supportPhone) document.getElementById('supportPhone').value = data.supportPhone;
-      // Map other checkboxes if present in data...
+      if (data.weeklyReport?.email !== undefined) document.getElementById('weeklyEmail').checked = data.weeklyReport.email;
+      if (data.criticalAlerts?.email !== undefined) document.getElementById('criticalEmail').checked = data.criticalAlerts.email;
+      if (data.productUpdates?.email !== undefined) document.getElementById('updatesEmail').checked = data.productUpdates.email;
     }
   } catch (err) {
     console.error('Failed to load notification settings:', err);
   }
 
-  // Handle Save
   const saveBtn = document.getElementById('saveSettingsBtn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       const payload = {
         supportEmail: document.getElementById('supportEmail').value,
         supportPhone: document.getElementById('supportPhone').value,
-        weeklyReport: {
-          sms: document.getElementById('weeklySms').checked,
-          email: document.getElementById('weeklyEmail').checked
-        },
-        criticalAlerts: {
-          sms: document.getElementById('criticalSms').checked,
-          email: document.getElementById('criticalEmail').checked
-        },
-        productUpdates: {
-          sms: document.getElementById('updatesSms').checked,
-          email: document.getElementById('updatesEmail').checked
-        }
+        weeklyReport: { email: document.getElementById('weeklyEmail').checked },
+        criticalAlerts: { email: document.getElementById('criticalEmail').checked },
+        productUpdates: { email: document.getElementById('updatesEmail').checked }
       };
 
       try {
