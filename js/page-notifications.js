@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        const response = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/notifications/settings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadSettings(userId) {
   try {
-    const res = await fetch(`${CONFIG.BACKEND_URL}/api/notifications/settings?userId=${userId}`);
+    const res = await fetch(`${CONFIG.API_BASE_URL}/api/notifications/settings?userId=${userId}`);
     if (res.ok) {
       const data = await res.json();
       if (data.supportEmail) document.getElementById('supportEmail').value = data.supportEmail;
