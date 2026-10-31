@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadSettings() {
     refreshBusinessContext();
     
-    // If business ID isn't set yet, wait a moment and try again
     if (!BUSINESS_ID) {
       setTimeout(loadSettings, 300);
       return;
@@ -41,7 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const parsed = JSON.parse(cachedConfig);
         autoPostToggle.checked = parsed.enabled || false;
-        frequencyInput.value = parsed.frequency || 'daily';
+        
+        const cachedFreq = (parsed.frequency || 'daily').toLowerCase();
+        if (window.setFrequencyUI) window.setFrequencyUI(cachedFreq);
+
         preferredTimeInput.value = parsed.preferredTime || '10:00';
         topicsInput.value = Array.isArray(parsed.topics) ? parsed.topics.join(', ') : (parsed.topics || '');
         enableFestivalsToggle.checked = parsed.enableFestivals !== false;
@@ -56,14 +58,26 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (data.success && data.config) {
         autoPostToggle.checked = data.config.enabled || false;
-        frequencyInput.value = data.config.frequency || 'daily';
+        
+        // Sync visual pills & hidden input with server state
+        const targetFrequency = (data.config.frequency || 'daily').toLowerCase();
+        if (window.setFrequencyUI) {
+          window.setFrequencyUI(targetFrequency);
+        } else {
+          frequencyInput.value = targetFrequency;
+        }
+
         preferredTimeInput.value = data.config.preferredTime || '10:00';
         topicsInput.value = Array.isArray(data.config.topics) ? data.config.topics.join(', ') : (data.config.topics || '');
         enableFestivalsToggle.checked = data.config.enableFestivals !== false;
         enableReviewSpotlightsToggle.checked = data.config.enableReviewSpotlights !== false;
 
         // Sync local cache
-        localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(data.config));
+        const updatedCache = {
+          ...data.config,
+          frequency: targetFrequency
+        };
+        localStorage.setItem(`sjbs_autopost_config_${BUSINESS_ID}`, JSON.stringify(updatedCache));
 
         if (autoPostToggle.checked && preferredTimeInput.value) {
           armTimer(preferredTimeInput.value);
@@ -134,10 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const selectedFrequency = (frequencyInput.value || 'daily').toLowerCase();
+
     const payload = {
       userId: Auth.getUserId(),
       enabled: autoPostToggle.checked,
-      frequency: frequencyInput.value,
+      frequency: selectedFrequency,
       preferredTime: preferredTimeInput.value,
       topics: topicsInput.value,
       enableFestivals: enableFestivalsToggle.checked,
@@ -172,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Failed to save settings: ' + err.message);
     }
   }
-
 
   // Generate real-time preview dynamically with authentic Google Business reviews & Gemini SVG
   async function generatePreview() {
