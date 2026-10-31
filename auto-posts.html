@@ -35,7 +35,7 @@
       <p class="text-xs sm:text-sm text-slate-500">Configure automated AI copy and vector graphic generation for your business.</p>
     </div>
 
-    <!-- WRAPPER CONTAINER ADDED HERE (automationContainer) -->
+    <!-- WRAPPER CONTAINER -->
     <div id="automationContainer">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
@@ -56,9 +56,9 @@
               <label class="block text-xs font-semibold text-slate-600 mb-1.5">Posting Frequency</label>
               <div class="grid grid-cols-2 gap-2" id="frequencyGroup">
                 <button type="button" data-value="daily" class="freq-btn py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition-all hover:bg-slate-100">Daily</button>
-                <button type="button" data-value="weekly" class="freq-btn py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-blue-600 text-white border-blue-600 shadow-sm">Weekly</button>
+                <button type="button" data-value="weekly" class="freq-btn py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition-all hover:bg-slate-100">Weekly</button>
               </div>
-              <input type="hidden" id="frequency" value="weekly">
+              <input type="hidden" id="frequency" value="daily">
             </div>
 
             <div>
@@ -152,38 +152,48 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Frequency pill switcher
     const freqButtons = document.querySelectorAll('.freq-btn');
     const frequencyInput = document.getElementById('frequency');
 
-    freqButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        freqButtons.forEach(b => {
+    // Global helper to keep active UI pills in sync with value
+    window.setFrequencyUI = function(val) {
+      if (!val) return;
+      const normalizedVal = val.toLowerCase();
+      freqButtons.forEach(b => {
+        const btnVal = b.getAttribute('data-value').toLowerCase();
+        if (btnVal === normalizedVal) {
+          b.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
+          b.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+        } else {
           b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
           b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
-        });
-        btn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
-        btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
-        frequencyInput.value = btn.getAttribute('data-value');
+        }
+      });
+      if (frequencyInput) frequencyInput.value = normalizedVal;
+    };
+
+    // Frequency pill click event handler
+    freqButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-value');
+        window.setFrequencyUI(val);
       });
     });
 
-    // Bulletproof Pro Access Verification
+    // Pro Access Verification
     async function verifyAndEnforceProAccess() {
       const userId = Auth ? Auth.getUserId() : localStorage.getItem('userId');
       const selectedLocationId = localStorage.getItem('selectedLocationId') || localStorage.getItem('sjbs_active_business_id');
 
       if (!userId || !selectedLocationId) {
-        // Retry shortly if local storage hasn't synced yet
         setTimeout(verifyAndEnforceProAccess, 300);
         return;
       }
 
       try {
-        const res = await fetch(`${BACKEND_URL}/api/user/location-status?userId=${userId}&locationId=${encodeURIComponent(selectedLocationId)}`);
+        const res = await fetch(`${CONFIG.API_BASE_URL || BACKEND_URL}/api/user/location-status?userId=${userId}&locationId=${encodeURIComponent(selectedLocationId)}`);
         const data = await res.json();
 
-        // If NOT pro, instantly replace automationContainer with the Upgrade Paywall
         if (!data.isPro) {
           document.getElementById('automationContainer').innerHTML = `
             <div class="p-8 text-center bg-slate-900 text-white rounded-2xl border border-amber-500/50 shadow-2xl space-y-5 my-8">
@@ -212,10 +222,8 @@
       }
     }
 
-    // Run check on load
     verifyAndEnforceProAccess();
 
-    // Re-run check whenever the user switches businesses from the header dropdown
     window.addEventListener('sjbs_business_changed', () => {
       setTimeout(verifyAndEnforceProAccess, 400);
     });
